@@ -301,12 +301,33 @@
             position: fixed;
             top: 10px;
             right: 10px;
-            background: rgba(0,0,0,0.8);
+            background: rgba(255,0,0,0.9);
             color: white;
-            padding: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 9999;
+            max-width: 300px;
+            border: 2px solid yellow;
+            font-family: monospace;
+        }
+
+        .test-buttons {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 9999;
+        }
+
+        .test-btn {
+            background: orange;
+            color: black;
+            padding: 8px 12px;
+            margin: 2px;
+            border: none;
             border-radius: 5px;
             font-size: 12px;
-            z-index: 9999;
+            cursor: pointer;
         }
 
         @media (max-width: 480px) {
@@ -353,7 +374,13 @@
     </style>
 </head>
 <body>
-    <div class="debug" id="debug">Loading...</div>
+    <div class="debug" id="debug">🐛 DEBUG: App starting...</div>
+
+    <!-- Test buttons -->
+    <div class="test-buttons">
+        <button class="test-btn" onclick="testSorting()">Test Sortering</button>
+        <button class="test-btn" onclick="showCurrentData()">Show Data</button>
+    </div>
 
     <!-- Home Screen -->
     <div class="screen active" id="homeScreen">
@@ -434,11 +461,34 @@
     </div>
 
     <script>
-        // Debug function
-        function updateDebug(message) {
-            const debug = document.getElementById('debug');
-            if (debug) debug.textContent = message;
-            console.log('DEBUG:', message);
+        // Test functions for debugging
+        window.testSorting = function() {
+            // Add test data
+            window.leaderboardData = [
+                { name: 'Alice', time: '00:30:50', timeValue: 3050, timestamp: new Date().toISOString() },
+                { name: 'Bob', time: '01:15:25', timeValue: 7525, timestamp: new Date().toISOString() },
+                { name: 'Carol', time: '00:45:10', timeValue: 4510, timestamp: new Date().toISOString() }
+            ];
+            
+            updateDebug('TEST: Before sort - Alice:3050, Bob:7525, Carol:4510');
+            
+            // Sort
+            window.leaderboardData.sort((a, b) => {
+                const result = b.timeValue - a.timeValue;
+                console.log(`SORT: ${a.name}(${a.timeValue}) vs ${b.name}(${b.timeValue}) = ${result}`);
+                return result;
+            });
+            
+            updateDebug('TEST: After sort - ' + window.leaderboardData.map(e => e.name + ':' + e.timeValue).join(', '));
+            
+            updateLeaderboard();
+            showScreen('leaderboardScreen');
+        }
+
+        window.showCurrentData = function() {
+            const data = window.leaderboardData.map(e => `${e.name}: ${e.time} (${e.timeValue})`).join('\n');
+            updateDebug('CURRENT DATA:\n' + (data || 'No data'));
+            alert('Leaderboard data:\n' + (data || 'No data yet'));
         }
 
         updateDebug('Script starting...');
