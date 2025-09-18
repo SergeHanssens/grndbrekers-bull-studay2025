@@ -517,7 +517,11 @@
                 <h3>📷 Foto van Rijder</h3>
                 <div class="photo-preview" id="photoPreview">📷</div>
                 <input type="file" class="file-input" id="photoInput" accept="image/*" capture="user">
-                <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">Maak Foto</button>
+                <div style="margin: 15px 0;">
+                    <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">📱 Maak Foto</button>
+                    <button class="btn" onclick="skipPhoto()" style="background: linear-gradient(45deg, #6c757d, #5a6268); font-size: 14px; padding: 10px 15px;">⏭️ Sla Foto Over</button>
+                </div>
+                <p style="font-size: 12px; opacity: 0.7; text-align: center; margin: 10px 0;">Foto wordt automatisch gecomprimeerd om geheugen te sparen</p>
             </div>
             
             <div class="time-inputs">
@@ -556,7 +560,10 @@
             <div style="margin-top: 30px;">
                 <button class="btn" onclick="goToScreen('timeEntryScreen')">← Meer Tijden Toevoegen</button>
                 <button class="btn" onclick="goToScreen('nameEntryScreen')">Nieuwe Rijders</button>
-                <button class="btn" onclick="resetAll()" style="background: linear-gradient(45deg, #dc2626, #b91c1c);">🗑️ Reset Alles</button>
+                <div style="margin-top: 10px;">
+                    <button class="btn" onclick="clearOldPhotos()" style="background: linear-gradient(45deg, #ffc107, #e0a800); color: #000;">📸 Verwijder Foto's</button>
+                    <button class="btn" onclick="resetAll()" style="background: linear-gradient(45deg, #dc2626, #b91c1c);">🗑️ Reset Alles</button>
+                </div>
             </div>
         </div>
     </div>
@@ -622,22 +629,80 @@
             });
         }
 
-        // Handle photo input
+        // Handle photo input with compression
         document.getElementById('photoInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentPhoto = e.target.result;
-                    const img = document.createElement('img');
-                    img.src = currentPhoto;
-                    const preview = document.getElementById('photoPreview');
-                    preview.innerHTML = '';
-                    preview.appendChild(img);
-                };
-                reader.readAsDataURL(file);
+                // Check file size (warn if > 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Foto is erg groot (>10MB). Even geduld voor compressie...');
+                }
+                
+                compressAndPreviewPhoto(file);
             }
         });
+
+        function compressAndPreviewPhoto(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Create canvas for compression
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Set maximum dimensions (keep aspect ratio)
+                    const maxWidth = 400;
+                    const maxHeight = 400;
+                    
+                    let { width, height } = img;
+                    
+                    // Calculate new dimensions
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width *= maxHeight / height;
+                            height = maxHeight;
+                        }
+                    }
+                    
+                    // Set canvas size and draw image
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Draw image on canvas (this resizes it)
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Convert to compressed JPEG (0.7 quality = good balance)
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    // Check compressed size
+                    const compressedSizeKB = Math.round(compressedDataUrl.length * 0.75 / 1024);
+                    console.log(`Foto gecomprimeerd: ${img.width}x${img.height} → ${width}x${height}, ~${compressedSizeKB}KB`);
+                    
+                    // Store compressed photo
+                    currentPhoto = compressedDataUrl;
+                    
+                    // Show preview
+                    const previewImg = document.createElement('img');
+                    previewImg.src = compressedDataUrl;
+                    const preview = document.getElementById('photoPreview');
+                    preview.innerHTML = '';
+                    preview.appendChild(previewImg);
+                    
+                    // Show success message
+                    if (compressedSizeKB > 200) {
+                        console.warn('Foto nog steeds groot:', compressedSizeKB, 'KB');
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
 
         function goToScreen(screenId) {
             // Hide all screens
@@ -799,53 +864,138 @@
             const timeString = `${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}:${hundredths.padStart(2, '0')}`;
             const timeValue = parseInt(minutes) * 6000 + parseInt(seconds) * 100 + parseInt(hundredths);
 
-            // Update rider with time and photo
-            riders[riderIndex].time = timeString;
-            riders[riderIndex].timeValue = timeValue;
-            riders[riderIndex].photo = currentPhoto;
-
-            // Add/update in leaderboard
-            const existingIndex = leaderboardData.findIndex(entry => entry.name === riders[riderIndex].name);
-            
-            const entry = {
-                name: riders[riderIndex].name,
-                time: timeString,
-                timeValue: timeValue,
-                photo: currentPhoto,
-                timestamp: new Date().toISOString()
-            };
-
-            if (existingIndex >= 0) {
-                leaderboardData[existingIndex] = entry;
-            } else {
-                leaderboardData.push(entry);
+            // Check localStorage size before saving
+            const storageCheck = checkStorageSpace();
+            if (!storageCheck.canSave) {
+                alert(`⚠️ Niet genoeg geheugen! ${storageCheck.message}\n\nProbeer zonder foto of verwijder oude data.`);
+                return;
             }
-            
-            // Sort leaderboard (highest time first)
-            leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
-            
-            // Keep only top 10
-            leaderboardData = leaderboardData.slice(0, 10);
 
-            // Save data
-            saveRiders();
-            localStorage.setItem('rodeoLeaderboard', JSON.stringify(leaderboardData));
+            try {
+                // Update rider with time and photo
+                riders[riderIndex].time = timeString;
+                riders[riderIndex].timeValue = timeValue;
+                riders[riderIndex].photo = currentPhoto;
 
-            // Update UI
-            updateRidersList();
-            updateRiderDropdown();
-            updateNextButtonVisibility();
-            updateAllLeaderboards();
-            
-            // Clear form
-            document.getElementById('riderSelect').value = '';
-            clearTimeInputs();
-            hidePhotoSection();
-            
-            // Show leaderboard button
-            document.getElementById('viewLeaderboardBtn').style.display = 'inline-block';
-            
-            alert(`Tijd toegevoegd voor ${riders[riderIndex].name}: ${timeString}`);
+                // Add/update in leaderboard
+                const existingIndex = leaderboardData.findIndex(entry => entry.name === riders[riderIndex].name);
+                
+                const entry = {
+                    name: riders[riderIndex].name,
+                    time: timeString,
+                    timeValue: timeValue,
+                    photo: currentPhoto,
+                    timestamp: new Date().toISOString()
+                };
+
+                if (existingIndex >= 0) {
+                    leaderboardData[existingIndex] = entry;
+                } else {
+                    leaderboardData.push(entry);
+                }
+                
+                // Sort leaderboard (highest time first)
+                leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
+                
+                // Keep only top 10
+                leaderboardData = leaderboardData.slice(0, 10);
+
+                // Save data
+                saveRiders();
+                localStorage.setItem('rodeoLeaderboard', JSON.stringify(leaderboardData));
+
+                // Update UI
+                updateRidersList();
+                updateRiderDropdown();
+                updateNextButtonVisibility();
+                updateAllLeaderboards();
+                
+                // Clear form
+                document.getElementById('riderSelect').value = '';
+                clearTimeInputs();
+                hidePhotoSection();
+                
+                // Show leaderboard button
+                document.getElementById('viewLeaderboardBtn').style.display = 'inline-block';
+                
+                alert(`✅ Tijd toegevoegd voor ${riders[riderIndex].name}: ${timeString}`);
+                
+            } catch (error) {
+                console.error('Error saving data:', error);
+                alert('❌ Fout bij opslaan! Probeer zonder foto of verwijder oude data.');
+            }
+        }
+
+        function skipPhoto() {
+            currentPhoto = null;
+            document.getElementById('photoPreview').innerHTML = '❌ Geen foto';
+            console.log('Foto overgeslagen - minder geheugen gebruikt');
+        }
+
+        function clearOldPhotos() {
+            if (confirm('Wil je alle foto\'s verwijderen om geheugen vrij te maken?\n\n(Namen en tijden blijven behouden)')) {
+                // Remove photos from riders
+                riders.forEach(rider => {
+                    if (rider.photo) {
+                        rider.photo = null;
+                    }
+                });
+                
+                // Remove photos from leaderboard
+                leaderboardData.forEach(entry => {
+                    if (entry.photo) {
+                        entry.photo = null;
+                    }
+                });
+                
+                // Save updated data
+                saveRiders();
+                localStorage.setItem('rodeoLeaderboard', JSON.stringify(leaderboardData));
+                
+                // Update UI
+                updateAllLeaderboards();
+                
+                alert('✅ Alle foto\'s verwijderd! Geheugen vrijgemaakt.');
+            }
+        }
+            try {
+                // Test if we can save current data
+                const testData = JSON.stringify({
+                    riders: riders,
+                    leaderboard: leaderboardData,
+                    testPhoto: currentPhoto
+                });
+                
+                // Rough size calculation (base64 is ~1.33x original)
+                const dataSizeKB = Math.round(testData.length / 1024);
+                const maxSizeKB = 5120; // 5MB localStorage limit (conservative)
+                
+                console.log(`Storage check: ${dataSizeKB}KB van ~${maxSizeKB}KB gebruikt`);
+                
+                if (dataSizeKB > maxSizeKB) {
+                    return {
+                        canSave: false,
+                        message: `Data te groot (${dataSizeKB}KB). Foto's te groot!`
+                    };
+                }
+                
+                // Try actual localStorage test
+                const testKey = 'storage_test_' + Date.now();
+                localStorage.setItem(testKey, testData);
+                localStorage.removeItem(testKey);
+                
+                return {
+                    canSave: true,
+                    message: `OK (${dataSizeKB}KB gebruikt)`
+                };
+                
+            } catch (error) {
+                console.error('Storage check failed:', error);
+                return {
+                    canSave: false,
+                    message: 'Geheugen vol! Verwijder oude data of gebruik kleinere foto\'s.'
+                };
+            }
         }
 
         function updateAllLeaderboards() {
