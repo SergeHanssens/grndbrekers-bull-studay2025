@@ -622,7 +622,7 @@
             window.leaderboardData.push(entry);
             
             // Sort by time (SHORTEST first - who fell off first)
-            window.leaderboardData.sort((a, b) => a.timeValue - b.timeValue);
+            window.leaderboardData.sort((b, a) => a.timeValue - b.timeValue);
             
             // Keep ALL entries (no limit)
 
