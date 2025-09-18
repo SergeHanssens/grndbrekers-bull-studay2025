@@ -80,6 +80,8 @@
             min-height: 50px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block;
+            width: auto;
         }
 
         .btn:hover {
@@ -103,7 +105,7 @@
             backdrop-filter: blur(10px);
         }
 
-        .input-field::placeholder, select.input-field option {
+        .input-field::placeholder {
             color: rgba(255,255,255,0.7);
         }
 
@@ -117,10 +119,16 @@
             color: white;
         }
 
-        .added-names {
-            max-height: 200px;
-            overflow-y: auto;
-            margin: 20px 0;
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
         }
 
         .rider-tag {
@@ -142,21 +150,6 @@
             font-weight: bold;
         }
 
-        .rider-tag .time-badge {
-            background: #4CAF50;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 12px;
-            margin-left: 8px;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 15px rgba(76,175,80,0.3);
-        }
-
         .time-inputs {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -164,255 +157,54 @@
             margin: 20px 0;
         }
 
-        .photo-preview {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            margin: 20px auto;
+        .leaderboard-entry {
             background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .photo-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .leaderboard-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .leaderboard-logo {
-            max-width: 200px;
-            max-height: 100px;
-            object-fit: contain;
-            margin: 0 auto 10px;
-            display: block;
-        }
-
-        .photo-section {
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .photo-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            margin: 15px auto;
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-
-        .photo-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .photo-btn {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-            margin-bottom: 10px;
-            font-size: 14px;
-            padding: 10px 20px;
-        }
-
-        /* Top 3 styling */
-        .top-three-container {
-            display: flex;
-            justify-content: center;
-            align-items: end;
-            margin: 20px 0;
-            gap: 15px;
-        }
-
-        .top-rider {
-            text-align: center;
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
+            margin: 10px 0;
             padding: 15px;
-            backdrop-filter: blur(10px);
-            min-width: 100px;
-        }
-
-        .top-rider.first {
-            order: 2;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000;
-            transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(255,215,0,0.3);
-        }
-
-        .top-rider.second {
-            order: 1;
-            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
-            color: #000;
-        }
-
-        .top-rider.third {
-            order: 3;
-            background: linear-gradient(135deg, #CD7F32, #B8860B);
-            color: #fff;
-        }
-
-        .top-rider-photo {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            margin: 0 auto 10px;
-            background: rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 3px solid rgba(255,255,255,0.5);
-        }
-
-        .top-rider.first .top-rider-photo {
-            width: 80px;
-            height: 80px;
-            border-color: #fff;
-        }
-
-        .top-rider-photo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .top-rider-medal {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .top-rider.first .top-rider-medal {
-            font-size: 32px;
-        }
-
-        .top-rider-name {
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .top-rider.first .top-rider-name {
-            font-size: 16px;
-        }
-
-        .top-rider-time {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .top-rider.first .top-rider-time {
-            font-size: 14px;
-            opacity: 1;
-        }
-
-        /* Remaining riders */
-        .remaining-riders {
-            margin-top: 30px;
-        }
-
-        .remaining-riders h3 {
-            text-align: center;
-            margin-bottom: 15px;
-            opacity: 0.8;
-        }
-
-        .remaining-leaderboard {
-            max-height: 300px;
-            overflow-y: auto;
-            background: rgba(255,255,255,0.05);
             border-radius: 15px;
-            padding: 10px;
-        }
-
-        .remaining-entry {
-            background: rgba(255,255,255,0.1);
-            margin: 8px 0;
-            padding: 12px;
-            border-radius: 10px;
             display: grid;
-            grid-template-columns: 40px 60px 1fr 80px;
-            gap: 10px;
+            grid-template-columns: 50px 1fr 100px;
+            gap: 15px;
             align-items: center;
             backdrop-filter: blur(10px);
         }
 
-        .remaining-position {
+        .position {
+            font-size: 24px;
             font-weight: bold;
-            text-align: center;
+            color: #FFD700;
         }
 
-        .remaining-photo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.3);
+        .rider-info h3 {
+            margin: 0 0 5px 0;
         }
 
-        .remaining-photo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .remaining-name {
+        .time {
+            font-size: 18px;
             font-weight: bold;
         }
 
-        .remaining-time {
-            text-align: center;
-            font-weight: bold;
-        }
-
-        /* Sync info */
-        .sync-info {
-            text-align: center;
-            margin-top: 20px;
-            opacity: 0.6;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .photo-btn {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        h2 {
+        h1, h2 {
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .current-rider {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
+        .added-names {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+
+        .debug {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 9999;
         }
 
         @media (max-width: 480px) {
@@ -429,100 +221,48 @@
                 font-size: 16px;
             }
         }
-
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
+    <div class="debug" id="debug">Loading...</div>
+
     <!-- Home Screen -->
     <div class="screen active" id="homeScreen">
         <div class="screen-content">
             <div class="logo-container">
-                <div class="logo" id="logoDisplay">
+                <div class="logo">
                     <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo.jpg" 
-                         alt="GRNDbrekers Bull Riding Logo" 
-                         id="mainLogo"
-                         onerror="showFallbackLogo()">
-                    <!-- Fallback SVG logo (hidden by default) -->
-                    <svg width="300" height="180" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" id="fallbackLogo" style="display: none;">
-                        <!-- Bull horns -->
-                        <path d="M 50 60 Q 20 30 40 20 Q 60 30 80 40" fill="#ff6b35"/>
-                        <path d="M 220 60 Q 280 30 260 20 Q 240 30 220 40" fill="#ff6b35"/>
-                        
-                        <!-- GRND outline text -->
-                        <text x="150" y="70" font-family="Arial Black, sans-serif" font-size="36" font-weight="900" 
-                              fill="none" stroke="#ff6b35" stroke-width="2.5" text-anchor="middle">GRND</text>
-                        
-                        <!-- BREKERS filled text -->
-                        <text x="150" y="105" font-family="Arial Black, sans-serif" font-size="20" font-weight="900" 
-                              fill="#000000" text-anchor="middle">BREKERS</text>
-                        
-                        <!-- Bull face/snout -->
-                        <ellipse cx="150" cy="130" rx="25" ry="8" fill="#ff6b35"/>
-                        <ellipse cx="145" cy="132" rx="2" ry="1" fill="#000"/>
-                        <ellipse cx="155" cy="132" rx="2" ry="1" fill="#000"/>
-                        
-                        <!-- LEADERBOARD text -->
-                        <text x="120" y="160" font-family="Arial Black, sans-serif" font-size="14" font-weight="900" 
-                              fill="#dc2626" text-anchor="middle">LEADER</text>
-                        <text x="150" y="160" font-family="Arial Black, sans-serif" font-size="14" font-weight="900" 
-                              fill="#000000" text-anchor="middle" transform="rotate(-10 150 160)">BO</text>
-                        <text x="180" y="160" font-family="Arial Black, sans-serif" font-size="14" font-weight="900" 
-                              fill="#dc2626" text-anchor="middle">ARD</text>
-                    </svg>
+                         alt="GRNDbrekers Logo"
+                         onerror="this.outerHTML='<div style=color:white;font-size:18px;>🛠️ GRNDbrekers 🐂<br><small>Bull Riding Leaderboard</small></div>';">
                 </div>
             </div>
-            <button class="btn" onclick="console.log('Button clicked!'); if(typeof goToScreen === 'function') { goToScreen('nameEntryScreen'); } else { alert('JavaScript error - refresh page'); }">Start Leaderboard!</button>
+            <button class="btn" onclick="showScreen('nameEntryScreen')">Start Leaderboard!</button>
         </div>
     </div>
 
     <!-- Name Entry Screen -->
     <div class="screen" id="nameEntryScreen">
-        <button class="back-btn" onclick="goToScreen('homeScreen')">← Terug</button>
+        <button class="back-btn" onclick="showScreen('homeScreen')">← Terug</button>
         <div class="screen-content">
             <h2>Voeg Rijders Toe</h2>
             <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder">
-            <div class="added-names" id="addedNames">
-                <!-- Namen zonder tijd worden hier getoond -->
-            </div>
+            <div class="added-names" id="addedNames"></div>
             <button class="btn" onclick="addRider()">+ Voeg Rijder Toe</button>
             <div style="margin-top: 20px;">
-                <button class="btn" onclick="goToScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Naar Tijden →</button>
-                <button class="btn" onclick="goToScreen('leaderboardScreen')" style="background: linear-gradient(45deg, #FFD700, #FFA500);">🏆 Bekijk Leaderboard</button>
+                <button class="btn" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Naar Tijden →</button>
+                <button class="btn" onclick="showScreen('leaderboardScreen')" style="background: linear-gradient(45deg, #FFD700, #FFA500);">🏆 Bekijk Leaderboard</button>
             </div>
         </div>
     </div>
 
     <!-- Time Entry Screen -->
     <div class="screen" id="timeEntryScreen">
-        <button class="back-btn" onclick="goToScreen('nameEntryScreen')">← Terug</button>
+        <button class="back-btn" onclick="showScreen('nameEntryScreen')">← Terug</button>
         <div class="screen-content">
             <h2>Voeg Tijd Toe</h2>
             <select class="input-field" id="riderSelect">
-                <option value="">Selecteer rijder zonder tijd...</option>
+                <option value="">Selecteer rijder...</option>
             </select>
-            
-            <!-- Photo section -->
-            <div class="photo-section" id="photoSection" style="display: none;">
-                <h3>📷 Foto van Rijder</h3>
-                <div class="photo-preview" id="photoPreview">📷</div>
-                <input type="file" class="file-input" id="photoInput" accept="image/*" capture="user">
-                <div style="margin: 15px 0;">
-                    <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">📱 Maak Foto</button>
-                    <button class="btn" onclick="skipPhoto()" style="background: linear-gradient(45deg, #6c757d, #5a6268); font-size: 14px; padding: 10px 15px;">⏭️ Sla Foto Over</button>
-                </div>
-                <p style="font-size: 12px; opacity: 0.7; text-align: center; margin: 10px 0;">Foto wordt automatisch gecomprimeerd om geheugen te sparen</p>
-            </div>
             
             <div class="time-inputs">
                 <input type="number" class="input-field" id="minutes" placeholder="Min" min="0" max="59">
@@ -531,8 +271,8 @@
             </div>
             <button class="btn" onclick="addTime()">Voeg Tijd Toe</button>
             <div style="margin-top: 20px;">
-                <button class="btn" onclick="goToScreen('nameEntryScreen')" style="background: linear-gradient(45deg, #2196F3, #1976D2);">← Naar Rijders Toevoegen</button>
-                <button class="btn" onclick="goToScreen('leaderboardScreen')" id="viewLeaderboardBtn" style="display: none;">Bekijk Leaderboard</button>
+                <button class="btn" onclick="showScreen('nameEntryScreen')" style="background: linear-gradient(45deg, #2196F3, #1976D2);">← Naar Rijders</button>
+                <button class="btn" onclick="showScreen('leaderboardScreen')">Bekijk Leaderboard</button>
             </div>
         </div>
     </div>
@@ -540,284 +280,138 @@
     <!-- Leaderboard Screen -->
     <div class="screen" id="leaderboardScreen">
         <div class="screen-content">
-            <!-- Logo als header in plaats van beker -->
-            <div class="leaderboard-header">
-                <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo.jpg" 
-                     alt="GRNDbrekers Logo" class="leaderboard-logo"
-                     onerror="this.style.display='none'; document.getElementById('leaderboard-title-fallback').style.display='block';">
-                <h2 id="leaderboard-title-fallback" style="display: none;">🏆 Leaderboard</h2>
-            </div>
-            
-            <!-- Top 3 (groot) -->
-            <div id="topThree"></div>
-            
-            <!-- Rest (scrollable lijst) -->
-            <div class="remaining-riders">
-                <h3>Overige Rankings:</h3>
-                <div id="remainingLeaderboard"></div>
-            </div>
-            
+            <h2>🏆 Leaderboard</h2>
+            <div id="leaderboard"></div>
             <div style="margin-top: 30px;">
-                <button class="btn" onclick="goToScreen('timeEntryScreen')">← Meer Tijden Toevoegen</button>
-                <button class="btn" onclick="goToScreen('nameEntryScreen')">Nieuwe Rijders</button>
-                <div style="margin-top: 10px;">
-                    <button class="btn" onclick="clearOldPhotos()" style="background: linear-gradient(45deg, #ffc107, #e0a800); color: #000;">📸 Verwijder Foto's</button>
-                    <button class="btn" onclick="resetAll()" style="background: linear-gradient(45deg, #dc2626, #b91c1c);">🗑️ Reset Alles</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Leaderboard Only Screen (nieuw) -->
-    <div class="screen" id="leaderboardOnlyScreen">
-        <div class="screen-content">
-            <div class="leaderboard-header">
-                <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo.jpg" 
-                     alt="GRNDbrekers Logo" class="leaderboard-logo"
-                     onerror="this.style.display='none'; document.getElementById('leaderboard-only-title-fallback').style.display='block';">
-                <h2 id="leaderboard-only-title-fallback" style="display: none;">🏆 Live Leaderboard</h2>
-            </div>
-            
-            <div id="topThreeOnly"></div>
-            <div class="remaining-riders">
-                <h3>Overige Rankings:</h3>
-                <div id="remainingLeaderboardOnly"></div>
-            </div>
-            
-            <div class="sync-info">
-                <p><small>🔄 Auto-refresh elke 5 seconden</small></p>
+                <button class="btn" onclick="showScreen('timeEntryScreen')">← Tijden Toevoegen</button>
+                <button class="btn" onclick="showScreen('nameEntryScreen')">Nieuwe Rijders</button>
+                <button class="btn" onclick="resetAll()" style="background: linear-gradient(45deg, #dc2626, #b91c1c);">🗑️ Reset</button>
             </div>
         </div>
     </div>
 
     <script>
-        let riders = [];
-        let leaderboardData = [];
-        let currentPhoto = null;
-
-        // Show fallback logo if main logo fails to load
-        function showFallbackLogo() {
-            document.getElementById('mainLogo').style.display = 'none';
-            document.getElementById('fallbackLogo').style.display = 'block';
-            console.log('Using fallback SVG logo - update the image path in your images branch');
+        // Debug function
+        function updateDebug(message) {
+            const debug = document.getElementById('debug');
+            if (debug) debug.textContent = message;
+            console.log('DEBUG:', message);
         }
 
-        // Handle photo input with compression (wait for page load)
-        window.addEventListener('load', function() {
-            const savedRiders = localStorage.getItem('rodeoRiders');
-            const savedLeaderboard = localStorage.getItem('rodeoLeaderboard');
+        updateDebug('Script starting...');
+
+        // Global variables
+        window.riders = [];
+        window.leaderboardData = [];
+
+        // Simple screen navigation
+        window.showScreen = function(screenId) {
+            updateDebug('Switching to: ' + screenId);
             
-            if (savedRiders) {
-                riders = JSON.parse(savedRiders);
-                updateRidersList();
-                updateRiderDropdown();
-                updateNextButtonVisibility();
-            }
-            
-            if (savedLeaderboard) {
-                leaderboardData = JSON.parse(savedLeaderboard);
-                updateAllLeaderboards();
-            }
-            
-            // Setup photo input handler after page load
-            const photoInput = document.getElementById('photoInput');
-            if (photoInput) {
-                photoInput.addEventListener('change', function(event) {
-                    const file = event.target.files[0];
-                    if (file) {
-                        // Check file size (warn if > 10MB)
-                        if (file.size > 10 * 1024 * 1024) {
-                            alert('Foto is erg groot (>10MB). Even geduld voor compressie...');
-                        }
-                        
-                        compressAndPreviewPhoto(file);
-                    }
-                });
-            }
-            
-            // Setup rider select handler
-            const riderSelect = document.getElementById('riderSelect');
-            if (riderSelect) {
-                riderSelect.addEventListener('change', function() {
-                    if (this.value) {
-                        showPhotoSection();
-                    } else {
-                        hidePhotoSection();
-                    }
-                });
-            }
-        });
-
-        // Register service worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(function(registration) {
-                console.log('ServiceWorker registration successful');
-            }).catch(function(err) {
-                console.log('ServiceWorker registration failed');
-            });
-        }
-
-        // Test function to check if JavaScript is working
-        function testJS() {
-            console.log('JavaScript is working! goToScreen function available.');
-            return true;
-        }
-
-        // Call test on load
-        window.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, JavaScript functions should be available');
-            testJS();
-        });
-
-        // Global error handler
-        window.addEventListener('error', function(e) {
-            console.error('JavaScript Error:', e.error);
-            console.error('File:', e.filename, 'Line:', e.lineno);
-        });
-
-        function compressAndPreviewPhoto(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    // Create canvas for compression
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Set maximum dimensions (keep aspect ratio)
-                    const maxWidth = 400;
-                    const maxHeight = 400;
-                    
-                    let { width, height } = img;
-                    
-                    // Calculate new dimensions
-                    if (width > height) {
-                        if (width > maxWidth) {
-                            height *= maxWidth / width;
-                            width = maxWidth;
-                        }
-                    } else {
-                        if (height > maxHeight) {
-                            width *= maxHeight / height;
-                            height = maxHeight;
-                        }
-                    }
-                    
-                    // Set canvas size and draw image
-                    canvas.width = width;
-                    canvas.height = height;
-                    
-                    // Draw image on canvas (this resizes it)
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Convert to compressed JPEG (0.7 quality = good balance)
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                    
-                    // Check compressed size
-                    const compressedSizeKB = Math.round(compressedDataUrl.length * 0.75 / 1024);
-                    console.log(`Foto gecomprimeerd: ${img.width}x${img.height} → ${width}x${height}, ~${compressedSizeKB}KB`);
-                    
-                    // Store compressed photo
-                    currentPhoto = compressedDataUrl;
-                    
-                    // Show preview
-                    const previewImg = document.createElement('img');
-                    previewImg.src = compressedDataUrl;
-                    const preview = document.getElementById('photoPreview');
-                    preview.innerHTML = '';
-                    preview.appendChild(previewImg);
-                    
-                    // Show success message
-                    if (compressedSizeKB > 200) {
-                        console.warn('Foto nog steeds groot:', compressedSizeKB, 'KB');
-                    }
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function goToScreen(screenId) {
             // Hide all screens
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => screen.classList.remove('active'));
             
             // Show target screen
-            document.getElementById(screenId).classList.add('active');
-            
-            // Update dropdown when going to time entry
-            if (screenId === 'timeEntryScreen') {
-                updateRiderDropdown();
-                hidePhotoSection();
-                clearTimeInputs();
-            }
-            
-            // Update leaderboards when viewing them
-            if (screenId === 'leaderboardScreen' || screenId === 'leaderboardOnlyScreen') {
-                updateAllLeaderboards();
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+                updateDebug('Screen active: ' + screenId);
+                
+                // Update dropdown when going to time screen
+                if (screenId === 'timeEntryScreen') {
+                    updateRiderDropdown();
+                }
+                
+                // Update leaderboard when viewing
+                if (screenId === 'leaderboardScreen') {
+                    updateLeaderboard();
+                }
+            } else {
+                updateDebug('ERROR: Screen not found: ' + screenId);
             }
         }
 
-        function addRider() {
-            const riderName = document.getElementById('riderName').value.trim();
+        // Add rider function
+        window.addRider = function() {
+            updateDebug('Adding rider...');
             
-            if (!riderName) {
+            const nameInput = document.getElementById('riderName');
+            const name = nameInput ? nameInput.value.trim() : '';
+            
+            if (!name) {
                 alert('Voer een naam in!');
                 return;
             }
             
-            // Check if rider already exists
-            if (riders.find(rider => rider.name.toLowerCase() === riderName.toLowerCase())) {
+            // Check if exists
+            if (window.riders.find(r => r.name.toLowerCase() === name.toLowerCase())) {
                 alert('Deze naam bestaat al!');
                 return;
             }
             
-            // Add rider to array
-            riders.push({
-                name: riderName,
+            // Add rider
+            window.riders.push({
+                name: name,
                 time: null,
                 timeValue: null,
-                photo: null,
                 timestamp: new Date().toISOString()
             });
             
             // Clear input
-            document.getElementById('riderName').value = '';
+            nameInput.value = '';
             
-            // Save and update UI
-            saveRiders();
+            // Save and update
+            saveData();
             updateRidersList();
             updateRiderDropdown();
-            updateNextButtonVisibility();
-        }
-
-        function removeRider(index) {
-            const rider = riders[index];
-            if (rider.time) {
-                // Remove from leaderboard too
-                leaderboardData = leaderboardData.filter(entry => entry.name !== rider.name);
-                localStorage.setItem('rodeoLeaderboard', JSON.stringify(leaderboardData));
+            
+            // Show next button if we have riders
+            const nextBtn = document.getElementById('nextToTimeBtn');
+            if (nextBtn && window.riders.length > 0) {
+                nextBtn.style.display = 'inline-block';
             }
             
-            riders.splice(index, 1);
-            saveRiders();
-            updateRidersList();
-            updateRiderDropdown();
-            updateNextButtonVisibility();
-            updateAllLeaderboards();
+            updateDebug('Rider added: ' + name + ' (total: ' + window.riders.length + ')');
         }
 
+        // Remove rider function  
+        window.removeRider = function(index) {
+            updateDebug('Removing rider at index: ' + index);
+            
+            if (window.riders[index]) {
+                const rider = window.riders[index];
+                
+                // Remove from leaderboard if has time
+                if (rider.time) {
+                    window.leaderboardData = window.leaderboardData.filter(entry => entry.name !== rider.name);
+                }
+                
+                // Remove from riders
+                window.riders.splice(index, 1);
+                
+                // Update UI
+                saveData();
+                updateRidersList();
+                updateRiderDropdown();
+                updateLeaderboard();
+                
+                updateDebug('Rider removed. Remaining: ' + window.riders.length);
+            }
+        }
+
+        // Update riders list
         function updateRidersList() {
             const container = document.getElementById('addedNames');
+            if (!container) return;
+            
             container.innerHTML = '';
             
-            // Only show riders WITHOUT time
-            const ridersWithoutTime = riders.filter(rider => !rider.time);
+            // Only show riders without time
+            const ridersWithoutTime = window.riders.filter(r => !r.time);
             
-            ridersWithoutTime.forEach((rider, originalIndex) => {
-                // Find original index in full riders array
-                const fullIndex = riders.findIndex(r => r.name === rider.name);
+            ridersWithoutTime.forEach((rider) => {
+                const fullIndex = window.riders.findIndex(r => r.name === rider.name);
                 
                 const tag = document.createElement('div');
                 tag.className = 'rider-tag';
@@ -828,17 +422,20 @@
                 container.appendChild(tag);
             });
             
-            if (ridersWithoutTime.length === 0 && riders.length > 0) {
-                container.innerHTML = '<p style="text-align: center; opacity: 0.7; font-style: italic;">Alle rijders hebben al een tijd!</p>';
+            if (ridersWithoutTime.length === 0 && window.riders.length > 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Alle rijders hebben al een tijd!</p>';
             }
         }
 
+        // Update dropdown
         function updateRiderDropdown() {
             const select = document.getElementById('riderSelect');
-            select.innerHTML = '<option value="">Selecteer rijder zonder tijd...</option>';
+            if (!select) return;
             
-            // Only show riders WITHOUT time
-            riders.forEach((rider, index) => {
+            select.innerHTML = '<option value="">Selecteer rijder...</option>';
+            
+            // Only riders without time
+            window.riders.forEach((rider, index) => {
                 if (!rider.time) {
                     const option = document.createElement('option');
                     option.value = index;
@@ -848,35 +445,10 @@
             });
         }
 
-        function updateNextButtonVisibility() {
-            const hasRidersWithoutTime = riders.some(rider => !rider.time);
-            const nextBtn = document.getElementById('nextToTimeBtn');
-            if (hasRidersWithoutTime) {
-                nextBtn.style.display = 'inline-block';
-            } else {
-                nextBtn.style.display = 'none';
-            }
-        }
-
-        function showPhotoSection() {
-            document.getElementById('photoSection').style.display = 'block';
-        }
-
-        function hidePhotoSection() {
-            document.getElementById('photoSection').style.display = 'none';
-            currentPhoto = null;
-            document.getElementById('photoPreview').innerHTML = '📷';
-        }
-
-        function clearTimeInputs() {
-            document.getElementById('minutes').value = '';
-            document.getElementById('seconds').value = '';
-            document.getElementById('hundredths').value = '';
-        }
-
-
-
-        function addTime() {
+        // Add time function
+        window.addTime = function() {
+            updateDebug('Adding time...');
+            
             const riderIndex = document.getElementById('riderSelect').value;
             const minutes = document.getElementById('minutes').value || '0';
             const seconds = document.getElementById('seconds').value || '0';
@@ -890,272 +462,161 @@
             const timeString = `${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}:${hundredths.padStart(2, '0')}`;
             const timeValue = parseInt(minutes) * 6000 + parseInt(seconds) * 100 + parseInt(hundredths);
 
-            // Check localStorage size before saving
-            const storageCheck = checkStorageSpace();
-            if (!storageCheck.canSave) {
-                alert(`⚠️ Niet genoeg geheugen! ${storageCheck.message}\n\nProbeer zonder foto of verwijder oude data.`);
+            // Update rider
+            window.riders[riderIndex].time = timeString;
+            window.riders[riderIndex].timeValue = timeValue;
+
+            // Add to leaderboard
+            const entry = {
+                name: window.riders[riderIndex].name,
+                time: timeString,
+                timeValue: timeValue,
+                timestamp: new Date().toISOString()
+            };
+
+            // Remove existing entry if any
+            window.leaderboardData = window.leaderboardData.filter(e => e.name !== entry.name);
+            window.leaderboardData.push(entry);
+            
+            // Sort by time (highest first)
+            window.leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
+            
+            // Keep top 10
+            window.leaderboardData = window.leaderboardData.slice(0, 10);
+
+            // Save and update
+            saveData();
+            updateRidersList();
+            updateRiderDropdown();
+            
+            // Clear form
+            document.getElementById('riderSelect').value = '';
+            document.getElementById('minutes').value = '';
+            document.getElementById('seconds').value = '';
+            document.getElementById('hundredths').value = '';
+            
+            alert(`✅ Tijd toegevoegd voor ${entry.name}: ${timeString}`);
+            updateDebug('Time added for: ' + entry.name);
+        }
+
+        // Update leaderboard display
+        function updateLeaderboard() {
+            const container = document.getElementById('leaderboard');
+            if (!container) return;
+            
+            container.innerHTML = '';
+
+            if (window.leaderboardData.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nog geen tijden toegevoegd...</p>';
                 return;
             }
 
-            try {
-                // Update rider with time and photo
-                riders[riderIndex].time = timeString;
-                riders[riderIndex].timeValue = timeValue;
-                riders[riderIndex].photo = currentPhoto;
-
-                // Add/update in leaderboard
-                const existingIndex = leaderboardData.findIndex(entry => entry.name === riders[riderIndex].name);
+            window.leaderboardData.forEach((entry, index) => {
+                const div = document.createElement('div');
+                div.className = 'leaderboard-entry';
                 
-                const entry = {
-                    name: riders[riderIndex].name,
-                    time: timeString,
-                    timeValue: timeValue,
-                    photo: currentPhoto,
-                    timestamp: new Date().toISOString()
-                };
+                const medals = ['🥇', '🥈', '🥉'];
+                const position = index < 3 ? medals[index] : `#${index + 1}`;
+                
+                div.innerHTML = `
+                    <div class="position">${position}</div>
+                    <div class="rider-info">
+                        <h3>${entry.name}</h3>
+                        <small>${new Date(entry.timestamp).toLocaleDateString('nl-NL')}</small>
+                    </div>
+                    <div class="time">${entry.time}</div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
 
-                if (existingIndex >= 0) {
-                    leaderboardData[existingIndex] = entry;
-                } else {
-                    leaderboardData.push(entry);
+        // Save data to localStorage
+        function saveData() {
+            try {
+                localStorage.setItem('rodeoRiders', JSON.stringify(window.riders));
+                localStorage.setItem('rodeoLeaderboard', JSON.stringify(window.leaderboardData));
+                updateDebug('Data saved');
+            } catch (e) {
+                updateDebug('Save failed: ' + e.message);
+            }
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            try {
+                const savedRiders = localStorage.getItem('rodeoRiders');
+                const savedLeaderboard = localStorage.getItem('rodeoLeaderboard');
+                
+                if (savedRiders) {
+                    window.riders = JSON.parse(savedRiders);
+                    updateDebug('Loaded ' + window.riders.length + ' riders');
                 }
                 
-                // Sort leaderboard (highest time first)
-                leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
-                
-                // Keep only top 10
-                leaderboardData = leaderboardData.slice(0, 10);
-
-                // Save data
-                saveRiders();
-                localStorage.setItem('rodeoLeaderboard', JSON.stringify(leaderboardData));
-
-                // Update UI
-                updateRidersList();
-                updateRiderDropdown();
-                updateNextButtonVisibility();
-                updateAllLeaderboards();
-                
-                // Clear form
-                document.getElementById('riderSelect').value = '';
-                clearTimeInputs();
-                hidePhotoSection();
-                
-                // Show leaderboard button
-                document.getElementById('viewLeaderboardBtn').style.display = 'inline-block';
-                
-                alert(`✅ Tijd toegevoegd voor ${riders[riderIndex].name}: ${timeString}`);
-                
-            } catch (error) {
-                console.error('Error saving data:', error);
-                alert('❌ Fout bij opslaan! Probeer zonder foto of verwijder oude data.');
-            }
-        }
-
-        function skipPhoto() {
-            currentPhoto = null;
-            document.getElementById('photoPreview').innerHTML = '❌ Geen foto';
-            console.log('Foto overgeslagen - minder geheugen gebruikt');
-        }
-
-        function clearOldPhotos() {
-            if (confirm('Wil je alle foto\'s verwijderen om geheugen vrij te maken?\n\n(Namen en tijden blijven behouden)')) {
-                // Remove photos from riders
-                riders.forEach(rider => {
-                    if (rider.photo) {
-                        rider.photo = null;
-                    }
-                });
-                
-                // Remove photos from leaderboard
-                leaderboardData.forEach(entry => {
-                    if (entry.photo) {
-                        entry.photo = null;
-                    }
-                });
-                
-                // Save updated data
-                saveRiders();
-                localStorage.setItem('rodeoLeaderboard', JSON.stringify(leaderboardData));
-                
-                // Update UI
-                updateAllLeaderboards();
-                
-                alert('✅ Alle foto\'s verwijderd! Geheugen vrijgemaakt.');
-            }
-        }
-            try {
-                // Test if we can save current data
-                const testData = JSON.stringify({
-                    riders: riders,
-                    leaderboard: leaderboardData,
-                    testPhoto: currentPhoto
-                });
-                
-                // Rough size calculation (base64 is ~1.33x original)
-                const dataSizeKB = Math.round(testData.length / 1024);
-                const maxSizeKB = 5120; // 5MB localStorage limit (conservative)
-                
-                console.log(`Storage check: ${dataSizeKB}KB van ~${maxSizeKB}KB gebruikt`);
-                
-                if (dataSizeKB > maxSizeKB) {
-                    return {
-                        canSave: false,
-                        message: `Data te groot (${dataSizeKB}KB). Foto's te groot!`
-                    };
+                if (savedLeaderboard) {
+                    window.leaderboardData = JSON.parse(savedLeaderboard);
+                    updateDebug('Loaded ' + window.leaderboardData.length + ' leaderboard entries');
                 }
-                
-                // Try actual localStorage test
-                const testKey = 'storage_test_' + Date.now();
-                localStorage.setItem(testKey, testData);
-                localStorage.removeItem(testKey);
-                
-                return {
-                    canSave: true,
-                    message: `OK (${dataSizeKB}KB gebruikt)`
-                };
-                
-            } catch (error) {
-                console.error('Storage check failed:', error);
-                return {
-                    canSave: false,
-                    message: 'Geheugen vol! Verwijder oude data of gebruik kleinere foto\'s.'
-                };
+            } catch (e) {
+                updateDebug('Load failed: ' + e.message);
+                window.riders = [];
+                window.leaderboardData = [];
             }
         }
 
-        function updateAllLeaderboards() {
-            updateTopThree('topThree');
-            updateRemainingLeaderboard('remainingLeaderboard');
-            updateTopThree('topThreeOnly');
-            updateRemainingLeaderboard('remainingLeaderboardOnly');
-        }
-
-        function updateTopThree(containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            
-            const topThree = leaderboardData.slice(0, 3);
-            
-            if (topThree.length > 0) {
-                const topThreeContainer = document.createElement('div');
-                topThreeContainer.className = 'top-three-container';
-                
-                topThree.forEach((entry, index) => {
-                    const positions = ['first', 'second', 'third'];
-                    const medals = ['🥇', '🥈', '🥉'];
-                    
-                    const riderDiv = document.createElement('div');
-                    riderDiv.className = `top-rider ${positions[index]}`;
-                    
-                    riderDiv.innerHTML = `
-                        <div class="top-rider-medal">${medals[index]}</div>
-                        <div class="top-rider-photo">
-                            ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}">` : '👤'}
-                        </div>
-                        <div class="top-rider-name">${entry.name}</div>
-                        <div class="top-rider-time">${entry.time}</div>
-                    `;
-                    
-                    topThreeContainer.appendChild(riderDiv);
-                });
-                
-                container.appendChild(topThreeContainer);
-            }
-        }
-
-        function updateRemainingLeaderboard(containerId) {
-            const container = document.getElementById(containerId);
-            const remainingEntries = leaderboardData.slice(3);
-            
-            if (remainingEntries.length > 0) {
-                const remainingContainer = document.createElement('div');
-                remainingContainer.className = 'remaining-leaderboard';
-                
-                remainingEntries.forEach((entry, index) => {
-                    const position = index + 4; // Start from position 4
-                    
-                    const entryDiv = document.createElement('div');
-                    entryDiv.className = 'remaining-entry';
-                    
-                    entryDiv.innerHTML = `
-                        <div class="remaining-position">#${position}</div>
-                        <div class="remaining-photo">
-                            ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}">` : '👤'}
-                        </div>
-                        <div class="remaining-name">${entry.name}</div>
-                        <div class="remaining-time">${entry.time}</div>
-                    `;
-                    
-                    remainingContainer.appendChild(entryDiv);
-                });
-                
-                container.innerHTML = '';
-                container.appendChild(remainingContainer);
-            } else {
-                container.innerHTML = '<p style="text-align: center; opacity: 0.5; font-style: italic;">Geen andere deelnemers</p>';
-            }
-        }
-
-        function saveRiders() {
-            localStorage.setItem('rodeoRiders', JSON.stringify(riders));
-        }
-
-        function resetAll() {
+        // Reset all data
+        window.resetAll = function() {
             if (confirm('Weet je zeker dat je alle data wilt wissen?')) {
-                riders = [];
-                leaderboardData = [];
+                window.riders = [];
+                window.leaderboardData = [];
                 localStorage.removeItem('rodeoRiders');
                 localStorage.removeItem('rodeoLeaderboard');
                 
                 updateRidersList();
                 updateRiderDropdown();
-                updateAllLeaderboards();
-                updateNextButtonVisibility();
+                updateLeaderboard();
                 
-                document.getElementById('viewLeaderboardBtn').style.display = 'none';
-                hidePhotoSection();
+                const nextBtn = document.getElementById('nextToTimeBtn');
+                if (nextBtn) nextBtn.style.display = 'none';
                 
-                goToScreen('homeScreen');
+                showScreen('homeScreen');
+                updateDebug('All data reset');
             }
         }
 
-        // Auto-refresh leaderboards every 5 seconds when viewing them
-        setInterval(() => {
-            const activeScreen = document.querySelector('.screen.active');
-            if (activeScreen && (activeScreen.id === 'leaderboardScreen' || activeScreen.id === 'leaderboardOnlyScreen')) {
-                // Try to load updated data (for future sync functionality)
-                const savedLeaderboard = localStorage.getItem('rodeoLeaderboard');
-                if (savedLeaderboard) {
-                    leaderboardData = JSON.parse(savedLeaderboard);
-                    updateAllLeaderboards();
-                }
+        // Initialize app
+        function initApp() {
+            updateDebug('Initializing app...');
+            
+            loadData();
+            updateRidersList();
+            updateRiderDropdown();
+            updateLeaderboard();
+            
+            // Show next button if we have riders without time
+            const ridersWithoutTime = window.riders.filter(r => !r.time);
+            const nextBtn = document.getElementById('nextToTimeBtn');
+            if (nextBtn && ridersWithoutTime.length > 0) {
+                nextBtn.style.display = 'inline-block';
             }
-        }, 5000);
+            
+            updateDebug('App ready! Functions loaded.');
+            
+            // Hide debug after 3 seconds
+            setTimeout(() => {
+                const debug = document.getElementById('debug');
+                if (debug) debug.style.display = 'none';
+            }, 3000);
+        }
 
-        // Prevent form submission on enter
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                // Auto-add rider when pressing enter in name field
-                if (document.activeElement.id === 'riderName') {
-                    addRider();
-                }
-                // Auto-add time when pressing enter in time fields
-                if (['minutes', 'seconds', 'hundredths'].includes(document.activeElement.id)) {
-                    addTime();
-                }
-            }
-        });
+        // Start app when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+
+        updateDebug('Script loaded');
     </script>
 </body>
-<script>
-console.log('Emergency test script loaded');
-function emergencyGoToScreen() {
-    document.getElementById('homeScreen').classList.remove('active');
-    document.getElementById('nameEntryScreen').classList.add('active');
-    console.log('Emergency navigation worked');
-}
-</script>
-<button onclick="emergencyGoToScreen()" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: red; color: white;">EMERGENCY TEST</button>
 </html>
