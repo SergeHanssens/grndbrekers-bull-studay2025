@@ -1149,4 +1149,13 @@
         });
     </script>
 </body>
+<script>
+console.log('Emergency test script loaded');
+function emergencyGoToScreen() {
+    document.getElementById('homeScreen').classList.remove('active');
+    document.getElementById('nameEntryScreen').classList.add('active');
+    console.log('Emergency navigation worked');
+}
+</script>
+<button onclick="emergencyGoToScreen()" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: red; color: white;">EMERGENCY TEST</button>
 </html>
