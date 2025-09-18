@@ -605,6 +605,16 @@
             const timeString = `${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}:${hundredths.padStart(2, '0')}`;
             const timeValue = parseInt(minutes) * 6000 + parseInt(seconds) * 100 + parseInt(hundredths);
 
+            // Debug time calculation
+            console.log(`Time calculation for ${window.riders[riderIndex].name}:`, {
+                minutes: parseInt(minutes),
+                seconds: parseInt(seconds), 
+                hundredths: parseInt(hundredths),
+                timeString: timeString,
+                timeValue: timeValue,
+                breakdown: `${parseInt(minutes)}*6000 + ${parseInt(seconds)}*100 + ${parseInt(hundredths)} = ${timeValue}`
+            });
+
             // Update rider
             window.riders[riderIndex].time = timeString;
             window.riders[riderIndex].timeValue = timeValue;
@@ -622,7 +632,7 @@
             window.leaderboardData.push(entry);
             
             // Sort by time (SHORTEST first - who fell off first)
-            window.leaderboardData.sort((b, a) => a.timeValue - b.timeValue);
+            window.leaderboardData.sort((a, b) => a.timeValue - b.timeValue);
             
             // Keep ALL entries (no limit)
 
