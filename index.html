@@ -182,31 +182,210 @@
             object-fit: cover;
         }
 
-        .leaderboard-entry {
+        .leaderboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .leaderboard-logo {
+            max-width: 200px;
+            max-height: 100px;
+            object-fit: contain;
+            margin: 0 auto 10px;
+            display: block;
+        }
+
+        .photo-section {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .photo-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 15px auto;
             background: rgba(255,255,255,0.1);
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 15px;
-            display: grid;
-            grid-template-columns: 50px 1fr 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-btn {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            margin-bottom: 10px;
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+
+        /* Top 3 styling */
+        .top-three-container {
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            margin: 20px 0;
             gap: 15px;
+        }
+
+        .top-rider {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            min-width: 100px;
+        }
+
+        .top-rider.first {
+            order: 2;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(255,215,0,0.3);
+        }
+
+        .top-rider.second {
+            order: 1;
+            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+            color: #000;
+        }
+
+        .top-rider.third {
+            order: 3;
+            background: linear-gradient(135deg, #CD7F32, #B8860B);
+            color: #fff;
+        }
+
+        .top-rider-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 3px solid rgba(255,255,255,0.5);
+        }
+
+        .top-rider.first .top-rider-photo {
+            width: 80px;
+            height: 80px;
+            border-color: #fff;
+        }
+
+        .top-rider-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .top-rider-medal {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .top-rider.first .top-rider-medal {
+            font-size: 32px;
+        }
+
+        .top-rider-name {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .top-rider.first .top-rider-name {
+            font-size: 16px;
+        }
+
+        .top-rider-time {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .top-rider.first .top-rider-time {
+            font-size: 14px;
+            opacity: 1;
+        }
+
+        /* Remaining riders */
+        .remaining-riders {
+            margin-top: 30px;
+        }
+
+        .remaining-riders h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .remaining-leaderboard {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 10px;
+        }
+
+        .remaining-entry {
+            background: rgba(255,255,255,0.1);
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 40px 60px 1fr 80px;
+            gap: 10px;
             align-items: center;
             backdrop-filter: blur(10px);
         }
 
-        .position {
-            font-size: 24px;
+        .remaining-position {
             font-weight: bold;
-            color: #FFD700;
+            text-align: center;
         }
 
-        .rider-info h3 {
-            margin: 0 0 5px 0;
+        .remaining-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
-        .time {
-            font-size: 18px;
+        .remaining-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remaining-name {
             font-weight: bold;
+        }
+
+        .remaining-time {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Sync info */
+        .sync-info {
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.6;
         }
 
         .file-input {
@@ -270,7 +449,7 @@
         <div class="screen-content">
             <div class="logo-container">
                 <div class="logo" id="logoDisplay">
-                    <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo.jpg" 
+                    <img src="https://raw.githubusercontent.com/username/repo-name/images/grndbrekers-bull-logo.jpg" 
                          alt="GRNDbrekers Bull Riding Logo" 
                          id="mainLogo"
                          onerror="showFallbackLogo()">
@@ -314,10 +493,13 @@
             <h2>Voeg Rijders Toe</h2>
             <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder">
             <div class="added-names" id="addedNames">
-                <!-- Namen worden hier getoond -->
+                <!-- Namen zonder tijd worden hier getoond -->
             </div>
             <button class="btn" onclick="addRider()">+ Voeg Rijder Toe</button>
-            <button class="btn" onclick="goToScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Naar Tijden →</button>
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="goToScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Naar Tijden →</button>
+                <button class="btn" onclick="goToScreen('leaderboardScreen')" style="background: linear-gradient(45deg, #FFD700, #FFA500);">🏆 Bekijk Leaderboard</button>
+            </div>
         </div>
     </div>
 
@@ -327,24 +509,49 @@
         <div class="screen-content">
             <h2>Voeg Tijd Toe</h2>
             <select class="input-field" id="riderSelect">
-                <option value="">Selecteer rijder...</option>
+                <option value="">Selecteer rijder zonder tijd...</option>
             </select>
+            
+            <!-- Photo section -->
+            <div class="photo-section" id="photoSection" style="display: none;">
+                <h3>📷 Foto van Rijder</h3>
+                <div class="photo-preview" id="photoPreview">📷</div>
+                <input type="file" class="file-input" id="photoInput" accept="image/*" capture="user">
+                <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">Maak Foto</button>
+            </div>
+            
             <div class="time-inputs">
                 <input type="number" class="input-field" id="minutes" placeholder="Min" min="0" max="59">
                 <input type="number" class="input-field" id="seconds" placeholder="Sec" min="0" max="59">
                 <input type="number" class="input-field" id="hundredths" placeholder="1/100" min="0" max="99">
             </div>
             <button class="btn" onclick="addTime()">Voeg Tijd Toe</button>
-            <button class="btn" onclick="goToScreen('leaderboardScreen')" id="viewLeaderboardBtn" style="display: none;">Bekijk Leaderboard</button>
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="goToScreen('nameEntryScreen')" style="background: linear-gradient(45deg, #2196F3, #1976D2);">← Naar Rijders Toevoegen</button>
+                <button class="btn" onclick="goToScreen('leaderboardScreen')" id="viewLeaderboardBtn" style="display: none;">Bekijk Leaderboard</button>
+            </div>
         </div>
     </div>
 
     <!-- Leaderboard Screen -->
     <div class="screen" id="leaderboardScreen">
         <div class="screen-content">
-            <h2>🏆 Leaderboard</h2>
+            <!-- Logo als header in plaats van beker -->
+            <div class="leaderboard-header">
+                <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo.jpg" 
+                     alt="GRNDbrekers Logo" class="leaderboard-logo"
+                     onerror="this.style.display='none'; document.getElementById('leaderboard-title-fallback').style.display='block';">
+                <h2 id="leaderboard-title-fallback" style="display: none;">🏆 Leaderboard</h2>
+            </div>
             
-            <div id="leaderboard"></div>
+            <!-- Top 3 (groot) -->
+            <div id="topThree"></div>
+            
+            <!-- Rest (scrollable lijst) -->
+            <div class="remaining-riders">
+                <h3>Overige Rankings:</h3>
+                <div id="remainingLeaderboard"></div>
+            </div>
             
             <div style="margin-top: 30px;">
                 <button class="btn" onclick="goToScreen('timeEntryScreen')">← Meer Tijden Toevoegen</button>
@@ -354,9 +561,32 @@
         </div>
     </div>
 
+    <!-- Leaderboard Only Screen (nieuw) -->
+    <div class="screen" id="leaderboardOnlyScreen">
+        <div class="screen-content">
+            <div class="leaderboard-header">
+                <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo.jpg" 
+                     alt="GRNDbrekers Logo" class="leaderboard-logo"
+                     onerror="this.style.display='none'; document.getElementById('leaderboard-only-title-fallback').style.display='block';">
+                <h2 id="leaderboard-only-title-fallback" style="display: none;">🏆 Live Leaderboard</h2>
+            </div>
+            
+            <div id="topThreeOnly"></div>
+            <div class="remaining-riders">
+                <h3>Overige Rankings:</h3>
+                <div id="remainingLeaderboardOnly"></div>
+            </div>
+            
+            <div class="sync-info">
+                <p><small>🔄 Auto-refresh elke 5 seconden</small></p>
+            </div>
+        </div>
+    </div>
+
     <script>
         let riders = [];
         let leaderboardData = [];
+        let currentPhoto = null;
 
         // Show fallback logo if main logo fails to load
         function showFallbackLogo() {
@@ -374,14 +604,12 @@
                 riders = JSON.parse(savedRiders);
                 updateRidersList();
                 updateRiderDropdown();
-                if (riders.length > 0) {
-                    document.getElementById('nextToTimeBtn').style.display = 'inline-block';
-                }
+                updateNextButtonVisibility();
             }
             
             if (savedLeaderboard) {
                 leaderboardData = JSON.parse(savedLeaderboard);
-                updateLeaderboard();
+                updateAllLeaderboards();
             }
         });
 
@@ -393,6 +621,23 @@
                 console.log('ServiceWorker registration failed');
             });
         }
+
+        // Handle photo input
+        document.getElementById('photoInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPhoto = e.target.result;
+                    const img = document.createElement('img');
+                    img.src = currentPhoto;
+                    const preview = document.getElementById('photoPreview');
+                    preview.innerHTML = '';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
         function goToScreen(screenId) {
             // Hide all screens
@@ -406,6 +651,13 @@
             // Update dropdown when going to time entry
             if (screenId === 'timeEntryScreen') {
                 updateRiderDropdown();
+                hidePhotoSection();
+                clearTimeInputs();
+            }
+            
+            // Update leaderboards when viewing them
+            if (screenId === 'leaderboardScreen' || screenId === 'leaderboardOnlyScreen') {
+                updateAllLeaderboards();
             }
         }
 
@@ -428,6 +680,7 @@
                 name: riderName,
                 time: null,
                 timeValue: null,
+                photo: null,
                 timestamp: new Date().toISOString()
             });
             
@@ -438,49 +691,99 @@
             saveRiders();
             updateRidersList();
             updateRiderDropdown();
-            
-            // Show next button
-            document.getElementById('nextToTimeBtn').style.display = 'inline-block';
+            updateNextButtonVisibility();
         }
 
         function removeRider(index) {
+            const rider = riders[index];
+            if (rider.time) {
+                // Remove from leaderboard too
+                leaderboardData = leaderboardData.filter(entry => entry.name !== rider.name);
+                localStorage.setItem('rodeoLeaderboard', JSON.stringify(leaderboardData));
+            }
+            
             riders.splice(index, 1);
             saveRiders();
             updateRidersList();
             updateRiderDropdown();
-            
-            if (riders.length === 0) {
-                document.getElementById('nextToTimeBtn').style.display = 'none';
-            }
+            updateNextButtonVisibility();
+            updateAllLeaderboards();
         }
 
         function updateRidersList() {
             const container = document.getElementById('addedNames');
             container.innerHTML = '';
             
-            riders.forEach((rider, index) => {
+            // Only show riders WITHOUT time
+            const ridersWithoutTime = riders.filter(rider => !rider.time);
+            
+            ridersWithoutTime.forEach((rider, originalIndex) => {
+                // Find original index in full riders array
+                const fullIndex = riders.findIndex(r => r.name === rider.name);
+                
                 const tag = document.createElement('div');
                 tag.className = 'rider-tag';
                 tag.innerHTML = `
                     ${rider.name}
-                    ${rider.time ? `<span class="time-badge">${rider.time}</span>` : ''}
-                    <span class="remove-btn" onclick="removeRider(${index})">×</span>
+                    <span class="remove-btn" onclick="removeRider(${fullIndex})">×</span>
                 `;
                 container.appendChild(tag);
             });
+            
+            if (ridersWithoutTime.length === 0 && riders.length > 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7; font-style: italic;">Alle rijders hebben al een tijd!</p>';
+            }
         }
 
         function updateRiderDropdown() {
             const select = document.getElementById('riderSelect');
-            select.innerHTML = '<option value="">Selecteer rijder...</option>';
+            select.innerHTML = '<option value="">Selecteer rijder zonder tijd...</option>';
             
+            // Only show riders WITHOUT time
             riders.forEach((rider, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = rider.name + (rider.time ? ` (${rider.time})` : '');
-                select.appendChild(option);
+                if (!rider.time) {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = rider.name;
+                    select.appendChild(option);
+                }
             });
         }
+
+        function updateNextButtonVisibility() {
+            const hasRidersWithoutTime = riders.some(rider => !rider.time);
+            const nextBtn = document.getElementById('nextToTimeBtn');
+            if (hasRidersWithoutTime) {
+                nextBtn.style.display = 'inline-block';
+            } else {
+                nextBtn.style.display = 'none';
+            }
+        }
+
+        function showPhotoSection() {
+            document.getElementById('photoSection').style.display = 'block';
+        }
+
+        function hidePhotoSection() {
+            document.getElementById('photoSection').style.display = 'none';
+            currentPhoto = null;
+            document.getElementById('photoPreview').innerHTML = '📷';
+        }
+
+        function clearTimeInputs() {
+            document.getElementById('minutes').value = '';
+            document.getElementById('seconds').value = '';
+            document.getElementById('hundredths').value = '';
+        }
+
+        // Show photo section when rider is selected
+        document.getElementById('riderSelect').addEventListener('change', function() {
+            if (this.value) {
+                showPhotoSection();
+            } else {
+                hidePhotoSection();
+            }
+        });
 
         function addTime() {
             const riderIndex = document.getElementById('riderSelect').value;
@@ -496,9 +799,10 @@
             const timeString = `${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}:${hundredths.padStart(2, '0')}`;
             const timeValue = parseInt(minutes) * 6000 + parseInt(seconds) * 100 + parseInt(hundredths);
 
-            // Update rider with time
+            // Update rider with time and photo
             riders[riderIndex].time = timeString;
             riders[riderIndex].timeValue = timeValue;
+            riders[riderIndex].photo = currentPhoto;
 
             // Add/update in leaderboard
             const existingIndex = leaderboardData.findIndex(entry => entry.name === riders[riderIndex].name);
@@ -507,6 +811,7 @@
                 name: riders[riderIndex].name,
                 time: timeString,
                 timeValue: timeValue,
+                photo: currentPhoto,
                 timestamp: new Date().toISOString()
             };
 
@@ -529,13 +834,13 @@
             // Update UI
             updateRidersList();
             updateRiderDropdown();
-            updateLeaderboard();
+            updateNextButtonVisibility();
+            updateAllLeaderboards();
             
             // Clear form
             document.getElementById('riderSelect').value = '';
-            document.getElementById('minutes').value = '';
-            document.getElementById('seconds').value = '';
-            document.getElementById('hundredths').value = '';
+            clearTimeInputs();
+            hidePhotoSection();
             
             // Show leaderboard button
             document.getElementById('viewLeaderboardBtn').style.display = 'inline-block';
@@ -543,31 +848,76 @@
             alert(`Tijd toegevoegd voor ${riders[riderIndex].name}: ${timeString}`);
         }
 
-        function updateLeaderboard() {
-            const leaderboard = document.getElementById('leaderboard');
-            leaderboard.innerHTML = '';
+        function updateAllLeaderboards() {
+            updateTopThree('topThree');
+            updateRemainingLeaderboard('remainingLeaderboard');
+            updateTopThree('topThreeOnly');
+            updateRemainingLeaderboard('remainingLeaderboardOnly');
+        }
 
-            leaderboardData.forEach((entry, index) => {
-                const div = document.createElement('div');
-                div.className = 'leaderboard-entry';
-                
-                const medals = ['🥇', '🥈', '🥉'];
-                const position = index < 3 ? medals[index] : `#${index + 1}`;
-                
-                div.innerHTML = `
-                    <div class="position">${position}</div>
-                    <div class="rider-info">
-                        <h3>${entry.name}</h3>
-                        <small>${new Date(entry.timestamp).toLocaleDateString('nl-NL')}</small>
-                    </div>
-                    <div class="time">${entry.time}</div>
-                `;
-                
-                leaderboard.appendChild(div);
-            });
+        function updateTopThree(containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
             
-            if (leaderboardData.length === 0) {
-                leaderboard.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nog geen tijden toegevoegd...</p>';
+            const topThree = leaderboardData.slice(0, 3);
+            
+            if (topThree.length > 0) {
+                const topThreeContainer = document.createElement('div');
+                topThreeContainer.className = 'top-three-container';
+                
+                topThree.forEach((entry, index) => {
+                    const positions = ['first', 'second', 'third'];
+                    const medals = ['🥇', '🥈', '🥉'];
+                    
+                    const riderDiv = document.createElement('div');
+                    riderDiv.className = `top-rider ${positions[index]}`;
+                    
+                    riderDiv.innerHTML = `
+                        <div class="top-rider-medal">${medals[index]}</div>
+                        <div class="top-rider-photo">
+                            ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}">` : '👤'}
+                        </div>
+                        <div class="top-rider-name">${entry.name}</div>
+                        <div class="top-rider-time">${entry.time}</div>
+                    `;
+                    
+                    topThreeContainer.appendChild(riderDiv);
+                });
+                
+                container.appendChild(topThreeContainer);
+            }
+        }
+
+        function updateRemainingLeaderboard(containerId) {
+            const container = document.getElementById(containerId);
+            const remainingEntries = leaderboardData.slice(3);
+            
+            if (remainingEntries.length > 0) {
+                const remainingContainer = document.createElement('div');
+                remainingContainer.className = 'remaining-leaderboard';
+                
+                remainingEntries.forEach((entry, index) => {
+                    const position = index + 4; // Start from position 4
+                    
+                    const entryDiv = document.createElement('div');
+                    entryDiv.className = 'remaining-entry';
+                    
+                    entryDiv.innerHTML = `
+                        <div class="remaining-position">#${position}</div>
+                        <div class="remaining-photo">
+                            ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}">` : '👤'}
+                        </div>
+                        <div class="remaining-name">${entry.name}</div>
+                        <div class="remaining-time">${entry.time}</div>
+                    `;
+                    
+                    remainingContainer.appendChild(entryDiv);
+                });
+                
+                container.innerHTML = '';
+                container.appendChild(remainingContainer);
+            } else {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.5; font-style: italic;">Geen andere deelnemers</p>';
             }
         }
 
@@ -584,19 +934,26 @@
                 
                 updateRidersList();
                 updateRiderDropdown();
-                updateLeaderboard();
+                updateAllLeaderboards();
+                updateNextButtonVisibility();
                 
-                document.getElementById('nextToTimeBtn').style.display = 'none';
                 document.getElementById('viewLeaderboardBtn').style.display = 'none';
+                hidePhotoSection();
                 
                 goToScreen('homeScreen');
             }
         }
 
-        // Auto-refresh leaderboard every 5 seconds when on leaderboard screen
+        // Auto-refresh leaderboards every 5 seconds when viewing them
         setInterval(() => {
-            if (document.getElementById('leaderboardScreen').classList.contains('active')) {
-                updateLeaderboard();
+            const activeScreen = document.querySelector('.screen.active');
+            if (activeScreen && (activeScreen.id === 'leaderboardScreen' || activeScreen.id === 'leaderboardOnlyScreen')) {
+                // Try to load updated data (for future sync functionality)
+                const savedLeaderboard = localStorage.getItem('rodeoLeaderboard');
+                if (savedLeaderboard) {
+                    leaderboardData = JSON.parse(savedLeaderboard);
+                    updateAllLeaderboards();
+                }
             }
         }, 5000);
 
