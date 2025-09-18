@@ -157,31 +157,133 @@
             margin: 20px 0;
         }
 
-        .leaderboard-entry {
-            background: rgba(255,255,255,0.1);
-            margin: 10px 0;
-            padding: 15px;
+        .leaderboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .leaderboard-logo {
+            max-width: 250px;
+            max-height: 120px;
+            object-fit: contain;
+            margin: 0 auto 20px;
+            display: block;
             border-radius: 15px;
+        }
+
+        .top-three-container {
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            margin: 20px 0;
+            gap: 10px;
+        }
+
+        .top-rider {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            min-width: 80px;
+        }
+
+        .top-rider.first {
+            order: 2;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(255,215,0,0.3);
+        }
+
+        .top-rider.second {
+            order: 1;
+            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+            color: #000;
+        }
+
+        .top-rider.third {
+            order: 3;
+            background: linear-gradient(135deg, #CD7F32, #B8860B);
+            color: #fff;
+        }
+
+        .top-rider-medal {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .top-rider.first .top-rider-medal {
+            font-size: 24px;
+        }
+
+        .top-rider-name {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .top-rider.first .top-rider-name {
+            font-size: 16px;
+        }
+
+        .top-rider-time {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .top-rider.first .top-rider-time {
+            font-size: 14px;
+            opacity: 1;
+            font-weight: bold;
+        }
+
+        .remaining-riders {
+            margin-top: 30px;
+        }
+
+        .remaining-riders h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            opacity: 0.8;
+            font-size: 16px;
+        }
+
+        .remaining-leaderboard {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 10px;
+        }
+
+        .remaining-entry {
+            background: rgba(255,255,255,0.1);
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 10px;
             display: grid;
-            grid-template-columns: 50px 1fr 100px;
-            gap: 15px;
+            grid-template-columns: 40px 1fr 80px;
+            gap: 10px;
             align-items: center;
             backdrop-filter: blur(10px);
         }
 
-        .position {
-            font-size: 24px;
+        .remaining-position {
             font-weight: bold;
-            color: #FFD700;
+            text-align: center;
+            font-size: 16px;
         }
 
-        .rider-info h3 {
-            margin: 0 0 5px 0;
+        .remaining-name {
+            font-weight: bold;
+            font-size: 14px;
         }
 
-        .time {
-            font-size: 18px;
+        .remaining-time {
+            text-align: center;
             font-weight: bold;
+            font-size: 14px;
         }
 
         h1, h2 {
@@ -219,6 +321,28 @@
             .btn {
                 padding: 12px 20px;
                 font-size: 16px;
+            }
+            
+            .top-three-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .top-rider {
+                order: unset !important;
+                margin-bottom: 10px;
+                min-width: 150px;
+                transform: none !important;
+            }
+            
+            .top-rider.first {
+                transform: scale(1.05) !important;
+            }
+            
+            .remaining-entry {
+                grid-template-columns: 35px 1fr 70px;
+                gap: 8px;
+                padding: 10px;
             }
         }
     </style>
@@ -280,8 +404,22 @@
     <!-- Leaderboard Screen -->
     <div class="screen" id="leaderboardScreen">
         <div class="screen-content">
-            <h2>🏆 Leaderboard</h2>
-            <div id="leaderboard"></div>
+            <!-- Logo Header -->
+            <div class="leaderboard-header">
+                <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo.jpg" 
+                     alt="GRNDbrekers Logo" class="leaderboard-logo"
+                     onerror="this.outerHTML='<h2 style=color:white;>🛠️ GRNDbrekers Bull Riding</h2>';">
+            </div>
+            
+            <!-- Top 3 -->
+            <div id="topThree"></div>
+            
+            <!-- Rest in scrollable -->
+            <div class="remaining-riders" id="remainingRidersSection">
+                <h3>Overige Rankings:</h3>
+                <div id="remainingLeaderboard"></div>
+            </div>
+            
             <div style="margin-top: 30px;">
                 <button class="btn" onclick="showScreen('timeEntryScreen')">← Tijden Toevoegen</button>
                 <button class="btn" onclick="showScreen('nameEntryScreen')">Nieuwe Rijders</button>
@@ -478,11 +616,10 @@
             window.leaderboardData = window.leaderboardData.filter(e => e.name !== entry.name);
             window.leaderboardData.push(entry);
             
-            // Sort by time (highest first)
-            window.leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
+            // Sort by time (SHORTEST first - who fell off first)
+            window.leaderboardData.sort((a, b) => a.timeValue - b.timeValue);
             
-            // Keep top 10
-            window.leaderboardData = window.leaderboardData.slice(0, 10);
+            // Keep ALL entries (no limit)
 
             // Save and update
             saveData();
@@ -499,36 +636,85 @@
             updateDebug('Time added for: ' + entry.name);
         }
 
-        // Update leaderboard display
+        // Update leaderboard display with top 3 + scrollable rest
         function updateLeaderboard() {
-            const container = document.getElementById('leaderboard');
+            updateTopThree();
+            updateRemainingLeaderboard();
+        }
+
+        // Update top 3 podium
+        function updateTopThree() {
+            const container = document.getElementById('topThree');
             if (!container) return;
             
             container.innerHTML = '';
-
-            if (window.leaderboardData.length === 0) {
+            
+            const topThree = window.leaderboardData.slice(0, 3);
+            
+            if (topThree.length === 0) {
                 container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nog geen tijden toegevoegd...</p>';
                 return;
             }
-
-            window.leaderboardData.forEach((entry, index) => {
-                const div = document.createElement('div');
-                div.className = 'leaderboard-entry';
-                
+            
+            const topThreeContainer = document.createElement('div');
+            topThreeContainer.className = 'top-three-container';
+            
+            topThree.forEach((entry, index) => {
+                const positions = ['first', 'second', 'third'];
                 const medals = ['🥇', '🥈', '🥉'];
-                const position = index < 3 ? medals[index] : `#${index + 1}`;
                 
-                div.innerHTML = `
-                    <div class="position">${position}</div>
-                    <div class="rider-info">
-                        <h3>${entry.name}</h3>
-                        <small>${new Date(entry.timestamp).toLocaleDateString('nl-NL')}</small>
-                    </div>
-                    <div class="time">${entry.time}</div>
+                const riderDiv = document.createElement('div');
+                riderDiv.className = `top-rider ${positions[index]}`;
+                
+                riderDiv.innerHTML = `
+                    <div class="top-rider-medal">${medals[index]}</div>
+                    <div class="top-rider-name">${entry.name}</div>
+                    <div class="top-rider-time">${entry.time}</div>
                 `;
                 
-                container.appendChild(div);
+                topThreeContainer.appendChild(riderDiv);
             });
+            
+            container.appendChild(topThreeContainer);
+        }
+
+        // Update remaining leaderboard (positions 4+)
+        function updateRemainingLeaderboard() {
+            const container = document.getElementById('remainingLeaderboard');
+            const section = document.getElementById('remainingRidersSection');
+            if (!container || !section) return;
+            
+            const remainingEntries = window.leaderboardData.slice(3);
+            
+            if (remainingEntries.length === 0) {
+                // Hide the entire section if no remaining entries
+                section.style.display = 'none';
+                return;
+            }
+            
+            // Show section if we have remaining entries
+            section.style.display = 'block';
+            
+            const remainingContainer = document.createElement('div');
+            remainingContainer.className = 'remaining-leaderboard';
+            
+            remainingEntries.forEach((entry, index) => {
+                const position = index + 4; // Start from position 4
+                
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'remaining-entry';
+                
+                entryDiv.innerHTML = `
+                    <div class="remaining-position">#${position}</div>
+                    <div class="remaining-name">${entry.name}</div>
+                    <div class="remaining-time">${entry.time}</div>
+                `;
+                
+                remainingContainer.appendChild(entryDiv);
+            });
+            
+            container.innerHTML = '';
+            container.appendChild(remainingContainer);
         }
 
         // Save data to localStorage
