@@ -482,7 +482,7 @@
                     </svg>
                 </div>
             </div>
-            <button class="btn" onclick="goToScreen('nameEntryScreen')">Start Leaderboard!</button>
+            <button class="btn" onclick="console.log('Button clicked!'); if(typeof goToScreen === 'function') { goToScreen('nameEntryScreen'); } else { alert('JavaScript error - refresh page'); }">Start Leaderboard!</button>
         </div>
     </div>
 
@@ -602,7 +602,7 @@
             console.log('Using fallback SVG logo - update the image path in your images branch');
         }
 
-        // Load data from localStorage on startup
+        // Handle photo input with compression (wait for page load)
         window.addEventListener('load', function() {
             const savedRiders = localStorage.getItem('rodeoRiders');
             const savedLeaderboard = localStorage.getItem('rodeoLeaderboard');
@@ -618,6 +618,34 @@
                 leaderboardData = JSON.parse(savedLeaderboard);
                 updateAllLeaderboards();
             }
+            
+            // Setup photo input handler after page load
+            const photoInput = document.getElementById('photoInput');
+            if (photoInput) {
+                photoInput.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        // Check file size (warn if > 10MB)
+                        if (file.size > 10 * 1024 * 1024) {
+                            alert('Foto is erg groot (>10MB). Even geduld voor compressie...');
+                        }
+                        
+                        compressAndPreviewPhoto(file);
+                    }
+                });
+            }
+            
+            // Setup rider select handler
+            const riderSelect = document.getElementById('riderSelect');
+            if (riderSelect) {
+                riderSelect.addEventListener('change', function() {
+                    if (this.value) {
+                        showPhotoSection();
+                    } else {
+                        hidePhotoSection();
+                    }
+                });
+            }
         });
 
         // Register service worker
@@ -629,17 +657,22 @@
             });
         }
 
-        // Handle photo input with compression
-        document.getElementById('photoInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                // Check file size (warn if > 10MB)
-                if (file.size > 10 * 1024 * 1024) {
-                    alert('Foto is erg groot (>10MB). Even geduld voor compressie...');
-                }
-                
-                compressAndPreviewPhoto(file);
-            }
+        // Test function to check if JavaScript is working
+        function testJS() {
+            console.log('JavaScript is working! goToScreen function available.');
+            return true;
+        }
+
+        // Call test on load
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, JavaScript functions should be available');
+            testJS();
+        });
+
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript Error:', e.error);
+            console.error('File:', e.filename, 'Line:', e.lineno);
         });
 
         function compressAndPreviewPhoto(file) {
@@ -841,14 +874,7 @@
             document.getElementById('hundredths').value = '';
         }
 
-        // Show photo section when rider is selected
-        document.getElementById('riderSelect').addEventListener('change', function() {
-            if (this.value) {
-                showPhotoSection();
-            } else {
-                hidePhotoSection();
-            }
-        });
+
 
         function addTime() {
             const riderIndex = document.getElementById('riderSelect').value;
