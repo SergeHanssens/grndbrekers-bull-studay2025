@@ -208,7 +208,7 @@
         .leaderboard-logo {
             width: 100%;
             max-width: none;
-            max-height: 300px;
+            max-height: 200px;
             object-fit: contain;
             margin: 0 auto 25px;
             display: block;
@@ -240,7 +240,7 @@
             padding: 12px;
             border-radius: 10px;
             display: grid;
-            grid-template-columns: 40px 50px 1fr 80px;
+            grid-template-columns: 60px 50px 1fr 80px;
             gap: 10px;
             align-items: center;
             backdrop-filter: blur(10px);
@@ -293,18 +293,7 @@
         }
 
         .debug {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(255,0,0,0.9);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 14px;
-            z-index: 9999;
-            max-width: 300px;
-            border: 2px solid yellow;
-            font-family: monospace;
+            display: none; /* Hidden in production */
         }
 
         .photo-input-section {
@@ -363,11 +352,14 @@
             margin: 20px;
             padding: 30px;
             border-radius: 20px;
-            max-width: 400px;
+            max-width: 500px;
             width: 90%;
             text-align: center;
             color: white;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-close {
@@ -384,10 +376,49 @@
             height: 40px;
         }
 
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .photo-option {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .photo-option:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: #4CAF50;
+        }
+
+        .photo-option.selected {
+            border-color: #FFD700;
+            background: rgba(255,215,0,0.2);
+        }
+
+        .photo-option img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 8px;
+        }
+
+        .photo-option-text {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
         @media (max-width: 480px) {
             .leaderboard-logo {
                 max-width: 100%;
-                max-height: 300px;
+                max-height: 150px;
             }
             
             .time-inputs {
@@ -404,7 +435,7 @@
             }
             
             .remaining-entry {
-                grid-template-columns: 35px 40px 1fr 70px;
+                grid-template-columns: 50px 40px 1fr 70px;
                 gap: 8px;
                 padding: 10px;
             }
@@ -417,6 +448,10 @@
             .rider-actions {
                 margin-left: 0;
                 margin-top: 10px;
+            }
+
+            .photo-gallery {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
     </style>
@@ -450,7 +485,7 @@
                     📷
                 </div>
                 <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;">
-                <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">Foto Maken</button>
+                <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">Foto Maken (Optioneel)</button>
             </div>
             
             <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder">
@@ -512,7 +547,7 @@
 
     <!-- Edit Modal -->
     <div class="modal" id="editModal">
-        <div class="modal-content" style="position: relative;">
+        <div class="modal-content">
             <button class="modal-close" onclick="closeEditModal()">×</button>
             <h3>Rijder Bewerken</h3>
             
@@ -533,11 +568,27 @@
         </div>
     </div>
 
+    <!-- Duplicate Name Modal -->
+    <div class="modal" id="duplicateModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeDuplicateModal()">×</button>
+            <h3>Naam bestaat al</h3>
+            <p id="duplicateMessage">Deze naam is al gebruikt. Kies een foto:</p>
+            
+            <div class="photo-gallery" id="photoGallery"></div>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="useSelectedPhoto()">Gebruik Geselecteerde Foto</button>
+                <button class="btn photo-btn" onclick="takeNewPhoto()">Nieuwe Foto Maken</button>
+                <button class="btn" onclick="addWithoutPhoto()" style="background: linear-gradient(45deg, #9C27B0, #673AB7);">Voeg Toe Zonder Foto</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Debug function
         function updateDebug(message) {
-            const debug = document.getElementById('debug');
-            if (debug) debug.textContent = message;
+            // Debug disabled in production
             console.log('DEBUG:', message);
         }
 
@@ -548,6 +599,43 @@
         window.leaderboardData = [];
         window.currentPhoto = null;
         window.editingRiderIndex = null;
+        window.duplicateName = '';
+        window.selectedPhotoForDuplicate = null;
+
+        // Generate unique ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Get all photos for a name
+        function getPhotosForName(name) {
+            const photos = [];
+            window.riders.forEach(rider => {
+                if (rider.name.toLowerCase() === name.toLowerCase() && rider.photo) {
+                    photos.push({
+                        photo: rider.photo,
+                        id: rider.id,
+                        hasTime: !!rider.time
+                    });
+                }
+            });
+            
+            // Also check leaderboard for completed riders
+            window.leaderboardData.forEach(entry => {
+                if (entry.name.toLowerCase() === name.toLowerCase() && entry.photo) {
+                    const existing = photos.find(p => p.photo === entry.photo);
+                    if (!existing) {
+                        photos.push({
+                            photo: entry.photo,
+                            id: entry.id,
+                            hasTime: true
+                        });
+                    }
+                }
+            });
+            
+            return photos;
+        }
 
         // Photo compression function
         function compressImage(file, maxWidth = 150, maxHeight = 150, quality = 0.7) {
@@ -638,7 +726,7 @@
             }
         }
 
-        // Add rider function
+        // Add rider function with duplicate handling
         window.addRider = function() {
             updateDebug('Adding rider...');
             
@@ -650,23 +738,35 @@
                 return;
             }
             
-            // Check if exists
-            if (window.riders.find(r => r.name.toLowerCase() === name.toLowerCase())) {
-                alert('Deze naam bestaat al!');
+            // Check for existing photos for this name
+            const existingPhotos = getPhotosForName(name);
+            
+            if (existingPhotos.length > 0) {
+                // Show duplicate modal
+                window.duplicateName = name;
+                showDuplicateModal(existingPhotos);
                 return;
             }
             
-            // Add rider with photo
-            window.riders.push({
+            // No duplicates, proceed normally
+            createNewRider(name, window.currentPhoto);
+        }
+
+        // Create new rider
+        function createNewRider(name, photo) {
+            const rider = {
+                id: generateId(),
                 name: name,
-                photo: window.currentPhoto || null,
+                photo: photo,
                 time: null,
                 timeValue: null,
                 timestamp: new Date().toISOString()
-            });
+            };
+            
+            window.riders.push(rider);
             
             // Clear inputs
-            nameInput.value = '';
+            document.getElementById('riderName').value = '';
             window.currentPhoto = null;
             document.getElementById('photoPreview').innerHTML = '📷';
             document.getElementById('photoInput').value = '';
@@ -683,6 +783,72 @@
             }
             
             updateDebug('Rider added: ' + name + ' (total: ' + window.riders.length + ')');
+        }
+
+        // Show duplicate modal
+        function showDuplicateModal(existingPhotos) {
+            const modal = document.getElementById('duplicateModal');
+            const gallery = document.getElementById('photoGallery');
+            const message = document.getElementById('duplicateMessage');
+            
+            message.textContent = `De naam "${window.duplicateName}" is al gebruikt. Kies een bestaande foto of voeg toe zonder foto:`;
+            
+            gallery.innerHTML = '';
+            
+            existingPhotos.forEach((photoData, index) => {
+                const photoDiv = document.createElement('div');
+                photoDiv.className = 'photo-option';
+                photoDiv.onclick = () => selectPhoto(photoData.photo, photoDiv);
+                
+                photoDiv.innerHTML = `
+                    <img src="${photoData.photo}" alt="Bestaande foto">
+                    <div class="photo-option-text">${photoData.hasTime ? 'Voltooid' : 'Wachtend'}</div>
+                `;
+                
+                gallery.appendChild(photoDiv);
+            });
+            
+            modal.classList.add('active');
+        }
+
+        // Select photo in gallery
+        function selectPhoto(photo, element) {
+            // Remove previous selection
+            document.querySelectorAll('.photo-option').forEach(el => el.classList.remove('selected'));
+            
+            // Select current
+            element.classList.add('selected');
+            window.selectedPhotoForDuplicate = photo;
+        }
+
+        // Use selected photo
+        window.useSelectedPhoto = function() {
+            if (!window.selectedPhotoForDuplicate) {
+                alert('Selecteer eerst een foto!');
+                return;
+            }
+            
+            createNewRider(window.duplicateName, window.selectedPhotoForDuplicate);
+            closeDuplicateModal();
+        }
+
+        // Take new photo for duplicate
+        window.takeNewPhoto = function() {
+            closeDuplicateModal();
+            // The user can now take a new photo and add the rider normally
+        }
+
+        // Add without photo for duplicate
+        window.addWithoutPhoto = function() {
+            createNewRider(window.duplicateName, null);
+            closeDuplicateModal();
+        }
+
+        // Close duplicate modal
+        window.closeDuplicateModal = function() {
+            document.getElementById('duplicateModal').classList.remove('active');
+            window.duplicateName = '';
+            window.selectedPhotoForDuplicate = null;
         }
 
         // Edit rider function
@@ -723,14 +889,6 @@
                 return;
             }
             
-            // Check if name exists (except current rider)
-            const existingRider = window.riders.find((r, i) => 
-                i !== window.editingRiderIndex && r.name.toLowerCase() === newName.toLowerCase());
-            if (existingRider) {
-                alert('Deze naam bestaat al!');
-                return;
-            }
-            
             // Update rider
             const rider = window.riders[window.editingRiderIndex];
             rider.name = newName;
@@ -764,7 +922,7 @@
                 
                 // Remove from leaderboard if has time
                 if (rider.time) {
-                    window.leaderboardData = window.leaderboardData.filter(entry => entry.name !== rider.name);
+                    window.leaderboardData = window.leaderboardData.filter(entry => entry.id !== rider.id);
                 }
                 
                 // Remove from riders
@@ -791,7 +949,7 @@
             const ridersWithoutTime = window.riders.filter(r => !r.time);
             
             ridersWithoutTime.forEach((rider) => {
-                const fullIndex = window.riders.findIndex(r => r.name === rider.name);
+                const fullIndex = window.riders.findIndex(r => r.id === rider.id);
                 
                 const tag = document.createElement('div');
                 tag.className = 'rider-tag';
@@ -816,7 +974,7 @@
             }
         }
 
-        // Update dropdown
+        // Update dropdown (without IDs)
         function updateRiderDropdown() {
             const select = document.getElementById('riderSelect');
             if (!select) return;
@@ -828,7 +986,7 @@
                 if (!rider.time) {
                     const option = document.createElement('option');
                     option.value = index;
-                    option.textContent = rider.name;
+                    option.textContent = rider.name; // No ID shown
                     select.appendChild(option);
                 }
             });
@@ -900,22 +1058,13 @@
             const timeString = `${minInt.toString().padStart(2, '0')}:${secInt.toString().padStart(2, '0')}:${hunInt.toString().padStart(2, '0')}`;
             const timeValue = minInt * 6000 + secInt * 100 + hunInt;
 
-            // Debug time calculation
-            console.log(`Time calculation for ${window.riders[riderIndex].name}:`, {
-                minutes: minInt,
-                seconds: secInt, 
-                hundredths: hunInt,
-                timeString: timeString,
-                timeValue: timeValue,
-                breakdown: `${minInt}*6000 + ${secInt}*100 + ${hunInt} = ${timeValue}`
-            });
-
             // Update rider
             window.riders[riderIndex].time = timeString;
             window.riders[riderIndex].timeValue = timeValue;
 
             // Add to leaderboard
             const entry = {
+                id: window.riders[riderIndex].id,
                 name: window.riders[riderIndex].name,
                 photo: window.riders[riderIndex].photo,
                 time: timeString,
@@ -924,7 +1073,7 @@
             };
 
             // Remove existing entry if any
-            window.leaderboardData = window.leaderboardData.filter(e => e.name !== entry.name);
+            window.leaderboardData = window.leaderboardData.filter(e => e.id !== entry.id);
             window.leaderboardData.push(entry);
             
             // Sort by time (LONGEST first - who stayed on longest)
@@ -1120,12 +1269,6 @@
             }
             
             updateDebug('App ready! Functions loaded.');
-            
-            // Hide debug after 3 seconds
-            setTimeout(() => {
-                const debug = document.getElementById('debug');
-                if (debug) debug.style.display = 'none';
-            }, 3000);
         }
 
         // Start app when page loads
