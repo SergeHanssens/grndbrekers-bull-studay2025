@@ -30,122 +30,33 @@
         }
 
         .leaderboard-logo {
-            max-width: 250px;
-            max-height: 120px;
-            object-fit: contain;
-            margin: 0 auto 10px;
-            display: block;
-        }
-
-        /* Top 3 styling */
-        .top-three-container {
-            display: flex;
-            justify-content: center;
-            align-items: end;
-            margin: 30px 0;
-            gap: 15px;
-        }
-
-        .top-rider {
-            text-align: center;
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            min-width: 120px;
-        }
-
-        .top-rider.first {
-            order: 2;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000;
-            transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(255,215,0,0.3);
-        }
-
-        .top-rider.second {
-            order: 1;
-            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
-            color: #000;
-        }
-
-        .top-rider.third {
-            order: 3;
-            background: linear-gradient(135deg, #CD7F32, #B8860B);
-            color: #fff;
-        }
-
-        .top-rider-photo {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            margin: 0 auto 15px;
-            background: rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 3px solid rgba(255,255,255,0.5);
-        }
-
-        .top-rider.first .top-rider-photo {
-            width: 90px;
-            height: 90px;
-            border-color: #fff;
-        }
-
-        .top-rider-photo img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            max-width: none;
+            max-height: 200px;
+            object-fit: contain;
+            margin: 0 auto 25px;
+            display: block;
+            border-radius: 15px;
         }
 
-        .top-rider-medal {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .top-rider.first .top-rider-medal {
-            font-size: 36px;
-        }
-
-        .top-rider-name {
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 8px;
-        }
-
-        .top-rider.first .top-rider-name {
-            font-size: 18px;
-        }
-
-        .top-rider-time {
-            font-size: 14px;
-            opacity: 0.8;
-        }
-
-        .top-rider.first .top-rider-time {
-            font-size: 16px;
-            opacity: 1;
-            font-weight: bold;
-        }
-
-        /* Remaining riders */
-        .remaining-riders {
-            margin-top: 40px;
+        .main-container {
             max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 0 auto;
         }
 
-        .remaining-riders h3 {
+        /* Leaderboard List */
+        .leaderboard-section {
+            margin-top: 20px;
+        }
+
+        .leaderboard-section h3 {
             text-align: center;
             margin-bottom: 20px;
             opacity: 0.9;
             font-size: 20px;
         }
 
-        .remaining-leaderboard {
+        .leaderboard-list {
             max-height: 400px;
             overflow-y: auto;
             background: rgba(255,255,255,0.05);
@@ -153,25 +64,25 @@
             padding: 15px;
         }
 
-        .remaining-entry {
+        .leaderboard-entry {
             background: rgba(255,255,255,0.1);
             margin: 10px 0;
             padding: 15px;
             border-radius: 12px;
             display: grid;
-            grid-template-columns: 50px 70px 1fr 100px;
+            grid-template-columns: 60px 50px 1fr 100px;
             gap: 15px;
             align-items: center;
             backdrop-filter: blur(10px);
         }
 
-        .remaining-position {
+        .entry-position {
             font-weight: bold;
             text-align: center;
             font-size: 18px;
         }
 
-        .remaining-photo {
+        .entry-photo {
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -183,21 +94,51 @@
             border: 2px solid rgba(255,255,255,0.3);
         }
 
-        .remaining-photo img {
+        .entry-photo img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .remaining-name {
+        .entry-name {
             font-weight: bold;
             font-size: 16px;
         }
 
-        .remaining-time {
+        .entry-time {
             text-align: center;
             font-weight: bold;
             font-size: 16px;
+        }
+
+        .entry-waiting {
+            text-align: center;
+            font-style: italic;
+            opacity: 0.7;
+            font-size: 14px;
+        }
+
+        .toggle-btn {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .toggle-btn:active {
+            transform: translateY(0);
         }
 
         .sync-info {
@@ -216,151 +157,190 @@
 
         /* Mobile responsive */
         @media (max-width: 480px) {
-            .top-three-container {
-                flex-direction: column;
-                align-items: center;
+            .leaderboard-logo {
+                max-width: 100%;
+                max-height: 150px;
             }
 
-            .top-rider {
-                order: unset !important;
-                margin-bottom: 15px;
-                min-width: 200px;
-            }
-
-            .remaining-entry {
-                grid-template-columns: 40px 50px 1fr 80px;
+            .leaderboard-entry {
+                grid-template-columns: 50px 40px 1fr 80px;
                 gap: 10px;
                 padding: 12px;
+            }
+
+            .entry-position {
+                font-size: 16px;
+            }
+
+            .entry-photo {
+                width: 40px;
+                height: 40px;
+            }
+
+            .entry-name {
+                font-size: 14px;
+            }
+
+            .entry-time, .entry-waiting {
+                font-size: 14px;
+            }
+
+            .toggle-btn {
+                padding: 12px 24px;
+                font-size: 16px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="leaderboard-header">
-        <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo.jpg" 
-             alt="GRNDbrekers Logo" class="leaderboard-logo"
-             onerror="this.style.display='none'; document.getElementById('title-fallback').style.display='block';">
-        <h1 id="title-fallback" style="display: none;">🏆 Live Leaderboard</h1>
-    </div>
-    
-    <!-- Top 3 (groot) -->
-    <div id="topThree"></div>
-    
-    <!-- Rest (scrollable lijst) -->
-    <div class="remaining-riders">
-        <h3>Overige Rankings:</h3>
-        <div id="remainingLeaderboard"></div>
-    </div>
-    
-    <div class="sync-info">
-        <p>🔄 Auto-refresh elke 5 seconden</p>
-        <p><small>StuDAY 2025 - GRNDbrekers Bull Riding</small></p>
+    <div class="main-container">
+        <div class="leaderboard-header">
+            <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo-transparant.jpg" 
+                 alt="GRNDbrekers Logo" class="leaderboard-logo"
+                 onerror="this.style.display='none'; document.getElementById('title-fallback').style.display='block';">
+            <h1 id="title-fallback" style="display: none;">🏆 Live Leaderboard</h1>
+        </div>
+        
+        <!-- Leaderboard/Waitlist -->
+        <div class="leaderboard-section">
+            <h3 id="sectionTitle">Rankings:</h3>
+            <div id="leaderboardList" class="leaderboard-list"></div>
+        </div>
+        
+        <!-- Toggle Button -->
+        <button class="toggle-btn" id="toggleBtn" onclick="toggleView()">Waitlist</button>
+        
+        <div class="sync-info">
+            <p>🔄 Auto-refresh elke 5 seconden</p>
+            <p><small>StuDAY 2025 - GRNDbrekers Bull Riding</small></p>
+        </div>
     </div>
 
     <script>
         let leaderboardData = [];
+        let ridersData = [];
+        let showingWaitlist = false;
 
         // Load data from localStorage on startup
-        function loadLeaderboard() {
+        function loadData() {
             const savedLeaderboard = localStorage.getItem('rodeoLeaderboard');
+            const savedRiders = localStorage.getItem('rodeoRiders');
+            
             if (savedLeaderboard) {
                 leaderboardData = JSON.parse(savedLeaderboard);
-                updateAllLeaderboards();
+            }
+            
+            if (savedRiders) {
+                ridersData = JSON.parse(savedRiders);
+            }
+            
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            if (showingWaitlist) {
+                updateWaitlist();
             } else {
-                showNoData();
+                updateLeaderboard();
             }
         }
 
-        function updateAllLeaderboards() {
-            updateTopThree();
-            updateRemainingLeaderboard();
-        }
-
-        function updateTopThree() {
-            const container = document.getElementById('topThree');
+        function updateLeaderboard() {
+            const container = document.getElementById('leaderboardList');
+            const titleElement = document.getElementById('sectionTitle');
+            const toggleBtn = document.getElementById('toggleBtn');
+            
+            titleElement.textContent = 'Rankings:';
+            toggleBtn.textContent = 'Waitlist';
+            
+            if (leaderboardData.length === 0) {
+                container.innerHTML = '<div class="no-data"><h2>🐂 Wachten op eerste rijders...</h2><p>Het leaderboard wordt automatisch bijgewerkt zodra er tijden worden toegevoegd!</p></div>';
+                return;
+            }
+            
             container.innerHTML = '';
             
-            const topThree = leaderboardData.slice(0, 3);
-            
-            if (topThree.length > 0) {
-                const topThreeContainer = document.createElement('div');
-                topThreeContainer.className = 'top-three-container';
+            leaderboardData.forEach((entry, index) => {
+                const position = index + 1;
                 
-                topThree.forEach((entry, index) => {
-                    const positions = ['first', 'second', 'third'];
-                    const medals = ['🥇', '🥈', '🥉'];
-                    
-                    const riderDiv = document.createElement('div');
-                    riderDiv.className = `top-rider ${positions[index]}`;
-                    
-                    riderDiv.innerHTML = `
-                        <div class="top-rider-medal">${medals[index]}</div>
-                        <div class="top-rider-photo">
-                            ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}">` : '👤'}
-                        </div>
-                        <div class="top-rider-name">${entry.name}</div>
-                        <div class="top-rider-time">${entry.time}</div>
-                    `;
-                    
-                    topThreeContainer.appendChild(riderDiv);
-                });
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'leaderboard-entry';
                 
-                container.appendChild(topThreeContainer);
-            }
+                // Add medal emoji for top 3
+                let medalEmoji = '';
+                if (position === 1) medalEmoji = '🥇 ';
+                else if (position === 2) medalEmoji = '🥈 ';
+                else if (position === 3) medalEmoji = '🥉 ';
+                
+                entryDiv.innerHTML = `
+                    <div class="entry-position">${medalEmoji}#${position}</div>
+                    <div class="entry-photo">
+                        ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}">` : '👤'}
+                    </div>
+                    <div class="entry-name">${entry.name}</div>
+                    <div class="entry-time">${entry.time}</div>
+                `;
+                
+                container.appendChild(entryDiv);
+            });
         }
 
-        function updateRemainingLeaderboard() {
-            const container = document.getElementById('remainingLeaderboard');
-            const remainingEntries = leaderboardData.slice(3);
+        function updateWaitlist() {
+            const container = document.getElementById('leaderboardList');
+            const titleElement = document.getElementById('sectionTitle');
+            const toggleBtn = document.getElementById('toggleBtn');
             
-            if (remainingEntries.length > 0) {
-                const remainingContainer = document.createElement('div');
-                remainingContainer.className = 'remaining-leaderboard';
-                
-                remainingEntries.forEach((entry, index) => {
-                    const position = index + 4; // Start from position 4
-                    
-                    const entryDiv = document.createElement('div');
-                    entryDiv.className = 'remaining-entry';
-                    
-                    entryDiv.innerHTML = `
-                        <div class="remaining-position">#${position}</div>
-                        <div class="remaining-photo">
-                            ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}">` : '👤'}
-                        </div>
-                        <div class="remaining-name">${entry.name}</div>
-                        <div class="remaining-time">${entry.time}</div>
-                    `;
-                    
-                    remainingContainer.appendChild(entryDiv);
-                });
-                
-                container.innerHTML = '';
-                container.appendChild(remainingContainer);
-            } else if (leaderboardData.length <= 3 && leaderboardData.length > 0) {
-                container.innerHTML = '<p class="no-data">Nog geen andere deelnemers</p>';
+            titleElement.textContent = 'Waitlist:';
+            toggleBtn.textContent = 'Ranking';
+            
+            // Get riders without time (same logic as dropdown in index.html)
+            const waitingRiders = ridersData.filter(rider => !rider.time);
+            
+            if (waitingRiders.length === 0) {
+                container.innerHTML = '<div class="no-data"><h2>📝 Geen wachtende rijders</h2><p>Alle rijders hebben al een tijd!</p></div>';
+                return;
             }
+            
+            container.innerHTML = '';
+            
+            waitingRiders.forEach((rider, index) => {
+                const position = index + 1;
+                
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'leaderboard-entry';
+                
+                entryDiv.innerHTML = `
+                    <div class="entry-position">#${position}</div>
+                    <div class="entry-photo">
+                        ${rider.photo ? `<img src="${rider.photo}" alt="${rider.name}">` : '👤'}
+                    </div>
+                    <div class="entry-name">${rider.name}</div>
+                    <div class="entry-waiting">Wachtend...</div>
+                `;
+                
+                container.appendChild(entryDiv);
+            });
         }
 
-        function showNoData() {
-            document.getElementById('topThree').innerHTML = '<div class="no-data"><h2>🐂 Wachten op eerste rijders...</h2><p>Het leaderboard wordt automatisch bijgewerkt zodra er tijden worden toegevoegd!</p></div>';
-            document.getElementById('remainingLeaderboard').innerHTML = '';
+        function toggleView() {
+            showingWaitlist = !showingWaitlist;
+            updateDisplay();
         }
 
         // Auto-refresh every 5 seconds
         setInterval(() => {
-            loadLeaderboard();
+            loadData();
         }, 5000);
 
         // Initial load
         window.addEventListener('load', function() {
-            loadLeaderboard();
+            loadData();
         });
 
         // Refresh when page becomes visible (tab switching)
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
-                loadLeaderboard();
+                loadData();
             }
         });
     </script>
