@@ -265,6 +265,27 @@
         let ridersData = [];
         let showingWaitlist = false;
 
+        // Helper function to get photo sources - handles both old and new format
+        function getPhotoSources(photoData) {
+            if (!photoData) {
+                return { thumbnail: null, fullsize: null };
+            }
+            
+            // New format: {thumbnail: "...", fullsize: "..."}
+            if (typeof photoData === 'object' && photoData.thumbnail) {
+                return {
+                    thumbnail: photoData.thumbnail,
+                    fullsize: photoData.fullsize || photoData.thumbnail
+                };
+            }
+            
+            // Old format: "data:image/jpeg;base64..."
+            return {
+                thumbnail: photoData,
+                fullsize: photoData
+            };
+        }
+
         // Load data from localStorage on startup
         function loadData() {
             const savedLeaderboard = localStorage.getItem('rodeoLeaderboard');
@@ -316,10 +337,13 @@
                 else if (position === 2) medalEmoji = '🥈 ';
                 else if (position === 3) medalEmoji = '🥉 ';
                 
+                // Get photo sources for both thumbnail and fullsize
+                const photoSources = getPhotoSources(entry.photo);
+                
                 entryDiv.innerHTML = `
                     <div class="entry-position">${medalEmoji}#${position}</div>
                     <div class="entry-photo">
-                        ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}" class="clickable-photo" onclick="openPhotoModal('${entry.photo}', '${entry.name}')">` : '👤'}
+                        ${photoSources.thumbnail ? `<img src="${photoSources.thumbnail}" alt="${entry.name}" class="clickable-photo" onclick="openPhotoModal('${photoSources.fullsize}', '${entry.name}')">` : '👤'}
                     </div>
                     <div class="entry-name">${entry.name}</div>
                     <div class="entry-time">${entry.time}</div>
@@ -353,10 +377,13 @@
                 const entryDiv = document.createElement('div');
                 entryDiv.className = 'leaderboard-entry';
                 
+                // Get photo sources for both thumbnail and fullsize
+                const photoSources = getPhotoSources(rider.photo);
+                
                 entryDiv.innerHTML = `
                     <div class="entry-position">#${position}</div>
                     <div class="entry-photo">
-                        ${rider.photo ? `<img src="${rider.photo}" alt="${rider.name}" class="clickable-photo" onclick="openPhotoModal('${rider.photo}', '${rider.name}')">` : '👤'}
+                        ${photoSources.thumbnail ? `<img src="${photoSources.thumbnail}" alt="${rider.name}" class="clickable-photo" onclick="openPhotoModal('${photoSources.fullsize}', '${rider.name}')">` : '👤'}
                     </div>
                     <div class="entry-name">${rider.name}</div>
                     <div class="entry-waiting">Wachtend...</div>
@@ -371,17 +398,19 @@
             updateDisplay();
         }
 
-        // Photo modal functions
+        // Photo modal functions - now supports both old and new photo formats
         function openPhotoModal(photoSrc, riderName) {
             const modal = document.getElementById('photoModal');
             const img = document.getElementById('photoModalContent');
             
-            img.src = photoSrc;
-            img.alt = `Foto van ${riderName}`;
-            modal.classList.add('active');
+            if (photoSrc && photoSrc !== 'null' && photoSrc !== 'undefined') {
+                img.src = photoSrc;
+                img.alt = `Foto van ${riderName}`;
+                modal.classList.add('active');
+            }
             
             // Prevent event bubbling
-            event.stopPropagation();
+            if (event) event.stopPropagation();
         }
 
         function closePhotoModal() {
