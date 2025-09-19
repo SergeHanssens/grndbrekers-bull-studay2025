@@ -374,13 +374,7 @@
     </style>
 </head>
 <body>
-    <div class="debug" id="debug">🐛 DEBUG: App starting...</div>
-
-    <!-- Test buttons -->
-    <div class="test-buttons">
-        <button class="test-btn" onclick="testSorting()">Test Sortering</button>
-        <button class="test-btn" onclick="showCurrentData()">Show Data</button>
-    </div>
+    <div class="debug" id="debug">Loading...</div>
 
     <!-- Home Screen -->
     <div class="screen active" id="homeScreen">
@@ -461,34 +455,11 @@
     </div>
 
     <script>
-        // Test functions for debugging
-        window.testSorting = function() {
-            // Add test data
-            window.leaderboardData = [
-                { name: 'Alice', time: '00:30:50', timeValue: 3050, timestamp: new Date().toISOString() },
-                { name: 'Bob', time: '01:15:25', timeValue: 7525, timestamp: new Date().toISOString() },
-                { name: 'Carol', time: '00:45:10', timeValue: 4510, timestamp: new Date().toISOString() }
-            ];
-            
-            updateDebug('TEST: Before sort - Alice:3050, Bob:7525, Carol:4510');
-            
-            // Sort
-            window.leaderboardData.sort((a, b) => {
-                const result = b.timeValue - a.timeValue;
-                console.log(`SORT: ${a.name}(${a.timeValue}) vs ${b.name}(${b.timeValue}) = ${result}`);
-                return result;
-            });
-            
-            updateDebug('TEST: After sort - ' + window.leaderboardData.map(e => e.name + ':' + e.timeValue).join(', '));
-            
-            updateLeaderboard();
-            showScreen('leaderboardScreen');
-        }
-
-        window.showCurrentData = function() {
-            const data = window.leaderboardData.map(e => `${e.name}: ${e.time} (${e.timeValue})`).join('\n');
-            updateDebug('CURRENT DATA:\n' + (data || 'No data'));
-            alert('Leaderboard data:\n' + (data || 'No data yet'));
+        // Debug function
+        function updateDebug(message) {
+            const debug = document.getElementById('debug');
+            if (debug) debug.textContent = message;
+            console.log('DEBUG:', message);
         }
 
         updateDebug('Script starting...');
@@ -682,7 +653,7 @@
             window.leaderboardData.push(entry);
             
             // Sort by time (SHORTEST first - who fell off first)
-            window.leaderboardData.sort((a, b) => a.timeValue - b.timeValue);
+            window.leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
             
             // Keep ALL entries (no limit)
 
