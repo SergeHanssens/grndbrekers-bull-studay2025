@@ -415,7 +415,7 @@
             </select>
             
             <div class="time-inputs">
-                <input type="number" class="input-field" id="minutes" placeholder="Min" min="0" max="59">
+                <input type="number" class="input-field" id="minutes" placeholder="Min" min="0" max="999">
                 <input type="number" class="input-field" id="seconds" placeholder="Sec" min="0" max="59">
                 <input type="number" class="input-field" id="hundredths" placeholder="1/100" min="0" max="99">
             </div>
@@ -609,31 +609,80 @@
             });
         }
 
-        // Add time function
+        // Validate time input fields
+        function validateTimeInput(inputId, maxValue, fieldName) {
+            const input = document.getElementById(inputId);
+            if (!input) return false;
+            
+            const value = input.value;
+            
+            // Check if empty (allow empty for optional fields)
+            if (value === '' || value === null) {
+                return true; // Empty is okay, will default to 0
+            }
+            
+            // Check if it's a valid number
+            const numValue = parseFloat(value);
+            
+            // Must be a natural number (positive integer, no decimals)
+            if (!Number.isInteger(numValue) || numValue < 0) {
+                alert(`${fieldName} moet een natuurlijk getal zijn (0, 1, 2, 3, ...)!`);
+                input.focus();
+                return false;
+            }
+            
+            // Check maximum value
+            if (numValue > maxValue) {
+                alert(`${fieldName} mag maximaal ${maxValue} zijn!`);
+                input.focus();
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Add time function with enhanced validation
         window.addTime = function() {
             updateDebug('Adding time...');
             
             const riderIndex = document.getElementById('riderSelect').value;
-            const minutes = document.getElementById('minutes').value || '0';
-            const seconds = document.getElementById('seconds').value || '0';
-            const hundredths = document.getElementById('hundredths').value || '0';
-
+            
             if (!riderIndex && riderIndex !== '0') {
                 alert('Selecteer een rijder!');
                 return;
             }
+            
+            // Validate all time inputs
+            if (!validateTimeInput('minutes', 999, 'Minuten')) return;
+            if (!validateTimeInput('seconds', 59, 'Seconden')) return;
+            if (!validateTimeInput('hundredths', 99, 'Honderdsten')) return;
+            
+            // Get values (default to 0 if empty)
+            const minutes = document.getElementById('minutes').value || '0';
+            const seconds = document.getElementById('seconds').value || '0';
+            const hundredths = document.getElementById('hundredths').value || '0';
+            
+            // Additional validation: ensure they're integers
+            const minInt = parseInt(minutes);
+            const secInt = parseInt(seconds);
+            const hunInt = parseInt(hundredths);
+            
+            if (minInt.toString() !== minutes || secInt.toString() !== seconds || hunInt.toString() !== hundredths) {
+                alert('Alle tijdvelden moeten natuurlijke getallen zijn (geen decimalen)!');
+                return;
+            }
 
-            const timeString = `${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}:${hundredths.padStart(2, '0')}`;
-            const timeValue = parseInt(minutes) * 6000 + parseInt(seconds) * 100 + parseInt(hundredths);
+            const timeString = `${minInt.toString().padStart(2, '0')}:${secInt.toString().padStart(2, '0')}:${hunInt.toString().padStart(2, '0')}`;
+            const timeValue = minInt * 6000 + secInt * 100 + hunInt;
 
             // Debug time calculation
             console.log(`Time calculation for ${window.riders[riderIndex].name}:`, {
-                minutes: parseInt(minutes),
-                seconds: parseInt(seconds), 
-                hundredths: parseInt(hundredths),
+                minutes: minInt,
+                seconds: secInt, 
+                hundredths: hunInt,
                 timeString: timeString,
                 timeValue: timeValue,
-                breakdown: `${parseInt(minutes)}*6000 + ${parseInt(seconds)}*100 + ${parseInt(hundredths)} = ${timeValue}`
+                breakdown: `${minInt}*6000 + ${secInt}*100 + ${hunInt} = ${timeValue}`
             });
 
             // Update rider
@@ -652,10 +701,8 @@
             window.leaderboardData = window.leaderboardData.filter(e => e.name !== entry.name);
             window.leaderboardData.push(entry);
             
-            // Sort by time (SHORTEST first - who fell off first)
+            // Sort by time (LONGEST first - who stayed on longest)
             window.leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
-            
-            // Keep ALL entries (no limit)
 
             // Save and update
             saveData();
@@ -753,6 +800,60 @@
             container.appendChild(remainingContainer);
         }
 
+        // Real-time input validation as user types
+        function addRealTimeValidation() {
+            // Minutes field - allow any natural number
+            document.getElementById('minutes').addEventListener('input', function(e) {
+                let value = e.target.value;
+                // Remove any non-digit characters
+                value = value.replace(/[^0-9]/g, '');
+                e.target.value = value;
+            });
+            
+            // Seconds field - max 59
+            document.getElementById('seconds').addEventListener('input', function(e) {
+                let value = e.target.value;
+                // Remove any non-digit characters
+                value = value.replace(/[^0-9]/g, '');
+                // Limit to 59
+                if (parseInt(value) > 59) {
+                    value = '59';
+                }
+                e.target.value = value;
+            });
+            
+            // Hundredths field - max 99
+            document.getElementById('hundredths').addEventListener('input', function(e) {
+                let value = e.target.value;
+                // Remove any non-digit characters
+                value = value.replace(/[^0-9]/g, '');
+                // Limit to 99
+                if (parseInt(value) > 99) {
+                    value = '99';
+                }
+                e.target.value = value;
+            });
+        }
+
+        // Add Enter key support for better UX
+        function addEnterKeySupport() {
+            // Enter key on rider name adds rider
+            document.getElementById('riderName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addRider();
+                }
+            });
+            
+            // Enter key on time fields adds time
+            ['minutes', 'seconds', 'hundredths'].forEach(fieldId => {
+                document.getElementById(fieldId).addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        addTime();
+                    }
+                });
+            });
+        }
+
         // Save data to localStorage
         function saveData() {
             try {
@@ -806,7 +907,7 @@
             }
         }
 
-        // Initialize app
+        // Initialize app with all enhancements
         function initApp() {
             updateDebug('Initializing app...');
             
@@ -814,6 +915,10 @@
             updateRidersList();
             updateRiderDropdown();
             updateLeaderboard();
+            
+            // Add the new validation features
+            addRealTimeValidation();
+            addEnterKeySupport();
             
             // Show next button if we have riders without time
             const ridersWithoutTime = window.riders.filter(r => !r.time);
