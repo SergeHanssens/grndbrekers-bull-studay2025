@@ -422,16 +422,35 @@
             }
             
             .time-inputs {
-                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            
+            .time-input {
+                width: 60px;
+                padding: 12px 8px;
+                font-size: 14px;
+            }
+            
+            .time-separator {
+                font-size: 20px;
             }
             
             .screen-content {
                 padding: 10px;
             }
             
-            .btn {
-                padding: 12px 20px;
-                font-size: 16px;
+            .btn-compact {
+                padding: 10px 15px;
+                font-size: 14px;
+                min-height: 40px;
+            }
+            
+            .button-row {
+                gap: 8px;
+            }
+            
+            .leaderboard-buttons {
+                gap: 10px;
             }
             
             .remaining-entry {
@@ -461,6 +480,15 @@
             .photo-gallery {
                 grid-template-columns: repeat(3, 1fr);
             }
+
+            .photo-preview {
+                width: 80px;
+                height: 80px;
+            }
+
+            .photo-input-section {
+                padding: 10px;
+            }
         }
     </style>
 </head>
@@ -483,7 +511,6 @@
 
     <!-- Name Entry Screen -->
     <div class="screen" id="nameEntryScreen">
-        <button class="back-btn" onclick="showScreen('homeScreen')">← Terug</button>
         <div class="screen-content">
             <h2>Voeg Rijders Toe</h2>
             
@@ -496,20 +523,20 @@
                 <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">Foto Maken (Optioneel)</button>
             </div>
             
-            <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder">
+            <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder" style="margin-top: 0;">
+            
+            <div class="button-row">
+                <button class="btn-compact" onclick="addRider()">Opslaan</button>
+                <button class="btn-compact ranking" onclick="showScreen('leaderboardScreen')" id="nextToTimeBtn" style="display: none;">Tijden</button>
+                <button class="btn-compact ranking" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
+            </div>
             
             <div class="added-names" id="addedNames"></div>
-            <button class="btn" onclick="addRider()">+ Voeg Rijder Toe</button>
-            <div style="margin-top: 20px;">
-                <button class="btn" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Naar Tijden →</button>
-                <button class="btn" onclick="showScreen('leaderboardScreen')" style="background: linear-gradient(45deg, #FFD700, #FFA500);">🏆 Bekijk Leaderboard</button>
-            </div>
         </div>
     </div>
 
     <!-- Time Entry Screen -->
     <div class="screen" id="timeEntryScreen">
-        <button class="back-btn" onclick="showScreen('nameEntryScreen')">← Terug</button>
         <div class="screen-content">
             <h2>Voeg Tijd Toe</h2>
             <select class="input-field" id="riderSelect">
@@ -517,14 +544,17 @@
             </select>
             
             <div class="time-inputs">
-                <input type="number" class="input-field" id="minutes" placeholder="Min" min="0" max="999">
-                <input type="number" class="input-field" id="seconds" placeholder="Sec" min="0" max="59">
-                <input type="number" class="input-field" id="hundredths" placeholder="1/100" min="0" max="99">
+                <input type="number" class="time-input" id="minutes" placeholder="Min" min="0" max="999">
+                <span class="time-separator">:</span>
+                <input type="number" class="time-input" id="seconds" placeholder="Sec" min="0" max="59">
+                <span class="time-separator">:</span>
+                <input type="number" class="time-input" id="hundredths" placeholder="1/100" min="0" max="99">
             </div>
-            <button class="btn" onclick="addTime()">Voeg Tijd Toe</button>
-            <div style="margin-top: 20px;">
-                <button class="btn" onclick="showScreen('nameEntryScreen')" style="background: linear-gradient(45deg, #2196F3, #1976D2);">← Naar Rijders</button>
-                <button class="btn" onclick="showScreen('leaderboardScreen')">Bekijk Leaderboard</button>
+            
+            <div class="button-row">
+                <button class="btn-compact" onclick="addTime()">Opslaan</button>
+                <button class="btn-compact" onclick="showScreen('nameEntryScreen')">Rijders</button>
+                <button class="btn-compact ranking" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
             </div>
         </div>
     </div>
@@ -541,14 +571,13 @@
             
             <!-- Leaderboard List -->
             <div class="remaining-riders" id="leaderboardSection">
-                <h3>Rankings:</h3>
                 <div id="leaderboardList"></div>
             </div>
             
-            <div style="margin-top: 30px;">
-                <button class="btn" onclick="showScreen('timeEntryScreen')">← Tijden Toevoegen</button>
-                <button class="btn" onclick="showScreen('nameEntryScreen')">Nieuwe Rijders</button>
-                <button class="btn" onclick="resetAll()" style="background: linear-gradient(45deg, #dc2626, #b91c1c);">🗑️ Reset</button>
+            <div class="leaderboard-buttons">
+                <button class="btn-compact" onclick="showScreen('timeEntryScreen')">Tijd</button>
+                <button class="btn-compact" onclick="showScreen('nameEntryScreen')">Rijders</button>
+                <button class="btn-compact" onclick="resetAll()" style="background: linear-gradient(45deg, #dc2626, #b91c1c);">🗑️ Reset</button>
             </div>
         </div>
     </div>
