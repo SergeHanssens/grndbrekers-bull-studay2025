@@ -426,31 +426,37 @@
             }
             
             .time-input {
-                width: 60px;
-                padding: 12px 8px;
+                width: 55px;
+                padding: 12px 6px;
                 font-size: 14px;
             }
             
             .time-separator {
-                font-size: 20px;
+                font-size: 18px;
+                margin: 0 1px;
             }
             
             .screen-content {
                 padding: 10px;
             }
             
-            .btn-compact {
+            .top-button, .btn-red {
+                padding: 10px 20px;
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+            
+            .btn-blue, .btn-green {
                 padding: 10px 15px;
                 font-size: 14px;
-                min-height: 40px;
             }
             
-            .button-row {
-                gap: 8px;
+            .side-buttons {
+                margin: 15px 0;
             }
-            
-            .leaderboard-buttons {
-                gap: 10px;
+
+            .leaderboard-nav-buttons {
+                margin-bottom: 10px;
             }
             
             .remaining-entry {
@@ -512,6 +518,8 @@
     <!-- Name Entry Screen -->
     <div class="screen" id="nameEntryScreen">
         <div class="screen-content">
+            <button class="top-button" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
+            
             <h2>Voeg Rijders Toe</h2>
             
             <!-- Photo Section -->
@@ -525,10 +533,9 @@
             
             <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder" style="margin-top: 0;">
             
-            <div class="button-row">
-                <button class="btn-compact" onclick="addRider()">Opslaan</button>
-                <button class="btn-compact ranking" onclick="showScreen('leaderboardScreen')" id="nextToTimeBtn" style="display: none;">Tijden</button>
-                <button class="btn-compact ranking" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
+            <div class="side-buttons">
+                <button class="btn-blue" onclick="addRider()">Opslaan</button>
+                <button class="btn-green" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Tijden</button>
             </div>
             
             <div class="added-names" id="addedNames"></div>
@@ -538,6 +545,8 @@
     <!-- Time Entry Screen -->
     <div class="screen" id="timeEntryScreen">
         <div class="screen-content">
+            <button class="top-button" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
+            
             <h2>Voeg Tijd Toe</h2>
             <select class="input-field" id="riderSelect">
                 <option value="">Selecteer rijder...</option>
@@ -551,10 +560,9 @@
                 <input type="number" class="time-input" id="hundredths" placeholder="1/100" min="0" max="99">
             </div>
             
-            <div class="button-row">
-                <button class="btn-compact" onclick="addTime()">Opslaan</button>
-                <button class="btn-compact" onclick="showScreen('nameEntryScreen')">Rijders</button>
-                <button class="btn-compact ranking" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
+            <div class="side-buttons">
+                <button class="btn-blue" onclick="addTime()">Opslaan</button>
+                <button class="btn-green" onclick="showScreen('nameEntryScreen')">Rijders</button>
             </div>
         </div>
     </div>
@@ -562,6 +570,8 @@
     <!-- Leaderboard Screen -->
     <div class="screen" id="leaderboardScreen">
         <div class="screen-content">
+            <button class="btn-red" onclick="resetAll()">🗑️ Reset</button>
+            
             <!-- Logo Header -->
             <div class="leaderboard-header">
                 <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo-transparant-V5.png" 
@@ -569,15 +579,15 @@
                      onerror="this.outerHTML='<h2 style=color:white;>🛠️ GRNDbrekers Bull Riding</h2>';">
             </div>
             
+            <!-- Navigation buttons above list -->
+            <div class="leaderboard-nav-buttons">
+                <button class="btn-green" onclick="showScreen('timeEntryScreen')">Tijd</button>
+                <button class="btn-green" onclick="showScreen('nameEntryScreen')">Rijders</button>
+            </div>
+            
             <!-- Leaderboard List -->
             <div class="remaining-riders" id="leaderboardSection">
                 <div id="leaderboardList"></div>
-            </div>
-            
-            <div class="leaderboard-buttons">
-                <button class="btn-compact" onclick="showScreen('timeEntryScreen')">Tijd</button>
-                <button class="btn-compact" onclick="showScreen('nameEntryScreen')">Rijders</button>
-                <button class="btn-compact" onclick="resetAll()" style="background: linear-gradient(45deg, #dc2626, #b91c1c);">🗑️ Reset</button>
             </div>
         </div>
     </div>
