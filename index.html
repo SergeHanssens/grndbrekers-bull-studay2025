@@ -132,22 +132,65 @@
         }
 
         .rider-tag {
-            display: inline-block;
+            display: flex;
+            align-items: center;
             background: rgba(76,175,80,0.3);
             color: white;
-            padding: 8px 15px;
-            margin: 5px;
+            padding: 10px 15px;
+            margin: 8px;
             border-radius: 20px;
             border: 1px solid #4CAF50;
             font-size: 14px;
             position: relative;
         }
 
-        .rider-tag .remove-btn {
-            margin-left: 8px;
+        .rider-photo-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.3);
+            flex-shrink: 0;
+        }
+
+        .rider-photo-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .rider-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .rider-actions {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+        }
+
+        .action-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 5px 8px;
+            border-radius: 15px;
             cursor: pointer;
-            color: #ff6b35;
-            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .action-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .remove-btn {
+            background: rgba(255,107,53,0.8);
         }
 
         .time-inputs {
@@ -163,79 +206,13 @@
         }
 
         .leaderboard-logo {
-            max-width: 350px;
-            max-height: 150px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 200px;
             object-fit: contain;
             margin: 0 auto 25px;
             display: block;
             border-radius: 15px;
-        }
-
-        .top-three-container {
-            display: flex;
-            justify-content: center;
-            align-items: end;
-            margin: 20px 0;
-            gap: 10px;
-        }
-
-        .top-rider {
-            text-align: center;
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 15px;
-            backdrop-filter: blur(10px);
-            min-width: 80px;
-        }
-
-        .top-rider.first {
-            order: 2;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000;
-            transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(255,215,0,0.3);
-        }
-
-        .top-rider.second {
-            order: 1;
-            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
-            color: #000;
-        }
-
-        .top-rider.third {
-            order: 3;
-            background: linear-gradient(135deg, #CD7F32, #B8860B);
-            color: #fff;
-        }
-
-        .top-rider-medal {
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
-
-        .top-rider.first .top-rider-medal {
-            font-size: 24px;
-        }
-
-        .top-rider-name {
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .top-rider.first .top-rider-name {
-            font-size: 16px;
-        }
-
-        .top-rider-time {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .top-rider.first .top-rider-time {
-            font-size: 14px;
-            opacity: 1;
-            font-weight: bold;
         }
 
         .remaining-riders {
@@ -263,7 +240,7 @@
             padding: 12px;
             border-radius: 10px;
             display: grid;
-            grid-template-columns: 40px 1fr 80px;
+            grid-template-columns: 40px 50px 1fr 80px;
             gap: 10px;
             align-items: center;
             backdrop-filter: blur(10px);
@@ -273,6 +250,24 @@
             font-weight: bold;
             text-align: center;
             font-size: 16px;
+        }
+
+        .remaining-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .remaining-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .remaining-name {
@@ -312,28 +307,87 @@
             font-family: monospace;
         }
 
-        .test-buttons {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            z-index: 9999;
+        .photo-input-section {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            border: 2px dashed rgba(255,255,255,0.3);
         }
 
-        .test-btn {
-            background: orange;
-            color: black;
-            padding: 8px 12px;
-            margin: 2px;
+        .photo-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-btn {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 20px;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
             border: none;
-            border-radius: 5px;
-            font-size: 12px;
+            color: white;
+            font-size: 24px;
             cursor: pointer;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
         }
 
         @media (max-width: 480px) {
             .leaderboard-logo {
-                max-width: 280px;
-                max-height: 120px;
+                max-width: 100%;
+                max-height: 150px;
             }
             
             .time-inputs {
@@ -349,26 +403,20 @@
                 font-size: 16px;
             }
             
-            .top-three-container {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .top-rider {
-                order: unset !important;
-                margin-bottom: 10px;
-                min-width: 150px;
-                transform: none !important;
-            }
-            
-            .top-rider.first {
-                transform: scale(1.05) !important;
-            }
-            
             .remaining-entry {
-                grid-template-columns: 35px 1fr 70px;
+                grid-template-columns: 35px 40px 1fr 70px;
                 gap: 8px;
                 padding: 10px;
+            }
+
+            .rider-tag {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .rider-actions {
+                margin-left: 0;
+                margin-top: 10px;
             }
         }
     </style>
@@ -395,7 +443,18 @@
         <button class="back-btn" onclick="showScreen('homeScreen')">← Terug</button>
         <div class="screen-content">
             <h2>Voeg Rijders Toe</h2>
+            
+            <!-- Photo Section -->
+            <div class="photo-input-section">
+                <div class="photo-preview" id="photoPreview">
+                    📷
+                </div>
+                <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;">
+                <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">Foto Maken</button>
+            </div>
+            
             <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder">
+            
             <div class="added-names" id="addedNames"></div>
             <button class="btn" onclick="addRider()">+ Voeg Rijder Toe</button>
             <div style="margin-top: 20px;">
@@ -437,19 +496,39 @@
                      onerror="this.outerHTML='<h2 style=color:white;>🛠️ GRNDbrekers Bull Riding</h2>';">
             </div>
             
-            <!-- Top 3 -->
-            <div id="topThree"></div>
-            
-            <!-- Rest in scrollable -->
-            <div class="remaining-riders" id="remainingRidersSection">
-                <h3>Overige Rankings:</h3>
-                <div id="remainingLeaderboard"></div>
+            <!-- Leaderboard List -->
+            <div class="remaining-riders" id="leaderboardSection">
+                <h3>Rankings:</h3>
+                <div id="leaderboardList"></div>
             </div>
             
             <div style="margin-top: 30px;">
                 <button class="btn" onclick="showScreen('timeEntryScreen')">← Tijden Toevoegen</button>
                 <button class="btn" onclick="showScreen('nameEntryScreen')">Nieuwe Rijders</button>
                 <button class="btn" onclick="resetAll()" style="background: linear-gradient(45deg, #dc2626, #b91c1c);">🗑️ Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content" style="position: relative;">
+            <button class="modal-close" onclick="closeEditModal()">×</button>
+            <h3>Rijder Bewerken</h3>
+            
+            <div class="photo-input-section">
+                <div class="photo-preview" id="editPhotoPreview">
+                    📷
+                </div>
+                <input type="file" id="editPhotoInput" accept="image/*" capture="environment" style="display: none;">
+                <button class="btn photo-btn" onclick="document.getElementById('editPhotoInput').click()">Foto Wijzigen</button>
+            </div>
+            
+            <input type="text" class="input-field" id="editRiderName" placeholder="Naam van rijder">
+            
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="saveEditedRider()">Wijzigingen Opslaan</button>
+                <button class="btn" onclick="closeEditModal()" style="background: rgba(255,255,255,0.2);">Annuleren</button>
             </div>
         </div>
     </div>
@@ -467,6 +546,69 @@
         // Global variables
         window.riders = [];
         window.leaderboardData = [];
+        window.currentPhoto = null;
+        window.editingRiderIndex = null;
+
+        // Photo compression function
+        function compressImage(file, maxWidth = 150, maxHeight = 150, quality = 0.7) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = function() {
+                    // Calculate new dimensions
+                    let { width, height } = img;
+                    
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width = (width * maxHeight) / height;
+                            height = maxHeight;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Draw and compress
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                    resolve(compressedDataUrl);
+                };
+                
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Handle photo selection
+        document.addEventListener('DOMContentLoaded', function() {
+            // Main photo input
+            document.getElementById('photoInput').addEventListener('change', async function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const compressed = await compressImage(e.target.files[0]);
+                    window.currentPhoto = compressed;
+                    
+                    const preview = document.getElementById('photoPreview');
+                    preview.innerHTML = `<img src="${compressed}" alt="Preview">`;
+                }
+            });
+
+            // Edit photo input
+            document.getElementById('editPhotoInput').addEventListener('change', async function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const compressed = await compressImage(e.target.files[0]);
+                    
+                    const preview = document.getElementById('editPhotoPreview');
+                    preview.innerHTML = `<img src="${compressed}" alt="Preview">`;
+                    preview.dataset.newPhoto = compressed;
+                }
+            });
+        });
 
         // Simple screen navigation
         window.showScreen = function(screenId) {
@@ -514,16 +656,20 @@
                 return;
             }
             
-            // Add rider
+            // Add rider with photo
             window.riders.push({
                 name: name,
+                photo: window.currentPhoto || null,
                 time: null,
                 timeValue: null,
                 timestamp: new Date().toISOString()
             });
             
-            // Clear input
+            // Clear inputs
             nameInput.value = '';
+            window.currentPhoto = null;
+            document.getElementById('photoPreview').innerHTML = '📷';
+            document.getElementById('photoInput').value = '';
             
             // Save and update
             saveData();
@@ -537,6 +683,76 @@
             }
             
             updateDebug('Rider added: ' + name + ' (total: ' + window.riders.length + ')');
+        }
+
+        // Edit rider function
+        window.editRider = function(index) {
+            const rider = window.riders[index];
+            if (!rider || rider.time) {
+                alert('Kan alleen rijders bewerken die nog niet gereden hebben!');
+                return;
+            }
+
+            window.editingRiderIndex = index;
+            
+            // Fill modal
+            document.getElementById('editRiderName').value = rider.name;
+            const editPreview = document.getElementById('editPhotoPreview');
+            
+            if (rider.photo) {
+                editPreview.innerHTML = `<img src="${rider.photo}" alt="Current photo">`;
+            } else {
+                editPreview.innerHTML = '📷';
+            }
+            
+            // Clear new photo data
+            editPreview.dataset.newPhoto = '';
+            document.getElementById('editPhotoInput').value = '';
+            
+            // Show modal
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // Save edited rider
+        window.saveEditedRider = function() {
+            if (window.editingRiderIndex === null) return;
+            
+            const newName = document.getElementById('editRiderName').value.trim();
+            if (!newName) {
+                alert('Voer een naam in!');
+                return;
+            }
+            
+            // Check if name exists (except current rider)
+            const existingRider = window.riders.find((r, i) => 
+                i !== window.editingRiderIndex && r.name.toLowerCase() === newName.toLowerCase());
+            if (existingRider) {
+                alert('Deze naam bestaat al!');
+                return;
+            }
+            
+            // Update rider
+            const rider = window.riders[window.editingRiderIndex];
+            rider.name = newName;
+            
+            const editPreview = document.getElementById('editPhotoPreview');
+            if (editPreview.dataset.newPhoto) {
+                rider.photo = editPreview.dataset.newPhoto;
+            }
+            
+            // Save and update
+            saveData();
+            updateRidersList();
+            updateRiderDropdown();
+            closeEditModal();
+            
+            updateDebug('Rider edited: ' + newName);
+        }
+
+        // Close edit modal
+        window.closeEditModal = function() {
+            document.getElementById('editModal').classList.remove('active');
+            window.editingRiderIndex = null;
         }
 
         // Remove rider function  
@@ -579,9 +795,18 @@
                 
                 const tag = document.createElement('div');
                 tag.className = 'rider-tag';
+                
                 tag.innerHTML = `
-                    ${rider.name}
-                    <span class="remove-btn" onclick="removeRider(${fullIndex})">×</span>
+                    <div class="rider-photo-small">
+                        ${rider.photo ? `<img src="${rider.photo}" alt="${rider.name}">` : '👤'}
+                    </div>
+                    <div class="rider-info">
+                        <strong>${rider.name}</strong>
+                    </div>
+                    <div class="rider-actions">
+                        <button class="action-btn" onclick="editRider(${fullIndex})">✏️</button>
+                        <button class="action-btn remove-btn" onclick="removeRider(${fullIndex})">×</button>
+                    </div>
                 `;
                 container.appendChild(tag);
             });
@@ -692,6 +917,7 @@
             // Add to leaderboard
             const entry = {
                 name: window.riders[riderIndex].name,
+                photo: window.riders[riderIndex].photo,
                 time: timeString,
                 timeValue: timeValue,
                 timestamp: new Date().toISOString()
@@ -719,85 +945,51 @@
             updateDebug('Time added for: ' + entry.name);
         }
 
-        // Update leaderboard display with top 3 + scrollable rest
+        // Update leaderboard display as single scrollable list
         function updateLeaderboard() {
-            updateTopThree();
-            updateRemainingLeaderboard();
+            updateLeaderboardList();
         }
 
-        // Update top 3 podium
-        function updateTopThree() {
-            const container = document.getElementById('topThree');
-            if (!container) return;
+        // Update leaderboard list (all positions)
+        function updateLeaderboardList() {
+            const container = document.getElementById('leaderboardList');
+            const section = document.getElementById('leaderboardSection');
+            if (!container || !section) return;
             
-            container.innerHTML = '';
-            
-            const topThree = window.leaderboardData.slice(0, 3);
-            
-            if (topThree.length === 0) {
+            if (window.leaderboardData.length === 0) {
                 container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nog geen tijden toegevoegd...</p>';
                 return;
             }
             
-            const topThreeContainer = document.createElement('div');
-            topThreeContainer.className = 'top-three-container';
+            const leaderboardContainer = document.createElement('div');
+            leaderboardContainer.className = 'remaining-leaderboard';
             
-            topThree.forEach((entry, index) => {
-                const positions = ['first', 'second', 'third'];
-                const medals = ['🥇', '🥈', '🥉'];
-                
-                const riderDiv = document.createElement('div');
-                riderDiv.className = `top-rider ${positions[index]}`;
-                
-                riderDiv.innerHTML = `
-                    <div class="top-rider-medal">${medals[index]}</div>
-                    <div class="top-rider-name">${entry.name}</div>
-                    <div class="top-rider-time">${entry.time}</div>
-                `;
-                
-                topThreeContainer.appendChild(riderDiv);
-            });
-            
-            container.appendChild(topThreeContainer);
-        }
-
-        // Update remaining leaderboard (positions 4+)
-        function updateRemainingLeaderboard() {
-            const container = document.getElementById('remainingLeaderboard');
-            const section = document.getElementById('remainingRidersSection');
-            if (!container || !section) return;
-            
-            const remainingEntries = window.leaderboardData.slice(3);
-            
-            if (remainingEntries.length === 0) {
-                // Hide the entire section if no remaining entries
-                section.style.display = 'none';
-                return;
-            }
-            
-            // Show section if we have remaining entries
-            section.style.display = 'block';
-            
-            const remainingContainer = document.createElement('div');
-            remainingContainer.className = 'remaining-leaderboard';
-            
-            remainingEntries.forEach((entry, index) => {
-                const position = index + 4; // Start from position 4
+            window.leaderboardData.forEach((entry, index) => {
+                const position = index + 1; // Start from position 1
                 
                 const entryDiv = document.createElement('div');
                 entryDiv.className = 'remaining-entry';
                 
+                // Add special styling for top 3
+                let medalEmoji = '';
+                if (position === 1) medalEmoji = '🥇 ';
+                else if (position === 2) medalEmoji = '🥈 ';
+                else if (position === 3) medalEmoji = '🥉 ';
+                
                 entryDiv.innerHTML = `
-                    <div class="remaining-position">#${position}</div>
+                    <div class="remaining-position">${medalEmoji}#${position}</div>
+                    <div class="remaining-photo">
+                        ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}">` : '👤'}
+                    </div>
                     <div class="remaining-name">${entry.name}</div>
                     <div class="remaining-time">${entry.time}</div>
                 `;
                 
-                remainingContainer.appendChild(entryDiv);
+                leaderboardContainer.appendChild(entryDiv);
             });
             
             container.innerHTML = '';
-            container.appendChild(remainingContainer);
+            container.appendChild(leaderboardContainer);
         }
 
         // Real-time input validation as user types
