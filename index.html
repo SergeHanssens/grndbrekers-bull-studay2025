@@ -84,7 +84,68 @@
             width: auto;
         }
 
+        /* Specific button styles */
+        .btn-blue {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-green {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-red {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .top-button {
+            background: linear-gradient(45deg, #FFD700, #FFA000);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: block;
+            margin: 0 auto 20px;
+        }
+
+        /* Button hover effects */
         .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-blue:hover, .btn-green:hover, .btn-red:hover, .top-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
@@ -193,11 +254,64 @@
             background: rgba(255,107,53,0.8);
         }
 
-        .time-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+        /* Time input layout */
+        .time-inputs-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
             margin: 20px 0;
+            max-width: 100%;
+        }
+
+        .time-input {
+            width: 70px;
+            padding: 12px 8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .time-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .time-separator {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0 2px;
+        }
+
+        /* Side buttons layout for name entry screen */
+        .side-buttons-name {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* Side buttons layout for time entry screen */
+        .side-buttons-time {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* Leaderboard navigation buttons */
+        .leaderboard-nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            width: 100%;
         }
 
         .leaderboard-header {
@@ -421,13 +535,9 @@
                 max-height: 300px;
             }
             
-            .time-inputs {
-                gap: 5px;
-            }
-            
             .time-input {
                 width: 55px;
-                padding: 12px 6px;
+                padding: 10px 6px;
                 font-size: 14px;
             }
             
@@ -451,7 +561,7 @@
                 font-size: 14px;
             }
             
-            .side-buttons {
+            .side-buttons-name, .side-buttons-time {
                 margin: 15px 0;
             }
 
@@ -533,7 +643,7 @@
             
             <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder" style="margin-top: 0;">
             
-            <div class="side-buttons">
+            <div class="side-buttons-name">
                 <button class="btn-blue" onclick="addRider()">Opslaan</button>
                 <button class="btn-green" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Tijden</button>
             </div>
@@ -552,7 +662,7 @@
                 <option value="">Selecteer rijder...</option>
             </select>
             
-            <div class="time-inputs">
+            <div class="time-inputs-container">
                 <input type="number" class="time-input" id="minutes" placeholder="Min" min="0" max="999">
                 <span class="time-separator">:</span>
                 <input type="number" class="time-input" id="seconds" placeholder="Sec" min="0" max="59">
@@ -560,7 +670,7 @@
                 <input type="number" class="time-input" id="hundredths" placeholder="1/100" min="0" max="99">
             </div>
             
-            <div class="side-buttons">
+            <div class="side-buttons-time">
                 <button class="btn-blue" onclick="addTime()">Opslaan</button>
                 <button class="btn-green" onclick="showScreen('nameEntryScreen')">Rijders</button>
             </div>
