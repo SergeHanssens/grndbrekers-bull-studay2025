@@ -293,18 +293,7 @@
         }
 
         .debug {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(255,0,0,0.9);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 14px;
-            z-index: 9999;
-            max-width: 300px;
-            border: 2px solid yellow;
-            font-family: monospace;
+            display: none; /* Hidden in production */
         }
 
         .photo-input-section {
@@ -475,7 +464,7 @@
         <div class="screen-content">
             <div class="logo-container">
                 <div class="logo">
-                    <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo-transparant.jpg" 
+                    <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo-transparant-V5.png" 
                          alt="GRNDbrekers Logo"
                          onerror="this.outerHTML='<div style=color:white;font-size:18px;>🛠️ GRNDbrekers 🐂<br><small>Bull Riding Leaderboard</small></div>';">
                 </div>
@@ -496,7 +485,7 @@
                     📷
                 </div>
                 <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;">
-                <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">Foto Maken</button>
+                <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">Foto Maken (Optioneel)</button>
             </div>
             
             <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder">
@@ -537,7 +526,7 @@
         <div class="screen-content">
             <!-- Logo Header -->
             <div class="leaderboard-header">
-                <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo-transparant.jpg" 
+                <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo-transparant-V5.png" 
                      alt="GRNDbrekers Logo" class="leaderboard-logo"
                      onerror="this.outerHTML='<h2 style=color:white;>🛠️ GRNDbrekers Bull Riding</h2>';">
             </div>
@@ -591,6 +580,7 @@
             <div style="margin-top: 20px;">
                 <button class="btn" onclick="useSelectedPhoto()">Gebruik Geselecteerde Foto</button>
                 <button class="btn photo-btn" onclick="takeNewPhoto()">Nieuwe Foto Maken</button>
+                <button class="btn" onclick="addWithoutPhoto()" style="background: linear-gradient(45deg, #9C27B0, #673AB7);">Voeg Toe Zonder Foto</button>
             </div>
         </div>
     </div>
@@ -598,8 +588,7 @@
     <script>
         // Debug function
         function updateDebug(message) {
-            const debug = document.getElementById('debug');
-            if (debug) debug.textContent = message;
+            // Debug disabled in production
             console.log('DEBUG:', message);
         }
 
@@ -760,11 +749,6 @@
             }
             
             // No duplicates, proceed normally
-            if (!window.currentPhoto) {
-                alert('Maak eerst een foto!');
-                return;
-            }
-            
             createNewRider(name, window.currentPhoto);
         }
 
@@ -807,7 +791,7 @@
             const gallery = document.getElementById('photoGallery');
             const message = document.getElementById('duplicateMessage');
             
-            message.textContent = `De naam "${window.duplicateName}" is al gebruikt. Kies een bestaande foto of maak een nieuwe:`;
+            message.textContent = `De naam "${window.duplicateName}" is al gebruikt. Kies een bestaande foto of voeg toe zonder foto:`;
             
             gallery.innerHTML = '';
             
@@ -852,6 +836,12 @@
         window.takeNewPhoto = function() {
             closeDuplicateModal();
             // The user can now take a new photo and add the rider normally
+        }
+
+        // Add without photo for duplicate
+        window.addWithoutPhoto = function() {
+            createNewRider(window.duplicateName, null);
+            closeDuplicateModal();
         }
 
         // Close duplicate modal
@@ -969,8 +959,7 @@
                         ${rider.photo ? `<img src="${rider.photo}" alt="${rider.name}">` : '👤'}
                     </div>
                     <div class="rider-info">
-                        <strong>${rider.name}</strong><br>
-                        <small>ID: ${rider.id.substr(-6)}</small>
+                        <strong>${rider.name}</strong>
                     </div>
                     <div class="rider-actions">
                         <button class="action-btn" onclick="editRider(${fullIndex})">✏️</button>
@@ -985,7 +974,7 @@
             }
         }
 
-        // Update dropdown
+        // Update dropdown (without IDs)
         function updateRiderDropdown() {
             const select = document.getElementById('riderSelect');
             if (!select) return;
@@ -997,7 +986,7 @@
                 if (!rider.time) {
                     const option = document.createElement('option');
                     option.value = index;
-                    option.textContent = `${rider.name} (${rider.id.substr(-6)})`;
+                    option.textContent = rider.name; // No ID shown
                     select.appendChild(option);
                 }
             });
@@ -1141,7 +1130,7 @@
                     <div class="remaining-photo">
                         ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}">` : '👤'}
                     </div>
-                    <div class="remaining-name">${entry.name}<br><small>${entry.id.substr(-6)}</small></div>
+                    <div class="remaining-name">${entry.name}</div>
                     <div class="remaining-time">${entry.time}</div>
                 `;
                 
@@ -1280,12 +1269,6 @@
             }
             
             updateDebug('App ready! Functions loaded.');
-            
-            // Hide debug after 3 seconds
-            setTimeout(() => {
-                const debug = document.getElementById('debug');
-                if (debug) debug.style.display = 'none';
-            }, 3000);
         }
 
         // Start app when page loads
