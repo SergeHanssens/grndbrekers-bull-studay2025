@@ -344,7 +344,7 @@
         .leaderboard-logo {
             width: 100%;
             max-width: none;
-            max-height: 300px;
+            max-height: 200px;
             object-fit: contain;
             margin: 0 auto 25px;
             display: block;
@@ -596,7 +596,7 @@
         @media (max-width: 480px) {
             .leaderboard-logo {
                 max-width: 100%;
-                max-height: 300px;
+                max-height: 150px;
             }
             
             .time-input {
@@ -668,6 +668,10 @@
 
             .photo-input-section {
                 padding: 10px;
+            }
+
+            .photo-gallery {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
     </style>
@@ -806,6 +810,7 @@
         </div>
     </div>
 
+
     <!-- Photo Modal -->
     <div class="photo-modal" id="photoModal" onclick="closePhotoModal()">
         <img class="photo-modal-content" id="photoModalContent" alt="Full size photo">
@@ -833,6 +838,7 @@
             return Date.now().toString(36) + Math.random().toString(36).substr(2);
         }
 
+
         // Get all photos for a name - handles both old and new photo format
         function getPhotosForName(name) {
             const photos = [];
@@ -849,6 +855,7 @@
             // Also check leaderboard for completed riders
             window.leaderboardData.forEach(entry => {
                 if (entry.name.toLowerCase() === name.toLowerCase() && entry.photo) {
+
                     const existing = photos.find(p => {
                         // Handle both old string format and new object format
                         const pPhoto = typeof p.photo === 'object' ? p.photo.thumbnail : p.photo;
@@ -1073,6 +1080,7 @@
             updateDebug('Rider added: ' + name + ' (total: ' + window.riders.length + ')');
         }
 
+
         // Show duplicate modal - handles both old and new photo format
         function showDuplicateModal(existingPhotos) {
             const modal = document.getElementById('duplicateModal');
@@ -1088,6 +1096,7 @@
                 photoDiv.className = 'photo-option';
                 photoDiv.onclick = () => selectPhoto(photoData.photo, photoDiv);
                 
+
                 // Handle both old string format and new object format
                 const thumbnailSrc = typeof photoData.photo === 'object' ? photoData.photo.thumbnail : photoData.photo;
                 
