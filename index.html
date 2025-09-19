@@ -833,7 +833,7 @@
             return Date.now().toString(36) + Math.random().toString(36).substr(2);
         }
 
-        // Get all photos for a name
+        // Get all photos for a name - handles both old and new photo format
         function getPhotosForName(name) {
             const photos = [];
             window.riders.forEach(rider => {
@@ -849,7 +849,12 @@
             // Also check leaderboard for completed riders
             window.leaderboardData.forEach(entry => {
                 if (entry.name.toLowerCase() === name.toLowerCase() && entry.photo) {
-                    const existing = photos.find(p => p.photo === entry.photo);
+                    const existing = photos.find(p => {
+                        // Handle both old string format and new object format
+                        const pPhoto = typeof p.photo === 'object' ? p.photo.thumbnail : p.photo;
+                        const ePhoto = typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo;
+                        return pPhoto === ePhoto;
+                    });
                     if (!existing) {
                         photos.push({
                             photo: entry.photo,
@@ -863,50 +868,82 @@
             return photos;
         }
 
-        // Photo compression function
-        function compressImage(file, maxWidth = 150, maxHeight = 150, quality = 0.7) {
+        // Photo compression function - creates both thumbnail and fullsize
+        function compressImage(file, thumbWidth = 100, thumbHeight = 100, fullWidth = 800, fullHeight = 600) {
             return new Promise((resolve) => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
                 const img = new Image();
                 
                 img.onload = function() {
-                    // Calculate new dimensions
-                    let { width, height } = img;
+                    // Create thumbnail (for lists)
+                    const thumbCanvas = document.createElement('canvas');
+                    const thumbCtx = thumbCanvas.getContext('2d');
                     
-                    if (width > height) {
-                        if (width > maxWidth) {
-                            height = (height * maxWidth) / width;
-                            width = maxWidth;
+                    let thumbW = img.width;
+                    let thumbH = img.height;
+                    
+                    if (thumbW > thumbH) {
+                        if (thumbW > thumbWidth) {
+                            thumbH = (thumbH * thumbWidth) / thumbW;
+                            thumbW = thumbWidth;
                         }
                     } else {
-                        if (height > maxHeight) {
-                            width = (width * maxHeight) / height;
-                            height = maxHeight;
+                        if (thumbH > thumbHeight) {
+                            thumbW = (thumbW * thumbHeight) / thumbH;
+                            thumbH = thumbHeight;
                         }
                     }
                     
-                    canvas.width = width;
-                    canvas.height = height;
+                    thumbCanvas.width = thumbW;
+                    thumbCanvas.height = thumbH;
+                    thumbCtx.drawImage(img, 0, 0, thumbW, thumbH);
                     
-                    // Draw and compress
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-                    resolve(compressedDataUrl);
+                    // Create fullsize (for zoom)
+                    const fullCanvas = document.createElement('canvas');
+                    const fullCtx = fullCanvas.getContext('2d');
+                    
+                    let fullW = img.width;
+                    let fullH = img.height;
+                    
+                    if (fullW > fullH) {
+                        if (fullW > fullWidth) {
+                            fullH = (fullH * fullWidth) / fullW;
+                            fullW = fullWidth;
+                        }
+                    } else {
+                        if (fullH > fullHeight) {
+                            fullW = (fullW * fullHeight) / fullH;
+                            fullH = fullHeight;
+                        }
+                    }
+                    
+                    fullCanvas.width = fullW;
+                    fullCanvas.height = fullH;
+                    fullCtx.drawImage(img, 0, 0, fullW, fullH);
+                    
+                    // Return both versions
+                    resolve({
+                        thumbnail: thumbCanvas.toDataURL('image/jpeg', 0.7),
+                        fullsize: fullCanvas.toDataURL('image/jpeg', 0.85)
+                    });
                 };
                 
                 img.src = URL.createObjectURL(file);
             });
         }
 
-        // Photo modal functions
-        function openPhotoModal(photoSrc, riderName) {
+        // Photo modal functions - now uses fullsize version
+        function openPhotoModal(photoData, riderName) {
             const modal = document.getElementById('photoModal');
             const img = document.getElementById('photoModalContent');
             
-            img.src = photoSrc;
-            img.alt = `Foto van ${riderName}`;
-            modal.classList.add('active');
+            // Use fullsize if available, fallback to thumbnail for old data
+            const photoSrc = photoData && typeof photoData === 'object' ? photoData.fullsize : photoData;
+            
+            if (photoSrc) {
+                img.src = photoSrc;
+                img.alt = `Foto van ${riderName}`;
+                modal.classList.add('active');
+            }
             
             // Prevent event bubbling
             if (event) event.stopPropagation();
@@ -930,10 +967,10 @@
             document.getElementById('photoInput').addEventListener('change', async function(e) {
                 if (e.target.files && e.target.files[0]) {
                     const compressed = await compressImage(e.target.files[0]);
-                    window.currentPhoto = compressed;
+                    window.currentPhoto = compressed; // Now contains {thumbnail, fullsize}
                     
                     const preview = document.getElementById('photoPreview');
-                    preview.innerHTML = `<img src="${compressed}" alt="Preview">`;
+                    preview.innerHTML = `<img src="${compressed.thumbnail}" alt="Preview">`;
                 }
             });
 
@@ -943,8 +980,8 @@
                     const compressed = await compressImage(e.target.files[0]);
                     
                     const preview = document.getElementById('editPhotoPreview');
-                    preview.innerHTML = `<img src="${compressed}" alt="Preview">`;
-                    preview.dataset.newPhoto = compressed;
+                    preview.innerHTML = `<img src="${compressed.thumbnail}" alt="Preview">`;
+                    preview.dataset.newPhoto = JSON.stringify(compressed); // Store both versions
                 }
             });
         });
@@ -1036,7 +1073,7 @@
             updateDebug('Rider added: ' + name + ' (total: ' + window.riders.length + ')');
         }
 
-        // Show duplicate modal
+        // Show duplicate modal - handles both old and new photo format
         function showDuplicateModal(existingPhotos) {
             const modal = document.getElementById('duplicateModal');
             const gallery = document.getElementById('photoGallery');
@@ -1051,8 +1088,11 @@
                 photoDiv.className = 'photo-option';
                 photoDiv.onclick = () => selectPhoto(photoData.photo, photoDiv);
                 
+                // Handle both old string format and new object format
+                const thumbnailSrc = typeof photoData.photo === 'object' ? photoData.photo.thumbnail : photoData.photo;
+                
                 photoDiv.innerHTML = `
-                    <img src="${photoData.photo}" alt="Bestaande foto">
+                    <img src="${thumbnailSrc}" alt="Bestaande foto">
                     <div class="photo-option-text">${photoData.hasTime ? 'Voltooid' : 'Wachtend'}</div>
                 `;
                 
@@ -1130,7 +1170,7 @@
             document.getElementById('editModal').classList.add('active');
         }
 
-        // Save edited rider
+        // Save edited rider - handles new photo format
         window.saveEditedRider = function() {
             if (window.editingRiderIndex === null) return;
             
@@ -1146,7 +1186,7 @@
             
             const editPreview = document.getElementById('editPhotoPreview');
             if (editPreview.dataset.newPhoto) {
-                rider.photo = editPreview.dataset.newPhoto;
+                rider.photo = JSON.parse(editPreview.dataset.newPhoto);
             }
             
             // Save and update
@@ -1189,7 +1229,7 @@
             }
         }
 
-        // Update riders list
+        // Update riders list - uses thumbnails for display, fullsize for zoom
         function updateRidersList() {
             const container = document.getElementById('addedNames');
             if (!container) return;
@@ -1205,10 +1245,14 @@
                 const tag = document.createElement('div');
                 tag.className = 'rider-tag';
                 
+                // Handle both old string format and new object format
+                const thumbnailSrc = rider.photo && typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo;
+                const hasPhoto = rider.photo && (typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo);
+                
                 tag.innerHTML = `
                     <button class="edit-btn-left" onclick="editRider(${fullIndex})">✏️</button>
-                    <div class="rider-photo-small" onclick="openPhotoModal('${rider.photo || ''}', '${rider.name}')">
-                        ${rider.photo ? `<img src="${rider.photo}" alt="${rider.name}" class="clickable-photo">` : '👤'}
+                    <div class="rider-photo-small" onclick="openPhotoModal(${JSON.stringify(rider.photo).replace(/"/g, '&quot;')}, '${rider.name}')">
+                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${rider.name}" class="clickable-photo">` : '👤'}
                     </div>
                     <div class="rider-info">
                         <strong>${rider.name}</strong>
@@ -1350,7 +1394,7 @@
             updateLeaderboardList();
         }
 
-        // Update leaderboard list (all positions)
+        // Update leaderboard list (all positions) - uses thumbnails for display, fullsize for zoom
         function updateLeaderboardList() {
             const container = document.getElementById('leaderboardList');
             const section = document.getElementById('leaderboardSection');
@@ -1376,10 +1420,14 @@
                 else if (position === 2) medalEmoji = '🥈 ';
                 else if (position === 3) medalEmoji = '🥉 ';
                 
+                // Handle both old string format and new object format
+                const thumbnailSrc = entry.photo && typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo;
+                const hasPhoto = entry.photo && (typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo);
+                
                 entryDiv.innerHTML = `
                     <div class="remaining-position">${medalEmoji}#${position}</div>
-                    <div class="remaining-photo" onclick="openPhotoModal('${entry.photo || ''}', '${entry.name}')">
-                        ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}" class="clickable-photo">` : '👤'}
+                    <div class="remaining-photo" onclick="openPhotoModal(${JSON.stringify(entry.photo).replace(/"/g, '&quot;')}, '${entry.name}')">
+                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${entry.name}" class="clickable-photo">` : '👤'}
                     </div>
                     <div class="remaining-name">${entry.name}</div>
                     <div class="remaining-time">${entry.time}</div>
