@@ -1,310 +1,409 @@
-# GRNDbrekers Rodeo Bull PWA - StuDAY 2025
+# 🐂 GRNDbrekers Bull Riding Leaderboard
+### *StuDAY 2025 - Multiplayer Realtime Experience*
 
-Een geavanceerde Progressive Web App voor het bijhouden van mechanische stier rijtijden tijdens StuDAY 2025, ontwikkeld door/voor **GRNDbrekers** - de makerspace van JC Bouckenborgh.
+<div align="center">
 
-*"Think like an engineer, build like a lunatic"* - GRNDbrekers motto
+**"Think like an engineer, build like a lunatic"** - *GRNDbrekers motto*
 
-## 🆕 Nieuwste Functies (v2.0)
+[![PWA Ready](https://img.shields.io/badge/PWA-Ready-brightgreen.svg)](https://web.dev/progressive-web-apps/)
+[![Offline Capable](https://img.shields.io/badge/Offline-Capable-blue.svg)](#offline-functionaliteit)
+[![Multi-Device](https://img.shields.io/badge/Multi--Device-Sync-orange.svg)](#multi-device-synchronisatie)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-### 📸 Foto Functionaliteit
-- **Camera integratie** met voorkeur voor achtercamera
-- **Automatische compressie** naar 150x150px bij 70% kwaliteit voor minimale opslag
-- **Foto's bij rijders** zichtbaar in alle schermen
-- **Bewerk functie** voor foto's van rijders die nog niet gereden hebben
+*Een geavanceerde Progressive Web App voor het bijhouden van mechanische stier rijtijden tijdens StuDAY 2025, ontwikkeld door/voor GRNDbrekers - de makerspace van JC Bouckenborgh.*
 
-### ⏱️ Geavanceerde Tijdsinvoer
+[🚀 Live Demo](#) • [📖 Documentatie](#functionaliteiten) • [💬 Support](#support) • [🔧 Contributing](#bijdragen)
+
+</div>
+
+---
+
+## ✨ Highlights
+
+🎯 **Complete Offline Ervaring** - Werkt volledig zonder internet via lokale WiFi-hotspot  
+🔄 **Realtime Synchronisatie** - Automatische sync tussen alle verbonden apparaten  
+📱 **Multi-Device Support** - Eén hoofdstation + onbeperkt aantal mobiele clients  
+📸 **Geavanceerde Camera Integratie** - Automatische foto compressie naar 150x150px  
+⚡ **Lightning Fast** - <2 seconden laadtijd, 95% foto compressie  
+🛡️ **Bulletproof Validation** - Strikte tijdsvalidatie en foutpreventie  
+
+---
+
+## 🏗️ Architectuur Overview
+
+```mermaid
+graph TB
+    A[📱 Mobiele Clients] --> B[📡 WiFi Hotspot<br/>GRNDbrekers-Bull]
+    B --> C[💻 Hoofdstation<br/>Express.js + Socket.IO]
+    C --> D[🧠 Centrale State<br/>Riders & Leaderboard]
+    C --> E[📁 Lokale Opslag<br/>localStorage + backup]
+    
+    F[🎯 Live Leaderboard] --> B
+    G[📊 Admin Interface] --> B
+    H[📸 Camera Clients] --> B
+    
+    style A fill:#e1f5fe
+    style C fill:#f3e5f5
+    style D fill:#fff3e0
+    style F fill:#e8f5e8
+```
+
+---
+
+## 🚀 Quick Start
+
+### 📋 Vereisten
+- **Node.js** 14+ 
+- **Linux** met NetworkManager (Ubuntu/Debian/CentOS)
+- **WiFi-capabele hardware**
+- **Modern browser** met camera ondersteuning
+
+### ⚡ Express Installatie
+
+```bash
+# 1️⃣ Clone repository
+git clone -b multi-device-setup https://github.com/SergeHanssens/grndbrekers-bull-studay2025.git
+cd grndbrekers-bull-studay2025
+
+# 2️⃣ Installeer dependencies
+npm install
+
+# 3️⃣ Setup WiFi hotspot (Linux only)
+chmod +x setup-wifi.sh
+sudo ./setup-wifi.sh
+
+# 4️⃣ Start sync server
+npm start
+```
+
+### 📱 Client Verbinding
+
+**WiFi Instellingen:**
+- 🔗 **Netwerk:** `GRNDbrekers-Bull`
+- 🔐 **Wachtwoord:** `studay2025`
+- 🌐 **Server IP:** `192.168.4.1:3000`
+
+**Toegang URLs:**
+- 🏠 **Hoofdpaneel:** `http://192.168.4.1:3000`
+- 🏆 **Live Leaderboard:** `http://192.168.4.1:3000/leaderboard.html`
+- 💡 **Health Check:** `http://192.168.4.1:3000/health`
+
+---
+
+## 🎮 Functionaliteiten
+
+### 📸 **Camera & Foto Management**
+- **Automatische compressie** naar 150x150px bij 70% kwaliteit
+- **Voorkeur achtercamera** voor betere kwaliteit  
+- **Bewerk functie** voor riders die nog niet gereden hebben
+- **~95% opslagreductie** (2MB → 15KB per foto)
+
+### ⏱️ **Geavanceerde Tijdsregistratie**
 - **Strikte validatie** van natuurlijke getallen
 - **Real-time filtering** voorkomt ongeldige invoer
 - **Maximumlimiet controle** (seconden ≤ 59, honderdsten ≤ 99)
 - **Enter-toets ondersteuning** voor snellere invoer
+- **MM:SS:HH formaat** met automatische sortering
 
-### 🏆 Verbeterd Leaderboard
-- **Unified lijst** - geen apart podium, alle posities in één scrollbare lijst
-- **Medaille emoji's** voor top 3 (🥇🥈🥉) in de lijst
-- **Groter logo** dat even breed is als de lijst
-- **Live waitlist** functie in aparte leaderboard pagina
+### 🏆 **Intelligent Leaderboard System**
+- **Unified lijst** - alle posities in één scrollbare lijst
+- **Medaille emoji's** voor top 3 (🥇🥈🥉)
+- **Live waitlist functie** in aparte leaderboard pagina
+- **Bescherming** - riders op leaderboard kunnen niet bewerkt worden
+- **Auto-refresh** elke 5 seconden
 
-### 🛠️ Bewerk Mogelijkheden
-- **Naam en foto wijzigen** voor rijders zonder tijd
-- **Bescherming** - rijders op leaderboard kunnen niet meer bewerkt worden
-- **Modal interface** voor gebruiksvriendelijk bewerken
+### 🔄 **Multi-Device Synchronisatie**
+- **Centrale state management** op server
+- **Automatische conflict resolutie** tussen clients
+- **Heartbeat monitoring** voor verbindingsstatus
+- **Graceful reconnection** met exponential backoff
+- **Visual connection indicators** op alle clients
 
-## 📱 App Structuur
+---
 
-### **Hoofdschermen:**
-1. **Home** - Welkomstscherm met logo
-2. **Rijders Toevoegen** - Naam + foto invoer met bewerk opties
-3. **Tijden Toevoegen** - Gevalideerde tijdsinvoer
-4. **Leaderboard** - Unified ranglijst met foto's
+## 📂 Project Structuur
 
-### **Aparte Bestanden:**
-- `index.html` - Hoofdapplicatie met alle functionaliteit
-- `leaderboard.html` - Standalone live leaderboard met waitlist toggle
-- `manifest.json` - PWA configuratie
-- `sw.js` - Service Worker voor offline functionaliteit
+```
+grndbrekers-bull-studay2025/
+├── 🏠 index.html              # Hoofdapplicatie interface
+├── 🏆 leaderboard.html        # Standalone live leaderboard  
+├── 🔄 sync-server.js          # Express + Socket.IO server
+├── 📱 sync-client.js          # Client-side sync logica
+├── 🛜 setup-wifi.sh           # WiFi hotspot automation
+├── 📦 package.json            # Project configuratie
+├── 🎨 manifest.json           # PWA configuratie
+├── ⚙️ sw.js                   # Service Worker voor offline
+└── 📁 images/                 # Logo en app iconen
+    ├── grndbrekers-bull-logo-transparant.jpg
+    ├── icon-192.png
+    └── icon-512.png
+```
 
-## 🛠️ Technische Specificaties
+---
 
-### **Foto Optimalisatie:**
+## 🔧 Geavanceerde Configuratie
+
+### 🎨 **UI Aanpassingen**
+
+```css
+/* CSS variabelen in style sectie */
+--primary-color: #4CAF50;      /* Hoofdkleur knoppen */
+--accent-color: #FFD700;       /* Goud voor leaderboard */
+--background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+```
+
+### 📸 **Foto Kwaliteit Tweaks**
+
 ```javascript
-// Automatische compressie naar ~10-15KB per foto
-compressImage(file, maxWidth = 150, maxHeight = 150, quality = 0.7)
+// In compressImage() functie aanpassen:
+compressImage(file, 
+  maxWidth = 100,     // Kleinere waarde = minder opslag
+  maxHeight = 100,    // Kleinere waarde = minder opslag  
+  quality = 0.5       // 0.1 (laag) tot 1.0 (hoog)
+)
 ```
 
-### **Tijdvalidatie:**
-- **Minuten**: 0-999 (natuurlijke getallen)
-- **Seconden**: 0-59 (automatisch begrensd)
-- **Honderdsten**: 0-99 (automatisch begrensd)
-- **Real-time filtering** van niet-numerieke karakters
+### 🏆 **Sortering Aanpassen**
 
-### **Data Opslag:**
-```javascript
-// localStorage structuur
-{
-  riders: [
-    {
-      name: "Rijder Naam",
-      photo: "data:image/jpeg;base64,/9j/4AAQ...", // Gecomprimeerde base64
-      time: "01:23:45", // MM:SS:HH formaat
-      timeValue: 8345,   // Voor sortering (minuten*6000 + seconden*100 + honderdsten)
-      timestamp: "2025-09-19T..."
-    }
-  ],
-  leaderboard: [...] // Gesorteerde resultaten
-}
-```
-
-## 🖼️ Logo & Images Setup
-
-### **Image Branch Setup**
-```bash
-git checkout -b images
-```
-
-Upload naar **images branch**:
-- `grndbrekers-bull-logo-transparant.jpg` - Hoofdlogo (transparante achtergrond)
-- `icon-192.png` - App icoon 192x192px  
-- `icon-512.png` - App icoon 512x512px
-
-### **Path Configuration**
-Vervang in alle bestanden:
-```
-SergeHanssens/grndbrekers-bull-studay2025
-```
-Door je eigen GitHub `username/repository-name`
-
-## 🚀 Deployment op GitHub Pages
-
-### **Stap 1: Repository Setup**
-1. Maak nieuwe **public** repository op GitHub
-2. Upload alle bestanden naar **main branch**
-3. Maak **images branch** en upload logo bestanden
-
-### **Stap 2: GitHub Pages Activeren**
-1. Repository → **Settings** → **Pages**
-2. Source: **Deploy from a branch**
-3. Branch: **main** / **/ (root)**
-4. **Save**
-
-### **Stap 3: App Testen**
-Na 5-10 minuten beschikbaar op:
-```
-https://jouwusername.github.io/jouw-repo-naam
-```
-
-## 📱 Gebruikersgids
-
-### **Voor Event Organizers:**
-
-#### Setup & Voorbereiding:
-1. **Open app** → "Start Leaderboard!"
-2. **Voeg rijders toe**:
-   - Klik "Foto Maken" → neem foto rijder
-   - Voer naam in → "Voeg Rijder Toe"
-   - Herhaal voor alle deelnemers
-
-#### Tijdens Event:
-1. **Tijd toevoegen**: "Naar Tijden" → selecteer rijder → voer tijd in
-2. **Live monitoring**: "Bekijk Leaderboard" voor real-time standings
-3. **Correcties**: Bewerk alleen rijders die nog niet gereden hebben
-
-#### Aparte Leaderboard Display:
-1. Open `leaderboard.html` op tweede scherm/tablet
-2. **"Waitlist" knop** toont wachtende rijders
-3. **"Ranking" knop** toont huidige standings
-4. Auto-refresh elke 5 seconden
-
-### **Voor Deelnemers:**
-1. **Registratie**: Zorg dat organizer je toevoegt met foto
-2. **Wachtrij**: Check waitlist op leaderboard scherm
-3. **Resultaten**: Bekijk je positie in live rankings
-
-## 🔧 Geavanceerde Functies
-
-### **Foto Compressie Settings:**
-```javascript
-// In compressImage() functie aanpassen voor andere kwaliteit:
-maxWidth = 150,    // Kleinere waarde = minder opslag
-maxHeight = 150,   // Kleinere waarde = minder opslag  
-quality = 0.7      // 0.1 (laag) tot 1.0 (hoog)
-```
-
-### **Tijdformaat Aanpassen:**
-```javascript
-// In addTime() functie:
-const timeString = `${minInt.toString().padStart(2, '0')}:${secInt.toString().padStart(2, '0')}:${hunInt.toString().padStart(2, '0')}`;
-// Wijzig naar gewenst format
-```
-
-### **Sorteervolgorde Wijzigen:**
 ```javascript
 // Huidige sortering: langste tijd eerst (wie bleef het langst op)
 window.leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
 
-// Voor kortste tijd eerst: 
+// Voor kortste tijd eerst:
 window.leaderboardData.sort((a, b) => a.timeValue - b.timeValue);
 ```
 
-## 🎯 PWA Functies
+---
 
-### **Offline Werking:**
-- App werkt zonder internet na eerste load
-- Data opgeslagen in browser localStorage
-- Service Worker cached alle bestanden
+## 🛠️ API Endpoints
 
-### **Installatie op Mobiel:**
+| Endpoint | Method | Beschrijving |
+|----------|--------|-------------|
+| `/` | GET | Hoofdapplicatie interface |
+| `/leaderboard.html` | GET | Live leaderboard scherm |
+| `/health` | GET | Server status & statistieken |
+| `/api/state` | GET | Volledige centrale state (JSON) |
 
-**iPhone (Safari):**
-1. Safari → Deel → "Voeg toe aan beginscherm"
+### 🔌 **Socket.IO Events**
 
-**Android (Chrome):**  
-1. Chrome menu → "App installeren"
-
-### **Cross-Platform:**
-- ✅ iOS Safari 12+
-- ✅ Android Chrome 60+  
-- ✅ Desktop browsers
-- ✅ Offline functionaliteit
-- ✅ Touch-optimized interface
-
-## 🔒 Privacy & Veiligheid
-
-- **Lokale opslag**: Alle data blijft op apparaat
-- **Geen servers**: Geen data upload naar externe servers
-- **Foto's gecomprimeerd**: Minimale opslagruimte
-- **No-tracking**: Geen analytics of externe scripts
-
-## 🛠️ Development & Aanpassingen
-
-### **Voor Andere Makerspaces:**
-
-#### Logo's & Branding:
-```html
-<!-- In index.html en leaderboard.html -->
-<img src="https://raw.githubusercontent.com/username/repo/images/jouw-logo.jpg">
-```
-
-#### Kleuren Aanpassen:
-```css
-/* CSS variabelen aanpassen */
---primary-color: #4CAF50;     /* Hoofdkleur knoppen */
---accent-color: #FFD700;      /* Goud voor leaderboard */
---background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-```
-
-#### Titel & Teksten:
-```javascript
-// In HTML sectie wijzigen:
-<title>Jouw Makerspace - Bull Riding</title>
-```
-
-### **Database Integratie (Optioneel):**
-```javascript
-// Vervang localStorage calls door API calls:
-function saveData() {
-  // POST to your server
-  fetch('/api/save', {
-    method: 'POST',
-    body: JSON.stringify(window.riders)
-  });
-}
-```
-
-## 📊 Monitoring & Analytics
-
-### **Performance Metrics:**
-- **Foto compressie**: ~95% reductie (2MB → 15KB)
-- **App grootte**: <100KB total
-- **Laadtijd**: <2 seconden op 3G
-- **Offline capability**: 100% na eerste load
-
-### **Browser Support:**
-- Chrome 60+ ✅
-- Safari 12+ ✅  
-- Firefox 60+ ✅
-- Edge 79+ ✅
-
-## 🐛 Troubleshooting
-
-### **App laadt niet:**
-- Controleer GitHub Pages status
-- Wacht 10 minuten na eerste deployment
-- Test in incognito/privé modus
-
-### **Camera werkt niet:**
-- Controleer HTTPS (vereist voor camera)
-- Geef browser cameratoegang
-- Test op fysiek apparaat (niet simulator)
-
-### **Foto's te groot:**
-```javascript
-// Verlaag compressie in compressImage():
-quality = 0.5  // Van 0.7 naar 0.5
-maxWidth = 100 // Van 150 naar 100
-```
-
-### **Data verdwenen:**
-- Browser localStorage gewist
-- Implementeer data export/import functie indien gewenst
-
-### **Logo laadt niet:**
-1. Check images branch bestaat en gepushed is
-2. Test URL direct: `https://raw.githubusercontent.com/username/repo/images/logo.jpg`
-3. Zorg dat repository public is
-
-## 🎪 Over GRNDbrekers
-
-**GRNDbrekers** is een makerspace project dat in 2020 startte in JC Bouckenborgh (Merksem), waarbij een gezamenlijke werkruimte wordt uitgebouwd voor het maken, leren, verkennen en delen.
-
-### **Locaties:**
-- **JC Bouckenborgh** - Bredabaan 559, 2170 Merksem
-- **CO Merksem Dok** - Emiel Lemineurstraat 72, 2170 Merksem
-- **Bib Park** - Bibliotheek Park
-- **Broedplaats Borrewater** - Borrewaterstraat 1, 2170 Antwerpen
-
-### **Equipment:**
-- 3D-printers, lasersnijders, snijplotters
-- Arduino's en microcontrollers  
-- Soldeerbouten en electronica tools
-- En veel meer hightech apparatuur!
-
-### **Programma's:**
-- **#openGRND** - Open toegang (wo/vr/za)
-- **GRNDbrekers Workshops** - 5 per trimester
-- **IJSbrekers** - Voor kinderen (5de/6de leerjaar)
-- **GRNDrepair** - Repair Café (1ste/3de woensdag)
-
-## 📄 Licentie & Gebruik
-
-**MIT License** - Open Source voor alle makerspaces wereldwijd:
-- ✅ Gebruiken en aanpassen toegestaan
-- ✅ Commercieel gebruik voor goede doelen  
-- ✅ Delen van verbeteringen wordt aangemoedigd
-- ✅ **Attribution vereist**: Vermeld GRNDbrekers als originele makers
+| Event | Richting | Data | Beschrijving |
+|-------|----------|------|-------------|
+| `addRider` | ↕️ | `{name, photo, ...}` | Rider toevoegen/updaten |
+| `updateLeaderboard` | ↕️ | `[riders...]` | Leaderboard data sync |
+| `startTimer` | ↕️ | `{name}` | Timer start broadcast |
+| `stopTimer` | ↕️ | `{name, time}` | Timer stop + resultaat |
+| `requestState` | → | - | Request volledige state |
+| `syncFullState` | ← | `{riders, leaderboard}` | Complete state response |
 
 ---
 
-**Ontwikkeld met ❤️ voor GRNDbrekers door Serge Hanssens**  
-*A.d.h.v. Python-code aangeleverd door Thomas Willems*
+## 📱 Progressive Web App Features
 
-*Voor vragen: contact via JC Bouckenborgh of GitHub Issues*
+### 🔧 **Installatie per Platform**
+
+**📱 iPhone (Safari):**
+```
+Safari → Deel → "Voeg toe aan beginscherm"
+```
+
+**🤖 Android (Chrome):**
+```
+Chrome menu → "App installeren"
+```
+
+### ✅ **Browser Compatibiliteit**
+- ✅ **Chrome 60+** - Volledige ondersteuning
+- ✅ **Safari 12+** - Volledige ondersteuning  
+- ✅ **Firefox 60+** - Volledige ondersteuning
+- ✅ **Edge 79+** - Volledige ondersteuning
+
+### 🛡️ **Offline Capabilities**
+- **Service Worker** cached alle bestanden
+- **localStorage persistentie** voor alle data
+- **100% functionaliteit** zonder internet na eerste load
+- **Automatische cache updates** bij nieuwe versies
+
+---
+
+## 🔐 Privacy & Security
+
+### 🛡️ **Data Protection**
+- **Lokale opslag alleen** - geen data upload naar externe servers
+- **Geen tracking** - geen analytics of externe scripts
+- **Foto compressie** - minimale opslagruimte
+- **HTTPS vereist** voor camera toegang
+
+### 🔒 **Network Security**
+- **WPA2 Protected WiFi** met strong password
+- **Lokaal netwerk isolatie** - geen internet toegang
+- **No external dependencies** tijdens gebruik
+
+---
+
+## 🚀 Deployment Opties
+
+### 🌐 **GitHub Pages (Public)**
+```bash
+# Setup GitHub Pages deployment
+git checkout main
+git push origin main
+
+# Repository → Settings → Pages → Deploy from branch: main
+# Beschikbaar op: https://username.github.io/repository-name
+```
+
+### 🐳 **Docker Deployment** 
+```dockerfile
+FROM node:16-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --production
+COPY . .
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+### ☁️ **Server Deployment**
+```bash
+# Voor productie met PM2
+npm install -g pm2
+pm2 start npm --name "grndbrekers-bull" -- start
+pm2 startup
+pm2 save
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### 🚨 **Veelvoorkomende Problemen**
+
+**🔗 WiFi Hotspot Start Niet**
+```bash
+# Check NetworkManager status
+sudo systemctl status NetworkManager
+
+# Reset interface
+sudo nmcli device disconnect wlan0
+sudo nmcli connection up GRNDbrekers-Bull
+```
+
+**📷 Camera Werkt Niet**
+- ✅ Controleer HTTPS (vereist voor camera API)
+- ✅ Geef browser cameratoegang  
+- ✅ Test op fysiek apparaat (niet simulator)
+
+**🔄 Sync Problemen**
+- ✅ Check connection indicator (🟢/🔴)
+- ✅ Refresh browser en verbind opnieuw
+- ✅ Controleer server logs: `npm start`
+
+**📊 Data Verloren**
+```bash
+# Check localStorage in browser developer tools
+localStorage.getItem('riders')
+localStorage.getItem('leaderboard')
+
+# Backup state via API
+curl http://192.168.4.1:3000/api/state > backup.json
+```
+
+---
+
+## 📊 Performance Metrics
+
+| Metric | Waarde |
+|--------|--------|
+| 📦 **App grootte** | <100KB total |
+| ⚡ **Laadtijd** | <2 seconden op 3G |
+| 📸 **Foto compressie** | ~95% reductie |
+| 🔄 **Sync latency** | <100ms lokaal netwerk |
+| 💾 **Storage efficiency** | 15KB per rider |
+| 🔋 **Battery impact** | Minimal (local network) |
+
+---
+
+## 🏢 Over GRNDbrekers
+
+<div align="center">
+
+**GRNDbrekers** is een makerspace project dat in 2020 startte in JC Bouckenborgh (Merksem), waarbij een gezamenlijke werkruimte wordt uitgebouwd voor het maken, leren, verkennen en delen.
+
+</div>
+
+### 📍 **Locaties**
+- **🏠 JC Bouckenborgh** - Bredabaan 559, 2170 Merksem
+- **🚢 CO Merksem Dok** - Emiel Lemineurstraat 72, 2170 Merksem  
+- **📚 Bib Park** - Bibliotheek Park
+- **🌊 Broedplaats Borrewater** - Borrewaterstraat 1, 2170 Antwerpen
+
+### 🛠️ **Beschikbare Apparatuur**
+- **3D-printers & lasersnijders** voor precisiewerk
+- **Arduino's & microcontrollers** voor IoT projecten
+- **Soldeerbouten & electronica tools** voor circuits
+- **En veel meer hightech apparatuur!**
+
+### 📅 **Activiteiten**
+- **#openGRND** - Open toegang (woensdag/vrijdag/zaterdag)
+- **GRNDbrekers Workshops** - 5 per trimester
+- **IJSbrekers** - Voor kinderen (5de/6de leerjaar)  
+- **GRNDrepair** - Repair Café (1ste/3de woensdag)
+
+---
+
+## 📄 Licentie & Credits
+
+### 📝 **MIT License**
+```
+MIT License © 2025 GRNDbrekers & Serge Hanssens
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+✅ Gebruiken en aanpassen toegestaan
+✅ Commercieel gebruik voor goede doelen  
+✅ Delen van verbeteringen wordt aangemoedigd
+✅ Attribution vereist: Vermeld GRNDbrekers als originele makers
+```
+
+### 👥 **Credits**
+- **🔧 Ontwikkeling:** Serge Hanssens
+- **🐍 Python Basis:** Thomas Willems  
+- **🏢 Organisatie:** GRNDbrekers Makerspace
+- **🎪 Evenement:** StuDAY 2025
+
+---
+
+## 💬 Support
+
+### 🆘 **Hulp Nodig?**
+
+**📧 Contact:**
+- **GitHub Issues** voor bugs en feature requests
+- **JC Bouckenborgh** voor directe ondersteuning  
+- **GRNDbrekers Community** voor technische vragen
+
+**🔗 Links:**
+- [🌐 GRNDbrekers Website](https://jcbouckenborgh.be)
+- [📱 GitHub Repository](https://github.com/SergeHanssens/grndbrekers-bull-studay2025)
+- [🎯 Live Demo](#) *(na deployment)*
+
+---
+
+<div align="center">
+
+### 🚀 **Ready to Rock & Roll?**
+
+**[⚡ Start Nu](#quick-start)** • **[📖 Meer Info](#functionaliteiten)** • **[🔧 Configuratie](#geavanceerde-configuratie)**
+
+---
+
+*Ontwikkeld met ❤️ voor de maker community*
+
+**"Van analoge stieren tot digitale leaderboards - we bouwen de toekomst!"**
+
+</div>
