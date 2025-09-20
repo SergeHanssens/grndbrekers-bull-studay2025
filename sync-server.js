@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
+const os = require('os');
 
 const app = express();
 const server = http.createServer(app);
@@ -12,12 +13,31 @@ const io = socketIo(server, {
   }
 });
 
-// 🧠 Centrale state opslag - dit was het hoofdprobleem!
+// 🧠 Centrale state opslag
 let centralState = {
   riders: [],
   leaderboard: [],
   lastUpdated: new Date().toISOString()
 };
+
+// 🔍 Functie om alle lokale IP-adressen te vinden
+function getLocalIPs() {
+  const interfaces = os.networkInterfaces();
+  const ips = [];
+  
+  Object.keys(interfaces).forEach((interfaceName) => {
+    interfaces[interfaceName].forEach((interface) => {
+      if (interface.family === 'IPv4' && !interface.internal) {
+        ips.push({
+          name: interfaceName,
+          ip: interface.address
+        });
+      }
+    });
+  });
+  
+  return ips;
+}
 
 // Serve static files
 app.use(express.static(path.join(__dirname)));
@@ -35,14 +55,13 @@ app.get('/leaderboard.html', (req, res) => {
 io.on('connection', (socket) => {
   console.log('🔗 Nieuwe client verbonden:', socket.id);
   
-  // 🆕 Stuur huidige state naar nieuwe clients
+  // Stuur huidige state naar nieuwe clients
   socket.emit('syncFullState', centralState);
   
-  // ✅ Event handlers met state persistence
+  // Event handlers met state persistence
   socket.on('addRider', (data) => {
     console.log('👤 Rider toegevoegd:', data.name);
     
-    // Update centrale state
     const existingIndex = centralState.riders.findIndex(r => r.name === data.name);
     if (existingIndex >= 0) {
       centralState.riders[existingIndex] = data;
@@ -51,18 +70,13 @@ io.on('connection', (socket) => {
     }
     centralState.lastUpdated = new Date().toISOString();
     
-    // Broadcast naar alle clients
     io.emit('addRider', data);
   });
 
   socket.on('updateLeaderboard', (data) => {
     console.log('🏆 Leaderboard update ontvangen');
-    
-    // Update centrale state
     centralState.leaderboard = data;
     centralState.lastUpdated = new Date().toISOString();
-    
-    // Broadcast naar alle clients
     io.emit('updateLeaderboard', data);
   });
 
@@ -74,7 +88,6 @@ io.on('connection', (socket) => {
   socket.on('stopTimer', (data) => {
     console.log('⏹️ Timer gestopt voor:', data.name, 'Tijd:', data.time);
     
-    // Update rider in centrale state
     const riderIndex = centralState.riders.findIndex(r => r.name === data.name);
     if (riderIndex >= 0) {
       centralState.riders[riderIndex] = {...centralState.riders[riderIndex], ...data};
@@ -87,7 +100,6 @@ io.on('connection', (socket) => {
   socket.on('editRider', (data) => {
     console.log('✏️ Rider bewerkt:', data.name);
     
-    // Update centrale state
     const riderIndex = centralState.riders.findIndex(r => r.name === data.originalName);
     if (riderIndex >= 0) {
       centralState.riders[riderIndex] = {...centralState.riders[riderIndex], ...data};
@@ -100,7 +112,6 @@ io.on('connection', (socket) => {
   socket.on('deleteRider', (data) => {
     console.log('🗑️ Rider verwijderd:', data.name);
     
-    // Update centrale state
     centralState.riders = centralState.riders.filter(r => r.name !== data.name);
     centralState.leaderboard = centralState.leaderboard.filter(r => r.name !== data.name);
     centralState.lastUpdated = new Date().toISOString();
@@ -108,13 +119,11 @@ io.on('connection', (socket) => {
     io.emit('deleteRider', data);
   });
 
-  // 🆕 Client kan volledige state opvragen
   socket.on('requestState', () => {
     console.log('📋 State opgevraagd door client:', socket.id);
     socket.emit('syncFullState', centralState);
   });
 
-  // 🆕 Heartbeat voor connection monitoring
   socket.on('ping', () => {
     socket.emit('pong');
   });
@@ -124,30 +133,48 @@ io.on('connection', (socket) => {
   });
 });
 
-// 🆕 Health check endpoint
+// Health check endpoint
 app.get('/health', (req, res) => {
+  const localIPs = getLocalIPs();
   res.json({
     status: 'OK',
     clients: io.engine.clientsCount,
     lastUpdated: centralState.lastUpdated,
     ridersCount: centralState.riders.length,
-    leaderboardCount: centralState.leaderboard.length
+    leaderboardCount: centralState.leaderboard.length,
+    availableAt: localIPs.map(ip => `http://${ip.ip}:${PORT}`)
   });
 });
 
-// 🆕 API endpoint voor state backup
+// API endpoint voor state backup
 app.get('/api/state', (req, res) => {
   res.json(centralState);
 });
 
 const PORT = process.env.PORT || 3000;
+
+// 🚀 Start server op ALLE interfaces (0.0.0.0)
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 GRNDbrekers Bull Riding Server draait op poort ${PORT}`);
-  console.log(`📱 Toegankelijk op: http://192.168.4.1:${PORT}`);
-  console.log(`🔗 WiFi: GRNDbrekers-Bull (wachtwoord: studay2025)`);
+  console.log(`🏠 Lokaal toegankelijk op: http://localhost:${PORT}`);
+  
+  // 🔍 Toon alle beschikbare IP-adressen
+  const localIPs = getLocalIPs();
+  console.log(`📱 Toegankelijk via deze IP-adressen:`);
+  
+  localIPs.forEach(ip => {
+    console.log(`   📶 ${ip.name}: http://${ip.ip}:${PORT}`);
+    
+    // Highlight waarschijnlijk hotspot IP
+    if (ip.ip.startsWith('192.168.137') || ip.ip.startsWith('192.168.43') || ip.ip.startsWith('10.0.0')) {
+      console.log(`   🔥 ⭐ HOTSPOT IP (gebruik deze): http://${ip.ip}:${PORT} ⭐`);
+    }
+  });
+  
+  console.log(`\n💡 Test op je telefoon met alle bovenstaande IP-adressen!`);
 });
 
-// 🆕 Graceful shutdown
+// Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('🛑 Server wordt afgesloten...');
   server.close(() => {
