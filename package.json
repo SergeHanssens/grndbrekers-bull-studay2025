@@ -1,0 +1,18 @@
+{
+  "name": "grndbrekers-bull-sync",
+  "version": "1.0.0",
+  "description": "Multi-device sync voor GRNDbrekers Bull Riding PWA",
+  "main": "sync-server.js",
+  "scripts": {
+    "start": "node sync-server.js",
+    "dev": "nodemon sync-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.5",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
