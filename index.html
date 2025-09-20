@@ -84,7 +84,68 @@
             width: auto;
         }
 
+        /* Specific button styles */
+        .btn-blue {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-green {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-red {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .top-button {
+            background: linear-gradient(45deg, #FFD700, #FFA000);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: block;
+            margin: 0 auto 20px;
+        }
+
+        /* Button hover effects */
         .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-blue:hover, .btn-green:hover, .btn-red:hover, .top-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
@@ -144,6 +205,22 @@
             position: relative;
         }
 
+        .edit-btn-left {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 5px 8px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .edit-btn-left:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
         .rider-photo-small {
             width: 40px;
             height: 40px;
@@ -156,6 +233,12 @@
             overflow: hidden;
             border: 2px solid rgba(255,255,255,0.3);
             flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .rider-photo-small:hover {
+            transform: scale(1.1);
         }
 
         .rider-photo-small img {
@@ -193,11 +276,64 @@
             background: rgba(255,107,53,0.8);
         }
 
-        .time-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+        /* Time input layout */
+        .time-inputs-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
             margin: 20px 0;
+            max-width: 100%;
+        }
+
+        .time-input {
+            width: 70px;
+            padding: 12px 8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .time-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .time-separator {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0 2px;
+        }
+
+        /* Side buttons layout for name entry screen */
+        .side-buttons-name {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* Side buttons layout for time entry screen */
+        .side-buttons-time {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* Leaderboard navigation buttons */
+        .leaderboard-nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            width: 100%;
         }
 
         .leaderboard-header {
@@ -208,7 +344,7 @@
         .leaderboard-logo {
             width: 100%;
             max-width: none;
-            max-height: 200px;
+            max-height: 300px;
             object-fit: contain;
             margin: 0 auto 25px;
             display: block;
@@ -262,6 +398,12 @@
             justify-content: center;
             overflow: hidden;
             border: 2px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .remaining-photo:hover {
+            transform: scale(1.1);
         }
 
         .remaining-photo img {
@@ -415,23 +557,80 @@
             opacity: 0.8;
         }
 
+        /* Photo Modal */
+        .photo-modal {
+            display: none;
+            position: fixed;
+            z-index: 20000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            backdrop-filter: blur(5px);
+        }
+
+        .photo-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-modal-content {
+            max-width: calc(100vw - 40px);
+            max-height: calc(100vh - 40px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            cursor: pointer;
+        }
+
+        .clickable-photo {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .clickable-photo:hover {
+            transform: scale(1.1);
+        }
+
         @media (max-width: 480px) {
             .leaderboard-logo {
                 max-width: 100%;
-                max-height: 150px;
+                max-height: 300px;
             }
             
-            .time-inputs {
-                grid-template-columns: 1fr;
+            .time-input {
+                width: 55px;
+                padding: 10px 6px;
+                font-size: 14px;
+            }
+            
+            .time-separator {
+                font-size: 18px;
+                margin: 0 1px;
             }
             
             .screen-content {
                 padding: 10px;
             }
             
-            .btn {
-                padding: 12px 20px;
-                font-size: 16px;
+            .top-button, .btn-red {
+                padding: 10px 20px;
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+            
+            .btn-blue, .btn-green {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .side-buttons-name, .side-buttons-time {
+                margin: 15px 0;
+            }
+
+            .leaderboard-nav-buttons {
+                margin-bottom: 10px;
             }
             
             .remaining-entry {
@@ -441,17 +640,34 @@
             }
 
             .rider-tag {
-                flex-direction: column;
-                text-align: center;
+                padding: 8px 12px;
+            }
+
+            .rider-photo-small {
+                width: 35px;
+                height: 35px;
             }
 
             .rider-actions {
-                margin-left: 0;
-                margin-top: 10px;
+                gap: 3px;
+            }
+
+            .action-btn, .edit-btn-left {
+                padding: 4px 6px;
+                font-size: 11px;
             }
 
             .photo-gallery {
                 grid-template-columns: repeat(3, 1fr);
+            }
+
+            .photo-preview {
+                width: 80px;
+                height: 80px;
+            }
+
+            .photo-input-section {
+                padding: 10px;
             }
         }
     </style>
@@ -475,8 +691,9 @@
 
     <!-- Name Entry Screen -->
     <div class="screen" id="nameEntryScreen">
-        <button class="back-btn" onclick="showScreen('homeScreen')">← Terug</button>
         <div class="screen-content">
+            <button class="top-button" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
+            
             <h2>Voeg Rijders Toe</h2>
             
             <!-- Photo Section -->
@@ -488,35 +705,38 @@
                 <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">Foto Maken (Optioneel)</button>
             </div>
             
-            <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder">
+            <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder" style="margin-top: 0;">
+            
+            <div class="side-buttons-name">
+                <button class="btn-blue" onclick="addRider()">Opslaan</button>
+                <button class="btn-green" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Tijden</button>
+            </div>
             
             <div class="added-names" id="addedNames"></div>
-            <button class="btn" onclick="addRider()">+ Voeg Rijder Toe</button>
-            <div style="margin-top: 20px;">
-                <button class="btn" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Naar Tijden →</button>
-                <button class="btn" onclick="showScreen('leaderboardScreen')" style="background: linear-gradient(45deg, #FFD700, #FFA500);">🏆 Bekijk Leaderboard</button>
-            </div>
         </div>
     </div>
 
     <!-- Time Entry Screen -->
     <div class="screen" id="timeEntryScreen">
-        <button class="back-btn" onclick="showScreen('nameEntryScreen')">← Terug</button>
         <div class="screen-content">
+            <button class="top-button" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
+            
             <h2>Voeg Tijd Toe</h2>
             <select class="input-field" id="riderSelect">
                 <option value="">Selecteer rijder...</option>
             </select>
             
-            <div class="time-inputs">
-                <input type="number" class="input-field" id="minutes" placeholder="Min" min="0" max="999">
-                <input type="number" class="input-field" id="seconds" placeholder="Sec" min="0" max="59">
-                <input type="number" class="input-field" id="hundredths" placeholder="1/100" min="0" max="99">
+            <div class="time-inputs-container">
+                <input type="number" class="time-input" id="minutes" placeholder="Min" min="0" max="999">
+                <span class="time-separator">:</span>
+                <input type="number" class="time-input" id="seconds" placeholder="Sec" min="0" max="59">
+                <span class="time-separator">:</span>
+                <input type="number" class="time-input" id="hundredths" placeholder="1/100" min="0" max="99">
             </div>
-            <button class="btn" onclick="addTime()">Voeg Tijd Toe</button>
-            <div style="margin-top: 20px;">
-                <button class="btn" onclick="showScreen('nameEntryScreen')" style="background: linear-gradient(45deg, #2196F3, #1976D2);">← Naar Rijders</button>
-                <button class="btn" onclick="showScreen('leaderboardScreen')">Bekijk Leaderboard</button>
+            
+            <div class="side-buttons-time">
+                <button class="btn-blue" onclick="addTime()">Opslaan</button>
+                <button class="btn-green" onclick="showScreen('nameEntryScreen')">Rijders</button>
             </div>
         </div>
     </div>
@@ -524,6 +744,8 @@
     <!-- Leaderboard Screen -->
     <div class="screen" id="leaderboardScreen">
         <div class="screen-content">
+            <button class="btn-red" onclick="resetAll()">🗑️ Reset</button>
+            
             <!-- Logo Header -->
             <div class="leaderboard-header">
                 <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo-transparant-V5.png" 
@@ -531,16 +753,15 @@
                      onerror="this.outerHTML='<h2 style=color:white;>🛠️ GRNDbrekers Bull Riding</h2>';">
             </div>
             
-            <!-- Leaderboard List -->
-            <div class="remaining-riders" id="leaderboardSection">
-                <h3>Rankings:</h3>
-                <div id="leaderboardList"></div>
+            <!-- Navigation buttons above list -->
+            <div class="leaderboard-nav-buttons">
+                <button class="btn-green" onclick="showScreen('timeEntryScreen')">Tijd</button>
+                <button class="btn-green" onclick="showScreen('nameEntryScreen')">Rijders</button>
             </div>
             
-            <div style="margin-top: 30px;">
-                <button class="btn" onclick="showScreen('timeEntryScreen')">← Tijden Toevoegen</button>
-                <button class="btn" onclick="showScreen('nameEntryScreen')">Nieuwe Rijders</button>
-                <button class="btn" onclick="resetAll()" style="background: linear-gradient(45deg, #dc2626, #b91c1c);">🗑️ Reset</button>
+            <!-- Leaderboard List -->
+            <div class="remaining-riders" id="leaderboardSection">
+                <div id="leaderboardList"></div>
             </div>
         </div>
     </div>
@@ -585,6 +806,11 @@
         </div>
     </div>
 
+    <!-- Photo Modal -->
+    <div class="photo-modal" id="photoModal" onclick="closePhotoModal()">
+        <img class="photo-modal-content" id="photoModalContent" alt="Full size photo">
+    </div>
+
     <script>
         // Debug function
         function updateDebug(message) {
@@ -607,7 +833,7 @@
             return Date.now().toString(36) + Math.random().toString(36).substr(2);
         }
 
-        // Get all photos for a name
+        // Get all photos for a name - handles both old and new photo format
         function getPhotosForName(name) {
             const photos = [];
             window.riders.forEach(rider => {
@@ -623,7 +849,12 @@
             // Also check leaderboard for completed riders
             window.leaderboardData.forEach(entry => {
                 if (entry.name.toLowerCase() === name.toLowerCase() && entry.photo) {
-                    const existing = photos.find(p => p.photo === entry.photo);
+                    const existing = photos.find(p => {
+                        // Handle both old string format and new object format
+                        const pPhoto = typeof p.photo === 'object' ? p.photo.thumbnail : p.photo;
+                        const ePhoto = typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo;
+                        return pPhoto === ePhoto;
+                    });
                     if (!existing) {
                         photos.push({
                             photo: entry.photo,
@@ -637,41 +868,98 @@
             return photos;
         }
 
-        // Photo compression function
-        function compressImage(file, maxWidth = 150, maxHeight = 150, quality = 0.7) {
+        // Photo compression function - creates both thumbnail and fullsize
+        function compressImage(file, thumbWidth = 100, thumbHeight = 100, fullWidth = 800, fullHeight = 600) {
             return new Promise((resolve) => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
                 const img = new Image();
                 
                 img.onload = function() {
-                    // Calculate new dimensions
-                    let { width, height } = img;
+                    // Create thumbnail (for lists)
+                    const thumbCanvas = document.createElement('canvas');
+                    const thumbCtx = thumbCanvas.getContext('2d');
                     
-                    if (width > height) {
-                        if (width > maxWidth) {
-                            height = (height * maxWidth) / width;
-                            width = maxWidth;
+                    let thumbW = img.width;
+                    let thumbH = img.height;
+                    
+                    if (thumbW > thumbH) {
+                        if (thumbW > thumbWidth) {
+                            thumbH = (thumbH * thumbWidth) / thumbW;
+                            thumbW = thumbWidth;
                         }
                     } else {
-                        if (height > maxHeight) {
-                            width = (width * maxHeight) / height;
-                            height = maxHeight;
+                        if (thumbH > thumbHeight) {
+                            thumbW = (thumbW * thumbHeight) / thumbH;
+                            thumbH = thumbHeight;
                         }
                     }
                     
-                    canvas.width = width;
-                    canvas.height = height;
+                    thumbCanvas.width = thumbW;
+                    thumbCanvas.height = thumbH;
+                    thumbCtx.drawImage(img, 0, 0, thumbW, thumbH);
                     
-                    // Draw and compress
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-                    resolve(compressedDataUrl);
+                    // Create fullsize (for zoom)
+                    const fullCanvas = document.createElement('canvas');
+                    const fullCtx = fullCanvas.getContext('2d');
+                    
+                    let fullW = img.width;
+                    let fullH = img.height;
+                    
+                    if (fullW > fullH) {
+                        if (fullW > fullWidth) {
+                            fullH = (fullH * fullWidth) / fullW;
+                            fullW = fullWidth;
+                        }
+                    } else {
+                        if (fullH > fullHeight) {
+                            fullW = (fullW * fullHeight) / fullH;
+                            fullH = fullHeight;
+                        }
+                    }
+                    
+                    fullCanvas.width = fullW;
+                    fullCanvas.height = fullH;
+                    fullCtx.drawImage(img, 0, 0, fullW, fullH);
+                    
+                    // Return both versions
+                    resolve({
+                        thumbnail: thumbCanvas.toDataURL('image/jpeg', 0.7),
+                        fullsize: fullCanvas.toDataURL('image/jpeg', 0.85)
+                    });
                 };
                 
                 img.src = URL.createObjectURL(file);
             });
         }
+
+        // Photo modal functions - now uses fullsize version
+        function openPhotoModal(photoData, riderName) {
+            const modal = document.getElementById('photoModal');
+            const img = document.getElementById('photoModalContent');
+            
+            // Use fullsize if available, fallback to thumbnail for old data
+            const photoSrc = photoData && typeof photoData === 'object' ? photoData.fullsize : photoData;
+            
+            if (photoSrc) {
+                img.src = photoSrc;
+                img.alt = `Foto van ${riderName}`;
+                modal.classList.add('active');
+            }
+            
+            // Prevent event bubbling
+            if (event) event.stopPropagation();
+        }
+
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.classList.remove('active');
+        }
+
+        // Close modal with escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closePhotoModal();
+            }
+        });
 
         // Handle photo selection
         document.addEventListener('DOMContentLoaded', function() {
@@ -679,10 +967,10 @@
             document.getElementById('photoInput').addEventListener('change', async function(e) {
                 if (e.target.files && e.target.files[0]) {
                     const compressed = await compressImage(e.target.files[0]);
-                    window.currentPhoto = compressed;
+                    window.currentPhoto = compressed; // Now contains {thumbnail, fullsize}
                     
                     const preview = document.getElementById('photoPreview');
-                    preview.innerHTML = `<img src="${compressed}" alt="Preview">`;
+                    preview.innerHTML = `<img src="${compressed.thumbnail}" alt="Preview">`;
                 }
             });
 
@@ -692,8 +980,8 @@
                     const compressed = await compressImage(e.target.files[0]);
                     
                     const preview = document.getElementById('editPhotoPreview');
-                    preview.innerHTML = `<img src="${compressed}" alt="Preview">`;
-                    preview.dataset.newPhoto = compressed;
+                    preview.innerHTML = `<img src="${compressed.thumbnail}" alt="Preview">`;
+                    preview.dataset.newPhoto = JSON.stringify(compressed); // Store both versions
                 }
             });
         });
@@ -785,7 +1073,7 @@
             updateDebug('Rider added: ' + name + ' (total: ' + window.riders.length + ')');
         }
 
-        // Show duplicate modal
+        // Show duplicate modal - handles both old and new photo format
         function showDuplicateModal(existingPhotos) {
             const modal = document.getElementById('duplicateModal');
             const gallery = document.getElementById('photoGallery');
@@ -800,8 +1088,11 @@
                 photoDiv.className = 'photo-option';
                 photoDiv.onclick = () => selectPhoto(photoData.photo, photoDiv);
                 
+                // Handle both old string format and new object format
+                const thumbnailSrc = typeof photoData.photo === 'object' ? photoData.photo.thumbnail : photoData.photo;
+                
                 photoDiv.innerHTML = `
-                    <img src="${photoData.photo}" alt="Bestaande foto">
+                    <img src="${thumbnailSrc}" alt="Bestaande foto">
                     <div class="photo-option-text">${photoData.hasTime ? 'Voltooid' : 'Wachtend'}</div>
                 `;
                 
@@ -879,7 +1170,7 @@
             document.getElementById('editModal').classList.add('active');
         }
 
-        // Save edited rider
+        // Save edited rider - handles new photo format
         window.saveEditedRider = function() {
             if (window.editingRiderIndex === null) return;
             
@@ -895,7 +1186,7 @@
             
             const editPreview = document.getElementById('editPhotoPreview');
             if (editPreview.dataset.newPhoto) {
-                rider.photo = editPreview.dataset.newPhoto;
+                rider.photo = JSON.parse(editPreview.dataset.newPhoto);
             }
             
             // Save and update
@@ -938,7 +1229,7 @@
             }
         }
 
-        // Update riders list
+        // Update riders list - uses thumbnails for display, fullsize for zoom
         function updateRidersList() {
             const container = document.getElementById('addedNames');
             if (!container) return;
@@ -954,15 +1245,19 @@
                 const tag = document.createElement('div');
                 tag.className = 'rider-tag';
                 
+                // Handle both old string format and new object format
+                const thumbnailSrc = rider.photo && typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo;
+                const hasPhoto = rider.photo && (typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo);
+                
                 tag.innerHTML = `
-                    <div class="rider-photo-small">
-                        ${rider.photo ? `<img src="${rider.photo}" alt="${rider.name}">` : '👤'}
+                    <button class="edit-btn-left" onclick="editRider(${fullIndex})">✏️</button>
+                    <div class="rider-photo-small" onclick="openPhotoModal(${JSON.stringify(rider.photo).replace(/"/g, '&quot;')}, '${rider.name}')">
+                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${rider.name}" class="clickable-photo">` : '👤'}
                     </div>
                     <div class="rider-info">
                         <strong>${rider.name}</strong>
                     </div>
                     <div class="rider-actions">
-                        <button class="action-btn" onclick="editRider(${fullIndex})">✏️</button>
                         <button class="action-btn remove-btn" onclick="removeRider(${fullIndex})">×</button>
                     </div>
                 `;
@@ -1099,7 +1394,7 @@
             updateLeaderboardList();
         }
 
-        // Update leaderboard list (all positions)
+        // Update leaderboard list (all positions) - uses thumbnails for display, fullsize for zoom
         function updateLeaderboardList() {
             const container = document.getElementById('leaderboardList');
             const section = document.getElementById('leaderboardSection');
@@ -1125,10 +1420,14 @@
                 else if (position === 2) medalEmoji = '🥈 ';
                 else if (position === 3) medalEmoji = '🥉 ';
                 
+                // Handle both old string format and new object format
+                const thumbnailSrc = entry.photo && typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo;
+                const hasPhoto = entry.photo && (typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo);
+                
                 entryDiv.innerHTML = `
                     <div class="remaining-position">${medalEmoji}#${position}</div>
-                    <div class="remaining-photo">
-                        ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}">` : '👤'}
+                    <div class="remaining-photo" onclick="openPhotoModal(${JSON.stringify(entry.photo).replace(/"/g, '&quot;')}, '${entry.name}')">
+                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${entry.name}" class="clickable-photo">` : '👤'}
                     </div>
                     <div class="remaining-name">${entry.name}</div>
                     <div class="remaining-time">${entry.time}</div>
