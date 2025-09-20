@@ -27,15 +27,18 @@ class SyncClient {
 
   // 🔍 Automatische server detectie voor Windows hotspots
   async detectServerAndConnect() {
+    // Als we al op een IP zitten, gebruik die EERST
+    const currentHost = window.location.hostname;
+    
     const possibleHosts = [
-      window.location.hostname, // Als we al op de juiste host zijn
-      'localhost',              // Voor lokale development
+      currentHost,             // BELANGRIJKSTE: gebruik huidige host EERST!
       '192.168.137.1',         // Windows Mobile Hotspot (meest voorkomend)
       '192.168.43.1',          // Alternatief Windows hotspot
-      '192.168.4.1',           // Linux hotspot (origineel)
+      'localhost',             // Voor lokale development
       '10.0.0.1',              // Andere mogelijke hotspot range
       '192.168.1.1',           // Standaard router IP
-    ];
+      '192.168.4.1',           // Linux hotspot (origineel) - LAATSTE
+    ].filter((host, index, array) => array.indexOf(host) === index); // Remove duplicates
 
     console.log('🔍 Zoeken naar GRNDbrekers server...');
     
