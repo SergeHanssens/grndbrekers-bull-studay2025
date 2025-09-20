@@ -32,7 +32,7 @@
         .leaderboard-logo {
             width: 100%;
             max-width: none;
-            max-height: 200px;
+            max-height: none;
             object-fit: contain;
             margin: 0 auto 25px;
             display: block;
@@ -49,9 +49,17 @@
             margin-top: 20px;
         }
 
-        .leaderboard-section h3 {
-            text-align: center;
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .leaderboard-section h3 {
+            text-align: left;
+            margin: 0;
             opacity: 0.9;
             font-size: 20px;
         }
@@ -121,15 +129,15 @@
         .toggle-btn {
             background: linear-gradient(45deg, #2196F3, #1976D2);
             color: white;
-            padding: 15px 30px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 25px;
-            font-size: 18px;
+            border-radius: 20px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin: 0;
         }
 
         .toggle-btn:hover {
@@ -156,7 +164,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.9);
+            background-color: rgba(0,0,0,0.95);
             backdrop-filter: blur(5px);
         }
 
@@ -167,8 +175,8 @@
         }
 
         .photo-modal-content {
-            max-width: 90%;
-            max-height: 90%;
+            max-width: calc(100vw - 40px);
+            max-height: calc(100vh - 40px);
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
@@ -186,7 +194,7 @@
         @media (max-width: 480px) {
             .leaderboard-logo {
                 max-width: 100%;
-                max-height: 150px;
+                max-height: none;
             }
 
             .leaderboard-entry {
@@ -213,8 +221,12 @@
             }
 
             .toggle-btn {
-                padding: 12px 24px;
-                font-size: 16px;
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+
+            .leaderboard-section h3 {
+                font-size: 18px;
             }
         }
     </style>
@@ -222,7 +234,7 @@
 <body>
     <div class="main-container">
         <div class="leaderboard-header">
-            <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo-transparant.jpg" 
+            <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo-transparant-V5.png" 
                  alt="GRNDbrekers Logo" class="leaderboard-logo"
                  onerror="this.style.display='none'; document.getElementById('title-fallback').style.display='block';">
             <h1 id="title-fallback" style="display: none;">🏆 Live Leaderboard</h1>
@@ -230,12 +242,12 @@
         
         <!-- Leaderboard/Waitlist -->
         <div class="leaderboard-section">
-            <h3 id="sectionTitle">Rankings:</h3>
+            <div class="section-header">
+                <h3 id="sectionTitle">Rankings:</h3>
+                <button class="toggle-btn" id="toggleBtn" onclick="toggleView()">Waitlist</button>
+            </div>
             <div id="leaderboardList" class="leaderboard-list"></div>
         </div>
-        
-        <!-- Toggle Button -->
-        <button class="toggle-btn" id="toggleBtn" onclick="toggleView()">Waitlist</button>
         
         <!-- Photo Modal -->
         <div class="photo-modal" id="photoModal" onclick="closePhotoModal()">
@@ -252,6 +264,27 @@
         let leaderboardData = [];
         let ridersData = [];
         let showingWaitlist = false;
+
+        // Helper function to get photo sources - handles both old and new format
+        function getPhotoSources(photoData) {
+            if (!photoData) {
+                return { thumbnail: null, fullsize: null };
+            }
+            
+            // New format: {thumbnail: "...", fullsize: "..."}
+            if (typeof photoData === 'object' && photoData.thumbnail) {
+                return {
+                    thumbnail: photoData.thumbnail,
+                    fullsize: photoData.fullsize || photoData.thumbnail
+                };
+            }
+            
+            // Old format: "data:image/jpeg;base64..."
+            return {
+                thumbnail: photoData,
+                fullsize: photoData
+            };
+        }
 
         // Load data from localStorage on startup
         function loadData() {
@@ -304,10 +337,13 @@
                 else if (position === 2) medalEmoji = '🥈 ';
                 else if (position === 3) medalEmoji = '🥉 ';
                 
+                // Get photo sources for both thumbnail and fullsize
+                const photoSources = getPhotoSources(entry.photo);
+                
                 entryDiv.innerHTML = `
                     <div class="entry-position">${medalEmoji}#${position}</div>
                     <div class="entry-photo">
-                        ${entry.photo ? `<img src="${entry.photo}" alt="${entry.name}" class="clickable-photo" onclick="openPhotoModal('${entry.photo}', '${entry.name}')">` : '👤'}
+                        ${photoSources.thumbnail ? `<img src="${photoSources.thumbnail}" alt="${entry.name}" class="clickable-photo" onclick="openPhotoModal('${photoSources.fullsize}', '${entry.name}')">` : '👤'}
                     </div>
                     <div class="entry-name">${entry.name}</div>
                     <div class="entry-time">${entry.time}</div>
@@ -323,7 +359,7 @@
             const toggleBtn = document.getElementById('toggleBtn');
             
             titleElement.textContent = 'Waitlist:';
-            toggleBtn.textContent = 'Ranking';
+            toggleBtn.textContent = 'Rankings';
             
             // Get riders without time (same logic as dropdown in index.html)
             const waitingRiders = ridersData.filter(rider => !rider.time);
@@ -341,10 +377,13 @@
                 const entryDiv = document.createElement('div');
                 entryDiv.className = 'leaderboard-entry';
                 
+                // Get photo sources for both thumbnail and fullsize
+                const photoSources = getPhotoSources(rider.photo);
+                
                 entryDiv.innerHTML = `
                     <div class="entry-position">#${position}</div>
                     <div class="entry-photo">
-                        ${rider.photo ? `<img src="${rider.photo}" alt="${rider.name}" class="clickable-photo" onclick="openPhotoModal('${rider.photo}', '${rider.name}')">` : '👤'}
+                        ${photoSources.thumbnail ? `<img src="${photoSources.thumbnail}" alt="${rider.name}" class="clickable-photo" onclick="openPhotoModal('${photoSources.fullsize}', '${rider.name}')">` : '👤'}
                     </div>
                     <div class="entry-name">${rider.name}</div>
                     <div class="entry-waiting">Wachtend...</div>
@@ -359,23 +398,32 @@
             updateDisplay();
         }
 
-        // Photo modal functions
+        // Photo modal functions - now supports both old and new photo formats
         function openPhotoModal(photoSrc, riderName) {
             const modal = document.getElementById('photoModal');
             const img = document.getElementById('photoModalContent');
             
-            img.src = photoSrc;
-            img.alt = `Foto van ${riderName}`;
-            modal.classList.add('active');
+            if (photoSrc && photoSrc !== 'null' && photoSrc !== 'undefined') {
+                img.src = photoSrc;
+                img.alt = `Foto van ${riderName}`;
+                modal.classList.add('active');
+            }
             
             // Prevent event bubbling
-            event.stopPropagation();
+            if (event) event.stopPropagation();
         }
 
         function closePhotoModal() {
             const modal = document.getElementById('photoModal');
             modal.classList.remove('active');
         }
+
+        // Close modal with escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closePhotoModal();
+            }
+        });
 
         // Auto-refresh every 5 seconds
         setInterval(() => {
