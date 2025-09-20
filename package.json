@@ -1,18 +1,93 @@
 {
-  "name": "grndbrekers-bull-sync",
-  "version": "1.0.0",
-  "description": "Multi-device sync voor GRNDbrekers Bull Riding PWA",
+  "name": "grndbrekers-bull-studay2025",
+  "version": "2.0.0",
+  "description": "🐂 Geavanceerde Progressive Web App voor mechanische stier rijtijden tijdens StuDAY 2025 - met multi-device realtime synchronisatie",
   "main": "sync-server.js",
   "scripts": {
     "start": "node sync-server.js",
-    "dev": "nodemon sync-server.js"
+    "dev": "nodemon sync-server.js",
+    "setup-wifi": "chmod +x setup-wifi.sh && sudo ./setup-wifi.sh",
+    "stop-wifi": "sudo nmcli connection down GRNDbrekers-Bull",
+    "status": "curl -s http://localhost:3000/health | json_pp",
+    "test": "echo \"🧪 Tests komen later - dit is een live event app!\" && exit 0",
+    "build": "echo \"📦 Geen build process nodig - dit is een statische PWA!\"",
+    "deploy-github": "git push origin main && echo '🚀 Check GitHub Pages na 5-10 minuten'",
+    "backup-state": "curl -s http://192.168.4.1:3000/api/state > backup-$(date +%Y%m%d-%H%M%S).json",
+    "monitor": "watch -n 5 'curl -s http://192.168.4.1:3000/health'",
+    "logs": "journalctl -u NetworkManager -f"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "socket.io": "^4.7.5",
-    "cors": "^2.8.5"
+    "socket.io": "^4.7.5"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "bull-riding",
+    "leaderboard", 
+    "pwa",
+    "offline",
+    "socket.io",
+    "multi-device",
+    "grndbrekers",
+    "studay2025",
+    "makerspace",
+    "realtime-sync"
+  ],
+  "author": {
+    "name": "Serge Hanssens",
+    "email": "contact@jcbouckenborgh.be",
+    "url": "https://github.com/SergeHanssens"
+  },
+  "contributors": [
+    {
+      "name": "Thomas Willems",
+      "role": "Python basis code"
+    },
+    {
+      "name": "GRNDbrekers Community",
+      "role": "Testing & feedback"
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025/issues"
+  },
+  "homepage": "https://sergehanssens.github.io/grndbrekers-bull-studay2025",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "os": [
+    "linux",
+    "darwin", 
+    "win32"
+  ],
+  "config": {
+    "port": 3000,
+    "host": "0.0.0.0",
+    "wifi_name": "GRNDbrekers-Bull",
+    "wifi_password": "studay2025",
+    "hotspot_ip": "192.168.4.1"
+  },
+  "pwa": {
+    "name": "GRNDbrekers Bull Riding",
+    "short_name": "Bull Leaderboard",
+    "description": "Realtime bull riding leaderboard voor StuDAY 2025",
+    "theme_color": "#4CAF50",
+    "background_color": "#667eea",
+    "display": "standalone",
+    "orientation": "portrait"
+  },
+  "grndbrekers": {
+    "event": "StuDAY 2025",
+    "makerspace": "JC Bouckenborgh",
+    "location": "Merksem, Belgium",
+    "motto": "Think like an engineer, build like a lunatic"
   }
 }
