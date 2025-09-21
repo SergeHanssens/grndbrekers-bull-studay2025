@@ -13,11 +13,12 @@ const io = socketIo(server, {
   }
 });
 
-// Centrale state opslag
+// AUTHORITATIVE CENTRAL STATE - Single source of truth
 let centralState = {
   riders: [],
   leaderboard: [],
-  lastUpdated: null
+  lastUpdated: null,
+  createdAt: new Date().toISOString()
 };
 
 // Verbonden clients tracking
@@ -26,9 +27,8 @@ let connectedClients = new Map();
 // Trust proxy voor correcte IP detectie
 app.set('trust proxy', true);
 
-// CSP configuratie - GEEN CSP RESTRICTIONS voor development
+// CSP uitgeschakeld voor development
 app.use((req, res, next) => {
-  // Tijdelijk alle CSP uitschakelen voor debugging
   res.removeHeader('Content-Security-Policy');
   res.removeHeader('X-Content-Security-Policy');
   res.removeHeader('X-WebKit-CSP');
@@ -57,7 +57,8 @@ app.get('/health', (req, res) => {
     centralState: {
       riders: centralState.riders.length,
       leaderboard: centralState.leaderboard.length,
-      lastUpdated: centralState.lastUpdated
+      lastUpdated: centralState.lastUpdated,
+      createdAt: centralState.createdAt
     }
   });
 });
@@ -83,7 +84,7 @@ app.get('/api/debug', (req, res) => {
     },
     network: getNetworkInfo(),
     clients: connectedClients.size,
-    state: centralState
+    centralState: centralState
   });
 });
 
@@ -104,6 +105,27 @@ function getNetworkInfo() {
   return info;
 }
 
+// Helper: Update central state and broadcast
+function updateCentralState(newState, sourceSocketId) {
+  const oldState = JSON.parse(JSON.stringify(centralState));
+  
+  // Update central state
+  if (newState.riders !== undefined) {
+    centralState.riders = newState.riders;
+  }
+  if (newState.leaderboard !== undefined) {
+    centralState.leaderboard = newState.leaderboard;
+  }
+  
+  centralState.lastUpdated = new Date().toISOString();
+  
+  console.log(`📊 Central state updated by ${sourceSocketId}:`);
+  console.log(`   Riders: ${centralState.riders.length}`);
+  console.log(`   Leaderboard: ${centralState.leaderboard.length}`);
+  
+  return oldState;
+}
+
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   const clientIP = socket.handshake.address || socket.request.connection.remoteAddress;
@@ -120,58 +142,64 @@ io.on('connection', (socket) => {
 
   console.log(`🔗 Nieuwe client verbonden: ${socket.id}`);
   console.log(`🌐 IP: ${clientIP}`);
-  
-  // CONSISTENT EVENT: Verstuur huidige state naar nieuwe client via 'syncData'
-  if (centralState.riders.length > 0 || centralState.leaderboard.length > 0) {
-    console.log(`📤 Verstuur state naar nieuwe client: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard entries`);
+  console.log(`📊 Huidige centrale state: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard`);
+
+  // Handle request for server state
+  socket.on('getServerState', () => {
+    console.log(`📤 Sending authoritative server state to ${socket.id}`);
     socket.emit('syncData', {
-      type: 'fullStateSync',
+      type: 'serverState',
       riders: centralState.riders,
       leaderboard: centralState.leaderboard,
       lastUpdated: centralState.lastUpdated
     });
-  }
+  });
 
-  // CONSISTENT EVENT: Handle riders update via 'syncData'
+  // Handle sync data from clients
   socket.on('syncData', (data) => {
-    console.log(`📥 Sync data ontvangen van ${socket.id}:`, data.type);
+    console.log(`📥 Sync data received from ${socket.id}:`, data.type);
     
-    if (data.type === 'ridersUpdate') {
-      centralState.riders = data.riders;
-      centralState.lastUpdated = new Date().toISOString();
+    try {
+      if (data.type === 'ridersUpdate') {
+        updateCentralState({ riders: data.riders }, socket.id);
+        
+        // Broadcast to all OTHER clients
+        socket.broadcast.emit('syncData', {
+          type: 'ridersUpdate',
+          riders: centralState.riders,
+          source: socket.id
+        });
+        
+      } else if (data.type === 'leaderboardUpdate') {
+        updateCentralState({ leaderboard: data.leaderboard }, socket.id);
+        
+        // Broadcast to all OTHER clients
+        socket.broadcast.emit('syncData', {
+          type: 'leaderboardUpdate',
+          leaderboard: centralState.leaderboard,
+          source: socket.id
+        });
+        
+      } else if (data.type === 'fullStateSync') {
+        updateCentralState({
+          riders: data.riders || [],
+          leaderboard: data.leaderboard || []
+        }, socket.id);
+        
+        // Broadcast to all OTHER clients
+        socket.broadcast.emit('syncData', {
+          type: 'fullStateSync',
+          riders: centralState.riders,
+          leaderboard: centralState.leaderboard,
+          source: socket.id
+        });
+        
+      } else {
+        console.warn(`⚠️ Unknown sync data type: ${data.type}`);
+      }
       
-      // Broadcast naar alle andere clients
-      socket.broadcast.emit('syncData', {
-        type: 'ridersUpdate',
-        riders: data.riders,
-        source: socket.id
-      });
-    }
-    
-    if (data.type === 'leaderboardUpdate') {
-      centralState.leaderboard = data.leaderboard;
-      centralState.lastUpdated = new Date().toISOString();
-      
-      // Broadcast naar alle andere clients
-      socket.broadcast.emit('syncData', {
-        type: 'leaderboardUpdate',
-        leaderboard: data.leaderboard,
-        source: socket.id
-      });
-    }
-    
-    if (data.type === 'fullStateSync') {
-      centralState.riders = data.riders || [];
-      centralState.leaderboard = data.leaderboard || [];
-      centralState.lastUpdated = new Date().toISOString();
-      
-      // Broadcast naar alle andere clients
-      socket.broadcast.emit('syncData', {
-        type: 'fullStateSync',
-        riders: centralState.riders,
-        leaderboard: centralState.leaderboard,
-        source: socket.id
-      });
+    } catch (error) {
+      console.error(`❌ Error processing sync data from ${socket.id}:`, error);
     }
   });
 
@@ -179,6 +207,8 @@ io.on('connection', (socket) => {
   socket.on('disconnect', (reason) => {
     console.log(`❌ Client disconnected: ${socket.id} (${reason})`);
     connectedClients.delete(socket.id);
+    
+    console.log(`📊 Remaining clients: ${connectedClients.size}`);
   });
 
   // Handle errors
@@ -198,6 +228,11 @@ server.listen(PORT, '0.0.0.0', () => {
 
 🌐 Server running on port: ${PORT}
 📡 Accessible on all network interfaces
+
+🏛️ AUTHORITATIVE DATA SERVER
+   - Single source of truth for all data
+   - All clients sync to same central state
+   - Real-time synchronization enabled
 
 🔥 Hotspot URLs (meest waarschijnlijk):
    http://192.168.137.1:${PORT}
@@ -237,6 +272,7 @@ server.listen(PORT, '0.0.0.0', () => {
    1. Zorg dat Windows firewall geconfigureerd is
    2. Verbind telefoon met jouw hotspot
    3. Ga naar hotspot URL in browser
+   4. Beide devices werken nu op DEZELFDE data!
 
 🐂 =====================================================
 `);
@@ -245,6 +281,7 @@ server.listen(PORT, '0.0.0.0', () => {
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('🛑 Server shutdown signal ontvangen');
+  console.log(`📊 Final state: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard entries`);
   server.close(() => {
     console.log('✅ Server gestopt');
     process.exit(0);
@@ -253,6 +290,7 @@ process.on('SIGTERM', () => {
 
 process.on('SIGINT', () => {
   console.log('\n🛑 Server stop via Ctrl+C');
+  console.log(`📊 Final state: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard entries`);
   server.close(() => {
     console.log('✅ Server gestopt');
     process.exit(0);
