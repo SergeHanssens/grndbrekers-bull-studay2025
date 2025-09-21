@@ -1,20 +1,29 @@
 {
   "name": "grndbrekers-bull-studay2025",
-  "version": "2.0.0",
-  "description": "🐂 Geavanceerde Progressive Web App voor mechanische stier rijtijden tijdens StuDAY 2025 - met multi-device realtime synchronisatie",
+  "version": "2.1.0",
+  "description": "🐂 Geavanceerde Progressive Web App voor mechanische stier rijtijden tijdens StuDAY 2025 - met multi-device realtime synchronisatie en Windows hotspot ondersteuning",
   "main": "sync-server.js",
   "scripts": {
     "start": "node sync-server.js",
-    "dev": "nodemon sync-server.js",
+    "dev": "nodemon sync-server.js --watch sync-server.js --watch sync-client.js",
+    "debug": "node --inspect sync-server.js",
+    "test-server": "curl -s http://localhost:3000/health | json_pp || echo 'Server not running'",
+    "test-clients": "curl -s http://localhost:3000/clients | json_pp || echo 'Server not running'",
+    "setup-firewall": "powershell -ExecutionPolicy Bypass -File firewall-setup.ps1",
+    "remove-firewall": "powershell -ExecutionPolicy Bypass -File firewall-setup.ps1 -Remove",
     "setup-wifi": "chmod +x setup-wifi.sh && sudo ./setup-wifi.sh",
     "stop-wifi": "sudo nmcli connection down GRNDbrekers-Bull",
-    "status": "curl -s http://localhost:3000/health | json_pp",
-    "test": "echo \"🧪 Tests komen later - dit is een live event app!\" && exit 0",
-    "build": "echo \"📦 Geen build process nodig - dit is een statische PWA!\"",
+    "backup-state": "curl -s http://localhost:3000/api/state > backup-$(date +%Y%m%d-%H%M%S).json",
+    "restore-demo-data": "node scripts/restore-demo-data.js",
+    "monitor": "watch -n 5 'curl -s http://localhost:3000/health'",
+    "logs": "journalctl -u NetworkManager -f",
+    "ip-info": "node -e \"const os=require('os'); Object.entries(os.networkInterfaces()).forEach(([name,interfaces])=>interfaces.forEach(i=>!i.internal&&i.family==='IPv4'&&console.log(`${name}: http://${i.address}:3000`)))\"",
+    "clean": "rm -f backup-*.json && rm -f *.log",
+    "postinstall": "echo '🐂 GRNDbrekers Bull Riding geïnstalleerd! Run: npm start'",
+    "test": "echo '🧪 Tests komen later - dit is een live event app!' && exit 0",
+    "build": "echo '📦 Geen build process nodig - dit is een statische PWA!'",
     "deploy-github": "git push origin main && echo '🚀 Check GitHub Pages na 5-10 minuten'",
-    "backup-state": "curl -s http://192.168.4.1:3000/api/state > backup-$(date +%Y%m%d-%H%M%S).json",
-    "monitor": "watch -n 5 'curl -s http://192.168.4.1:3000/health'",
-    "logs": "journalctl -u NetworkManager -f"
+    "doctor": "node scripts/doctor.js"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -33,7 +42,9 @@
     "grndbrekers",
     "studay2025",
     "makerspace",
-    "realtime-sync"
+    "realtime-sync",
+    "windows-hotspot",
+    "mobile-friendly"
   ],
   "author": {
     "name": "Serge Hanssens",
@@ -60,8 +71,8 @@
   },
   "homepage": "https://sergehanssens.github.io/grndbrekers-bull-studay2025",
   "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
   },
   "os": [
     "linux",
@@ -72,8 +83,7 @@
     "port": 3000,
     "host": "0.0.0.0",
     "wifi_name": "GRNDbrekers-Bull",
-    "wifi_password": "studay2025",
-    "hotspot_ip": "192.168.4.1"
+    "wifi_password": "studay2025"
   },
   "pwa": {
     "name": "GRNDbrekers Bull Riding",
@@ -88,6 +98,28 @@
     "event": "StuDAY 2025",
     "makerspace": "JC Bouckenborgh",
     "location": "Merksem, Belgium",
-    "motto": "Think like an engineer, build like a lunatic"
+    "motto": "Think like an engineer, build like a lunatic",
+    "version": "Multi-Device Sync v2.1",
+    "features": [
+      "Windows hotspot support",
+      "Automatic server detection", 
+      "Client device tracking",
+      "Intelligent state synchronization",
+      "Comprehensive firewall support",
+      "Advanced debugging tools"
+    ]
+  },
+  "troubleshooting": {
+    "common_issues": {
+      "mobile_not_reachable": "Run firewall-setup.ps1 and check TROUBLESHOOTING.md",
+      "sync_not_working": "Check browser console for sync-client errors",
+      "server_not_starting": "Ensure port 3000 is free: netstat -an | findstr :3000"
+    },
+    "debug_commands": {
+      "server_health": "npm run test-server",
+      "connected_clients": "npm run test-clients", 
+      "network_info": "npm run ip-info",
+      "firewall_setup": "npm run setup-firewall"
+    }
   }
 }
