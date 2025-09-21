@@ -20,15 +20,12 @@ let centralState = {
   lastUpdated: null
 };
 
-// Verbonden clients tracking
+// Verbonden clients
 let connectedClients = new Map();
 
-// Trust proxy voor correcte IP detectie
-app.set('trust proxy', true);
-
-// CSP configuratie - AANGEPAST voor alle benodigde resources
+// ✅ Correcte CSP (met unsafe-eval tijdens dev)
 app.use((req, res, next) => {
-  res.setHeader('Content-Security-Policy', 
+  res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-eval' 'unsafe-inline'; " +
     "style-src 'self' 'unsafe-inline'; " +
@@ -40,11 +37,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Static files serveren
 app.use(express.static(path.join(__dirname, '.')));
 app.use(express.json());
 
-// Routes
+// ✅ Pagina routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -53,7 +49,7 @@ app.get('/leaderboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'leaderboard.html'));
 });
 
-// Debug endpoints
+// ✅ Debug endpoints
 app.get('/health', (req, res) => {
   res.json({
     status: 'OK',
@@ -92,11 +88,11 @@ app.get('/api/debug', (req, res) => {
   });
 });
 
-// Network info helper
+// ✅ Helper: netwerk info
 function getNetworkInfo() {
   const interfaces = os.networkInterfaces();
   const info = {};
-  
+
   Object.keys(interfaces).forEach(name => {
     interfaces[name].forEach(iface => {
       if (iface.family === 'IPv4' && !iface.internal) {
@@ -105,16 +101,15 @@ function getNetworkInfo() {
       }
     });
   });
-  
+
   return info;
 }
 
-// Socket.IO connection handling
+// ✅ WebSocket handlers
 io.on('connection', (socket) => {
   const clientIP = socket.handshake.address || socket.request.connection.remoteAddress;
   const userAgent = socket.handshake.headers['user-agent'] || 'Unknown';
-  
-  // Client info opslaan
+
   connectedClients.set(socket.id, {
     id: socket.id,
     ip: clientIP,
@@ -125,58 +120,78 @@ io.on('connection', (socket) => {
 
   console.log(`🔗 Nieuwe client verbonden: ${socket.id}`);
   console.log(`🌐 IP: ${clientIP}`);
-  
-  // Verstuur huidige state naar nieuwe client
+
+  // ✅ Sync huidige state
   if (centralState.riders.length > 0 || centralState.leaderboard.length > 0) {
-    console.log(`📤 Verstuur state naar nieuwe client: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard entries`);
-    socket.emit('fullStateSync', centralState);
+    console.log(`📤 Sync volledige state naar ${socket.id}`);
+    socket.emit('syncData', {
+      type: 'fullState',
+      data: centralState
+    });
   }
 
-  // Handle riders update
+  // ✅ Ontvangen riders-update
   socket.on('ridersUpdate', (data) => {
-    console.log(`📝 Riders update ontvangen van ${socket.id}`);
+    console.log(`📝 Riders update van ${socket.id}`);
     centralState.riders = data;
     centralState.lastUpdated = new Date().toISOString();
-    
-    // Broadcast naar alle andere clients
-    socket.broadcast.emit('ridersUpdate', data);
+
+    socket.broadcast.emit('syncData', {
+      type: 'riderUpdated',
+      rider: data,
+      source: socket.id
+    });
   });
 
-  // Handle leaderboard update  
+  // ✅ Ontvangen leaderboard-update
   socket.on('leaderboardUpdate', (data) => {
-    console.log(`🏆 Leaderboard update ontvangen van ${socket.id}`);
+    console.log(`🏆 Leaderboard update van ${socket.id}`);
     centralState.leaderboard = data;
     centralState.lastUpdated = new Date().toISOString();
-    
-    // Broadcast naar alle andere clients
-    socket.broadcast.emit('leaderboardUpdate', data);
+
+    socket.broadcast.emit('syncData', {
+      type: 'leaderboardUpdated',
+      leaderboard: data,
+      source: socket.id
+    });
   });
 
-  // Handle full state sync
+  // ✅ Full state update
   socket.on('fullStateSync', (data) => {
-    console.log(`🔄 Full state sync ontvangen van ${socket.id}`);
+    console.log(`🔄 Volledige state sync van ${socket.id}`);
     centralState = {
       ...data,
       lastUpdated: new Date().toISOString()
     };
-    
-    // Broadcast naar alle andere clients
-    socket.broadcast.emit('fullStateSync', centralState);
+
+    socket.broadcast.emit('syncData', {
+      type: 'fullState',
+      data: centralState,
+      source: socket.id
+    });
   });
 
-  // Handle disconnect
+  // ✅ Client vraagt expliciet state op
+  socket.on('getState', () => {
+    console.log(`📋 State requested door ${socket.id}`);
+    socket.emit('syncData', {
+      type: 'fullState',
+      data: centralState
+    });
+  });
+
+  // ✅ Disconnect handler
   socket.on('disconnect', (reason) => {
     console.log(`❌ Client disconnected: ${socket.id} (${reason})`);
     connectedClients.delete(socket.id);
   });
 
-  // Handle errors
-  socket.on('error', (error) => {
-    console.log(`⚠️ Socket error voor ${socket.id}:`, error);
+  socket.on('error', (err) => {
+    console.log(`⚠️ Socket error bij ${socket.id}:`, err);
   });
 });
 
-// Server opstarten
+// ✅ Server opstarten
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, '0.0.0.0', () => {
@@ -187,61 +202,40 @@ server.listen(PORT, '0.0.0.0', () => {
 
 🌐 Server running on port: ${PORT}
 📡 Accessible on all network interfaces
+`);
 
-🔥 Hotspot URLs (meest waarschijnlijk):
-   http://192.168.137.1:${PORT}
-   http://192.168.43.1:${PORT}
-
-🖥️ Local URLs:
-   http://localhost:${PORT}
-   http://127.0.0.1:${PORT}
-
-📱 Test URLs voor andere devices:`);
-
-  // Toon alle beschikbare IP adressen
   const interfaces = os.networkInterfaces();
   Object.keys(interfaces).forEach(name => {
     interfaces[name].forEach(iface => {
       if (iface.family === 'IPv4' && !iface.internal) {
-        const isHotspot = iface.address.startsWith('192.168.137') || 
-                         iface.address.startsWith('192.168.43') ||
-                         name.toLowerCase().includes('hotspot');
-        
-        if (isHotspot) {
-          console.log(`   🔥 (HOTSPOT) ${name}: http://${iface.address}:${PORT}`);
-        } else {
-          console.log(`   📍 ${name}: http://${iface.address}:${PORT}`);
-        }
+        const isHotspot = iface.address.startsWith('192.168.137') || iface.address.startsWith('192.168.43');
+        const label = isHotspot ? '🔥 (HOTSPOT)' : '📍';
+        console.log(`   ${label} ${name}: http://${iface.address}:${PORT}`);
       }
     });
   });
 
   console.log(`
 📊 Debug endpoints:
-   http://192.168.137.1:${PORT}/health
-   http://192.168.137.1:${PORT}/clients  
-   http://192.168.137.1:${PORT}/api/debug
-
-💡 Voor mobiele toegang:
-   1. Zorg dat Windows firewall geconfigureerd is
-   2. Verbind telefoon met jouw hotspot
-   3. Ga naar hotspot URL in browser
+   http://<ip>:${PORT}/health
+   http://<ip>:${PORT}/clients
+   http://<ip>:${PORT}/api/debug
 
 🐂 =====================================================
 `);
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('🛑 Server shutdown signal ontvangen');
+process.on('SIGINT', () => {
+  console.log('\n🛑 Server shutdown via Ctrl+C');
   server.close(() => {
     console.log('✅ Server gestopt');
     process.exit(0);
   });
 });
 
-process.on('SIGINT', () => {
-  console.log('\n🛑 Server stop via Ctrl+C');
+process.on('SIGTERM', () => {
+  console.log('🛑 Server shutdown via SIGTERM');
   server.close(() => {
     console.log('✅ Server gestopt');
     process.exit(0);
