@@ -1,4 +1,4 @@
-# 🛡️ GRNDbrekers Bull Riding - Windows Firewall Setup
+# 🛡️ GRNDbrekers Bull Riding - Windows Firewall Setup (FIXED)
 # Automatische configuratie voor Node.js en poort 3000
 
 param(
@@ -47,7 +47,7 @@ function Test-FirewallRule {
     }
 }
 
-# ➕ Add firewall rules
+# ➕ Add firewall rules (FIXED VERSION)
 function Add-FirewallRules {
     param([int]$Port)
     
@@ -96,23 +96,34 @@ function Add-FirewallRules {
             
             Write-Info "Creating rule: $($rule.Name)"
             
-            $params = @{
-                DisplayName = $rule.Name
-                Direction = $rule.Direction
-                Protocol = $rule.Protocol
-                LocalPort = $rule.LocalPort
-                Action = $rule.Action
-                Description = $rule.Description
-                Enabled = $true
-                Profile = "Domain,Private,Public"
-            }
-            
-            New-NetFirewallRule @params -ErrorAction Stop | Out-Null
+            # FIXED: Use string values instead of boolean for Enabled parameter
+            New-NetFirewallRule `
+                -DisplayName $rule.Name `
+                -Direction $rule.Direction `
+                -Protocol $rule.Protocol `
+                -LocalPort $rule.LocalPort `
+                -Action $rule.Action `
+                -Description $rule.Description `
+                -Enabled True `
+                -Profile Domain,Private,Public `
+                -ErrorAction Stop | Out-Null
+                
             Write-Success "Created: $($rule.Name)"
             $success++
             
         } catch {
             Write-Error "Failed to create rule '$($rule.Name)': $($_.Exception.Message)"
+            
+            # Fallback: Try with netsh command
+            Write-Info "Trying alternative method with netsh..."
+            try {
+                $netshCmd = "netsh advfirewall firewall add rule name=`"$($rule.Name)`" dir=$($rule.Direction.ToLower()) action=allow protocol=TCP localport=$Port"
+                Invoke-Expression $netshCmd
+                Write-Success "Created via netsh: $($rule.Name)"
+                $success++
+            } catch {
+                Write-Error "Netsh also failed for '$($rule.Name)'"
+            }
         }
     }
     
@@ -236,28 +247,52 @@ function Main {
                 Write-Warning "Port $Port might be in use by another application"
             }
         } else {
-            Write-Error "`n❌ Failed to configure firewall completely"
-            Write-Info "You may need to configure Windows Firewall manually:"
-            Write-Info "1. Open Windows Defender Firewall"
-            Write-Info "2. Click 'Allow an app or feature through Windows Defender Firewall'" 
-            Write-Info "3. Click 'Allow another app...'"
-            Write-Info "4. Browse to your Node.js installation"
-            Write-Info "5. Check both 'Private' and 'Public' networks"
-            return 1
+            Write-Error "`n❌ Some firewall rules failed to create"
+            Write-Info "Trying manual configuration as backup..."
+            
+            # Backup method: Simple netsh commands
+            Write-Info "Using netsh commands as fallback..."
+            try {
+                $commands = @(
+                    "netsh advfirewall firewall add rule name=`"GRNDbrekers-NodeJS-In`" dir=in action=allow protocol=TCP localport=$Port",
+                    "netsh advfirewall firewall add rule name=`"GRNDbrekers-NodeJS-Out`" dir=out action=allow protocol=TCP localport=$Port"
+                )
+                
+                foreach ($cmd in $commands) {
+                    Invoke-Expression $cmd
+                    Write-Success "Executed: $cmd"
+                }
+                
+                Write-Success "`n🎉 Firewall configured via netsh!"
+            } catch {
+                Write-Error "`n❌ All automatic methods failed"
+                Write-Info "Manual configuration required:"
+                Write-Info "1. Open Windows Defender Firewall"
+                Write-Info "2. Click 'Allow an app or feature through Windows Defender Firewall'" 
+                Write-Info "3. Click 'Allow another app...'"
+                Write-Info "4. Browse to your Node.js installation"
+                Write-Info "5. Check both 'Private' and 'Public' networks"
+                return 1
+            }
         }
     }
     
     # Show existing rules
-    Write-Info "`nCurrent GRNDbrekers Bull Riding firewall rules:"
+    Write-Info "`nCurrent firewall rules for Node.js/port $Port:"
     try {
-        $existingRules = Get-NetFirewallRule -DisplayName "*GRNDbrekers*" -ErrorAction SilentlyContinue
+        $existingRules = Get-NetFirewallRule | Where-Object { 
+            $_.DisplayName -like "*GRNDbrekers*" -or 
+            $_.DisplayName -like "*NodeJS*" -or
+            $_.DisplayName -like "*Node.js*"
+        }
+        
         if ($existingRules) {
             foreach ($rule in $existingRules) {
-                $status = if ($rule.Enabled) { "✅ ENABLED" } else { "❌ DISABLED" }
+                $status = if ($rule.Enabled -eq "True") { "✅ ENABLED" } else { "❌ DISABLED" }
                 Write-ColorOutput "   $($rule.DisplayName) - $status" "Cyan"
             }
         } else {
-            Write-Info "   No GRNDbrekers Bull Riding rules found"
+            Write-Info "   No relevant firewall rules found"
         }
     } catch {
         Write-Warning "   Could not list firewall rules"
@@ -272,6 +307,7 @@ function Main {
         Write-Info "   • Start your server: npm start"
         Write-Info "   • Test connection from mobile device"
         Write-Info "   • Use: http://192.168.137.1:$Port"
+        Write-Info "   • Check for green indicator (🟢) on mobile"
     }
     
     Write-ColorOutput "`n🐂 =====================================================`n" "Blue"
