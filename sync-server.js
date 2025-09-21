@@ -26,9 +26,17 @@ let connectedClients = new Map();
 // Trust proxy voor correcte IP detectie
 app.set('trust proxy', true);
 
-// CSP configuratie - FIX voor Socket.IO eval error
+// CSP configuratie - AANGEPAST voor alle benodigde resources
 app.use((req, res, next) => {
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline'; " +
+    "style-src 'self' 'unsafe-inline'; " +
+    "img-src 'self' data: https://raw.githubusercontent.com https://*.githubusercontent.com; " +
+    "connect-src 'self' ws: wss:; " +
+    "font-src 'self' data:; " +
+    "manifest-src 'self'"
+  );
   next();
 });
 
