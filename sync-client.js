@@ -1,5 +1,5 @@
 // GRNDbrekers Bull Riding - Sync Client
-// Server as single source of truth
+// Server as ABSOLUTE source of truth - client is passive receiver
 
 class SyncClient {
     constructor() {
@@ -9,7 +9,8 @@ class SyncClient {
         this.maxReconnectAttempts = 5;
         this.syncIndicator = null;
         this.lastSyncTime = null;
-        this.hasReceivedInitialState = false;
+        this.hasReceivedServerState = false;
+        this.isReceivingServerData = false;
         
         this.init();
     }
@@ -82,16 +83,17 @@ class SyncClient {
             console.log('✅ Connected to server! ID:', this.socket.id);
             this.isConnected = true;
             this.reconnectAttempts = 0;
-            this.updateSyncIndicator(true, 'Connected');
+            this.hasReceivedServerState = false;
+            this.updateSyncIndicator(true, 'Connected - Waiting for server data');
             
-            // REQUEST server state instead of sending local state
-            this.requestServerState();
+            // DO NOT send local data - just wait for server state
+            console.log('⏳ Waiting for authoritative server state...');
         });
         
         this.socket.on('disconnect', (reason) => {
             console.warn('❌ Disconnected from server:', reason);
             this.isConnected = false;
-            this.hasReceivedInitialState = false;
+            this.hasReceivedServerState = false;
             this.updateSyncIndicator(false, `Disconnected: ${reason}`);
             
             if (reason === 'io server disconnect') {
@@ -108,9 +110,13 @@ class SyncClient {
         
         // RECEIVE sync data from server
         this.socket.on('syncData', (data) => {
-            console.log('📥 Sync data received:', data);
+            console.log('📥 Sync data received:', data.type);
             this.handleSyncData(data);
             this.lastSyncTime = new Date();
+        });
+        
+        this.socket.on('heartbeat', (data) => {
+            // Silent heartbeat - just acknowledge
         });
         
         this.socket.on('error', (error) => {
@@ -118,30 +124,45 @@ class SyncClient {
         });
     }
     
-    requestServerState() {
-        console.log('📤 Requesting current server state...');
-        this.socket.emit('getServerState');
-    }
-    
     handleSyncData(data) {
+        this.isReceivingServerData = true;
+        
         try {
             switch(data.type) {
                 case 'serverState':
                     console.log('🏛️ Received authoritative server state');
                     this.applyServerState(data);
-                    this.hasReceivedInitialState = true;
+                    this.hasReceivedServerState = true;
+                    this.updateSyncIndicator(true, 'Synced with server');
                     break;
                     
                 case 'ridersUpdate':
-                    this.updateRiders(data.riders);
+                    if (this.hasReceivedServerState) {
+                        this.updateRiders(data.riders);
+                    }
                     break;
                     
                 case 'leaderboardUpdate':
-                    this.updateLeaderboard(data.leaderboard);
+                    if (this.hasReceivedServerState) {
+                        this.updateLeaderboard(data.leaderboard);
+                    }
                     break;
                     
                 case 'fullStateSync':
-                    this.syncFullState(data);
+                    if (this.hasReceivedServerState) {
+                        this.syncFullState(data);
+                    }
+                    break;
+                    
+                case 'periodicSync':
+                    if (this.hasReceivedServerState) {
+                        this.syncFullState(data);
+                    }
+                    break;
+                    
+                case 'serverShutdown':
+                    console.warn('⚠️ Server is shutting down');
+                    this.updateSyncIndicator(false, 'Server shutting down');
                     break;
                     
                 default:
@@ -149,31 +170,33 @@ class SyncClient {
             }
         } catch (error) {
             console.error('❌ Error handling sync data:', error);
+        } finally {
+            this.isReceivingServerData = false;
         }
     }
     
     applyServerState(data) {
-        console.log('🔄 Applying server state as source of truth');
+        console.log('🔄 Applying server state as ABSOLUTE source of truth');
+        console.log(`   Server has: ${data.riders?.length || 0} riders, ${data.leaderboard?.length || 0} leaderboard entries`);
         
         // Replace local data with server data
-        if (data.riders && Array.isArray(data.riders)) {
-            window.riders = data.riders;
-            this.saveToLocalStorage('riders', data.riders);
-        }
+        window.riders = data.riders || [];
+        window.leaderboardData = data.leaderboard || [];
         
-        if (data.leaderboard && Array.isArray(data.leaderboard)) {
-            window.leaderboardData = data.leaderboard;
-            this.saveToLocalStorage('leaderboard', data.leaderboard);
-        }
+        // Save server data to localStorage for offline backup only
+        this.saveToLocalStorage('riders', window.riders);
+        this.saveToLocalStorage('leaderboard', window.leaderboardData);
         
         // Update UI
         this.refreshUI();
         
-        console.log('✅ Server state applied successfully');
+        console.log(`✅ Server state applied: ${window.riders.length} riders, ${window.leaderboardData.length} leaderboard entries`);
     }
     
     updateRiders(riders) {
-        console.log('👥 Updating riders from sync:', riders.length);
+        if (!this.isReceivingServerData) {
+            console.log('👥 Updating riders from server sync:', riders?.length || 0);
+        }
         
         if (Array.isArray(riders)) {
             window.riders = riders;
@@ -183,7 +206,9 @@ class SyncClient {
     }
     
     updateLeaderboard(leaderboard) {
-        console.log('🏆 Updating leaderboard from sync:', leaderboard.length);
+        if (!this.isReceivingServerData) {
+            console.log('🏆 Updating leaderboard from server sync:', leaderboard?.length || 0);
+        }
         
         if (Array.isArray(leaderboard)) {
             window.leaderboardData = leaderboard;
@@ -193,8 +218,6 @@ class SyncClient {
     }
     
     syncFullState(data) {
-        console.log('🔄 Full state sync received');
-        
         if (data.riders) {
             this.updateRiders(data.riders);
         }
@@ -220,10 +243,15 @@ class SyncClient {
         }
     }
     
-    // SEND data to server (called by main app)
+    // SEND data to server (only called when user makes actual changes)
     sendRiderUpdate() {
-        if (!this.isConnected || !this.hasReceivedInitialState) {
+        if (!this.isConnected || !this.hasReceivedServerState) {
             console.warn('⚠️ Cannot sync riders: not ready');
+            return;
+        }
+        
+        if (this.isReceivingServerData) {
+            console.log('⏭️ Skipping send during server data reception');
             return;
         }
         
@@ -235,8 +263,13 @@ class SyncClient {
     }
     
     sendLeaderboardUpdate() {
-        if (!this.isConnected || !this.hasReceivedInitialState) {
+        if (!this.isConnected || !this.hasReceivedServerState) {
             console.warn('⚠️ Cannot sync leaderboard: not ready');
+            return;
+        }
+        
+        if (this.isReceivingServerData) {
+            console.log('⏭️ Skipping send during server data reception');
             return;
         }
         
@@ -248,8 +281,13 @@ class SyncClient {
     }
     
     sendFullStateUpdate() {
-        if (!this.isConnected || !this.hasReceivedInitialState) {
+        if (!this.isConnected || !this.hasReceivedServerState) {
             console.warn('⚠️ Cannot sync full state: not ready');
+            return;
+        }
+        
+        if (this.isReceivingServerData) {
+            console.log('⏭️ Skipping send during server data reception');
             return;
         }
         
@@ -269,17 +307,17 @@ class SyncClient {
         setTimeout(() => {
             this.wrapFunction('addRider', () => {
                 console.log('🔗 Auto-sync after addRider');
-                self.sendRiderUpdate();
+                setTimeout(() => self.sendRiderUpdate(), 100);
             });
             
             this.wrapFunction('addTime', () => {
                 console.log('🔗 Auto-sync after addTime');
-                self.sendLeaderboardUpdate();
+                setTimeout(() => self.sendLeaderboardUpdate(), 100);
             });
             
             this.wrapFunction('saveData', () => {
                 console.log('🔗 Auto-sync after saveData');
-                self.sendFullStateUpdate();
+                setTimeout(() => self.sendFullStateUpdate(), 100);
             });
         }, 1000);
     }
@@ -296,6 +334,16 @@ class SyncClient {
         }
     }
     
+    clearLocalStorage() {
+        try {
+            localStorage.removeItem('riders');
+            localStorage.removeItem('leaderboard');
+            console.log('🧹 LocalStorage cleared - server is source of truth');
+        } catch (error) {
+            console.warn('⚠️ Could not clear localStorage:', error);
+        }
+    }
+    
     updateSyncIndicator(connected, message) {
         if (!this.syncIndicator) return;
         
@@ -309,8 +357,8 @@ class SyncClient {
     
     handleIndicatorClick() {
         if (this.isConnected) {
-            console.log('🔄 Manual sync triggered');
-            this.requestServerState();
+            console.log('🔄 Manual server state request');
+            this.socket.emit('getServerState');
         } else {
             console.log('🔄 Manual reconnect triggered');
             this.reconnect();
@@ -349,7 +397,8 @@ class SyncClient {
         window.debugSync = () => {
             console.log('🐛 Sync Debug Info:', {
                 connected: this.isConnected,
-                hasInitialState: this.hasReceivedInitialState,
+                hasServerState: this.hasReceivedServerState,
+                isReceivingData: this.isReceivingServerData,
                 socketId: this.socket?.id,
                 reconnectAttempts: this.reconnectAttempts,
                 lastSyncTime: this.lastSyncTime,
@@ -358,12 +407,20 @@ class SyncClient {
             });
         };
         
-        window.manualSync = () => {
-            this.requestServerState();
+        window.requestServerState = () => {
+            if (this.isConnected) {
+                this.socket.emit('getServerState');
+            } else {
+                console.warn('⚠️ Not connected to server');
+            }
         };
         
-        window.forceSync = () => {
-            this.sendFullStateUpdate();
+        window.clearLocalData = () => {
+            this.clearLocalStorage();
+            window.riders = [];
+            window.leaderboardData = [];
+            this.refreshUI();
+            console.log('🧹 All local data cleared');
         };
     }
     
@@ -372,16 +429,6 @@ class SyncClient {
             localStorage.setItem(key, JSON.stringify(data));
         } catch (error) {
             console.warn('⚠️ LocalStorage save failed:', error);
-        }
-    }
-    
-    loadFromLocalStorage(key) {
-        try {
-            const data = localStorage.getItem(key);
-            return data ? JSON.parse(data) : null;
-        } catch (error) {
-            console.warn('⚠️ LocalStorage load failed:', error);
-            return null;
         }
     }
 }
