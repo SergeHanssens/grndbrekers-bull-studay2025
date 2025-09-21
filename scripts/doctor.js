@@ -223,10 +223,17 @@ function checkWindowsFirewall() {
   logCheck('Windows Firewall status', true, firewallOn ? 'Actief' : 'Uitgeschakeld');
   
   if (firewallOn) {
-    const nodeRules = runCommand('netsh advfirewall firewall show rule name="Node.js" dir=in');
+    // Check for GRNDbrekers firewall rules (created by firewall-setup.ps1)
+    const grndRules = runCommand('netsh advfirewall firewall show rule name="GRNDbrekers Bull Riding*" dir=in');
+    const hasGrndRule = grndRules && grndRules.includes('GRNDbrekers Bull Riding');
+    
+    // Also check for generic Node.js rules
+    const nodeRules = runCommand('netsh advfirewall firewall show rule name="Node.js*" dir=in');
     const hasNodeRule = nodeRules && nodeRules.includes('Node.js');
     
-    logCheck('Node.js firewall regel', hasNodeRule, hasNodeRule ? 'Gevonden' : 'Niet gevonden');
+    const hasAnyRule = hasGrndRule || hasNodeRule;
+    
+    logCheck('Node.js firewall regel', hasAnyRule, hasGrndRule ? 'GRNDbrekers regels gevonden' : hasNodeRule ? 'Node.js regels gevonden' : 'Niet gevonden');
     
     if (!hasNodeRule) {
       logInfo('Windows Firewall configuratie:');
