@@ -1,5 +1,5 @@
 // GRNDbrekers Bull Riding - Sync Client
-// Multi-device synchronization via Socket.IO
+// Server as single source of truth
 
 class SyncClient {
     constructor() {
@@ -9,6 +9,7 @@ class SyncClient {
         this.maxReconnectAttempts = 5;
         this.syncIndicator = null;
         this.lastSyncTime = null;
+        this.hasReceivedInitialState = false;
         
         this.init();
     }
@@ -18,10 +19,10 @@ class SyncClient {
         this.createSyncIndicator();
         this.connectToServer();
         this.setupWindowEvents();
+        this.interceptAppFunctions();
     }
     
     createSyncIndicator() {
-        // Create sync status indicator
         const indicator = document.createElement('div');
         indicator.id = 'syncIndicator';
         indicator.style.cssText = `
@@ -48,7 +49,6 @@ class SyncClient {
         try {
             console.log('🔗 Attempting to connect to server...');
             
-            // Auto-detect server URL
             const serverUrl = this.detectServerUrl();
             console.log('🎯 Connecting to:', serverUrl);
             
@@ -70,32 +70,31 @@ class SyncClient {
         const hostname = window.location.hostname;
         const port = window.location.port || '3000';
         
-        // If we're already on the right host, use current location
         if (hostname === '192.168.137.1' || hostname === 'localhost' || hostname === '127.0.0.1') {
             return `${window.location.protocol}//${hostname}:${port}`;
         }
         
-        // Default fallback for hotspot
         return 'http://192.168.137.1:3000';
     }
     
     setupSocketEvents() {
-        // Connection events
         this.socket.on('connect', () => {
             console.log('✅ Connected to server! ID:', this.socket.id);
             this.isConnected = true;
             this.reconnectAttempts = 0;
             this.updateSyncIndicator(true, 'Connected');
-            this.requestInitialSync();
+            
+            // REQUEST server state instead of sending local state
+            this.requestServerState();
         });
         
         this.socket.on('disconnect', (reason) => {
             console.warn('❌ Disconnected from server:', reason);
             this.isConnected = false;
+            this.hasReceivedInitialState = false;
             this.updateSyncIndicator(false, `Disconnected: ${reason}`);
             
             if (reason === 'io server disconnect') {
-                // Server initiated disconnect, reconnect manually
                 setTimeout(() => this.reconnect(), 2000);
             }
         });
@@ -107,22 +106,32 @@ class SyncClient {
             this.scheduleReconnect();
         });
         
-        // CONSISTENT EVENT: Listen for syncData
+        // RECEIVE sync data from server
         this.socket.on('syncData', (data) => {
             console.log('📥 Sync data received:', data);
             this.handleSyncData(data);
             this.lastSyncTime = new Date();
         });
         
-        // Error handling
         this.socket.on('error', (error) => {
             console.error('⚠️ Socket error:', error);
         });
     }
     
+    requestServerState() {
+        console.log('📤 Requesting current server state...');
+        this.socket.emit('getServerState');
+    }
+    
     handleSyncData(data) {
         try {
             switch(data.type) {
+                case 'serverState':
+                    console.log('🏛️ Received authoritative server state');
+                    this.applyServerState(data);
+                    this.hasReceivedInitialState = true;
+                    break;
+                    
                 case 'ridersUpdate':
                     this.updateRiders(data.riders);
                     break;
@@ -143,38 +152,43 @@ class SyncClient {
         }
     }
     
-    updateRiders(riders) {
-        console.log('👥 Updating riders:', riders.length);
+    applyServerState(data) {
+        console.log('🔄 Applying server state as source of truth');
         
-        if (window.riders && Array.isArray(riders)) {
+        // Replace local data with server data
+        if (data.riders && Array.isArray(data.riders)) {
+            window.riders = data.riders;
+            this.saveToLocalStorage('riders', data.riders);
+        }
+        
+        if (data.leaderboard && Array.isArray(data.leaderboard)) {
+            window.leaderboardData = data.leaderboard;
+            this.saveToLocalStorage('leaderboard', data.leaderboard);
+        }
+        
+        // Update UI
+        this.refreshUI();
+        
+        console.log('✅ Server state applied successfully');
+    }
+    
+    updateRiders(riders) {
+        console.log('👥 Updating riders from sync:', riders.length);
+        
+        if (Array.isArray(riders)) {
             window.riders = riders;
-            
-            // Update localStorage
             this.saveToLocalStorage('riders', riders);
-            
-            // Update UI if functions exist
-            if (typeof updateRidersList === 'function') {
-                updateRidersList();
-            }
-            if (typeof updateRiderDropdown === 'function') {
-                updateRiderDropdown();
-            }
+            this.refreshUI();
         }
     }
     
     updateLeaderboard(leaderboard) {
-        console.log('🏆 Updating leaderboard:', leaderboard.length);
+        console.log('🏆 Updating leaderboard from sync:', leaderboard.length);
         
-        if (window.leaderboardData && Array.isArray(leaderboard)) {
+        if (Array.isArray(leaderboard)) {
             window.leaderboardData = leaderboard;
-            
-            // Update localStorage
             this.saveToLocalStorage('leaderboard', leaderboard);
-            
-            // Update UI if functions exist
-            if (typeof updateLeaderboard === 'function') {
-                updateLeaderboard();
-            }
+            this.refreshUI();
         }
     }
     
@@ -188,53 +202,98 @@ class SyncClient {
         if (data.leaderboard) {
             this.updateLeaderboard(data.leaderboard);
         }
-        
-        console.log('✅ Full state sync complete');
     }
     
-    requestInitialSync() {
-        console.log('📤 Requesting initial sync...');
-        
-        // Send current local state to server
-        const localState = {
-            type: 'fullStateSync',
-            riders: this.loadFromLocalStorage('riders') || window.riders || [],
-            leaderboard: this.loadFromLocalStorage('leaderboard') || window.leaderboardData || []
-        };
-        
-        this.sendSyncData(localState);
-    }
-    
-    sendSyncData(data) {
-        if (this.isConnected && this.socket) {
-            console.log('📤 Sending sync data:', data.type);
-            this.socket.emit('syncData', data);
-        } else {
-            console.warn('⚠️ Cannot send sync data: not connected');
+    refreshUI() {
+        // Update all UI elements
+        if (typeof updateRidersList === 'function') {
+            updateRidersList();
+        }
+        if (typeof updateRiderDropdown === 'function') {
+            updateRiderDropdown();
+        }
+        if (typeof updateLeaderboard === 'function') {
+            updateLeaderboard();
+        }
+        if (typeof updateAllLeaderboards === 'function') {
+            updateAllLeaderboards();
         }
     }
     
-    // Public methods for app to call
-    syncRiders(riders) {
-        this.sendSyncData({
+    // SEND data to server (called by main app)
+    sendRiderUpdate() {
+        if (!this.isConnected || !this.hasReceivedInitialState) {
+            console.warn('⚠️ Cannot sync riders: not ready');
+            return;
+        }
+        
+        console.log('📤 Sending riders update to server');
+        this.socket.emit('syncData', {
             type: 'ridersUpdate',
-            riders: riders
+            riders: window.riders || []
         });
     }
     
-    syncLeaderboard(leaderboard) {
-        this.sendSyncData({
+    sendLeaderboardUpdate() {
+        if (!this.isConnected || !this.hasReceivedInitialState) {
+            console.warn('⚠️ Cannot sync leaderboard: not ready');
+            return;
+        }
+        
+        console.log('📤 Sending leaderboard update to server');
+        this.socket.emit('syncData', {
             type: 'leaderboardUpdate',
-            leaderboard: leaderboard
+            leaderboard: window.leaderboardData || []
         });
     }
     
-    syncFullState(riders, leaderboard) {
-        this.sendSyncData({
+    sendFullStateUpdate() {
+        if (!this.isConnected || !this.hasReceivedInitialState) {
+            console.warn('⚠️ Cannot sync full state: not ready');
+            return;
+        }
+        
+        console.log('📤 Sending full state update to server');
+        this.socket.emit('syncData', {
             type: 'fullStateSync',
-            riders: riders || [],
-            leaderboard: leaderboard || []
+            riders: window.riders || [],
+            leaderboard: window.leaderboardData || []
         });
+    }
+    
+    // Intercept app functions to add sync calls
+    interceptAppFunctions() {
+        const self = this;
+        
+        // Wait for app to load, then override functions
+        setTimeout(() => {
+            this.wrapFunction('addRider', () => {
+                console.log('🔗 Auto-sync after addRider');
+                self.sendRiderUpdate();
+            });
+            
+            this.wrapFunction('addTime', () => {
+                console.log('🔗 Auto-sync after addTime');
+                self.sendLeaderboardUpdate();
+            });
+            
+            this.wrapFunction('saveData', () => {
+                console.log('🔗 Auto-sync after saveData');
+                self.sendFullStateUpdate();
+            });
+        }, 1000);
+    }
+    
+    wrapFunction(functionName, callback) {
+        if (typeof window[functionName] === 'function') {
+            const originalFunction = window[functionName];
+            window[functionName] = function(...args) {
+                const result = originalFunction.apply(this, args);
+                callback();
+                return result;
+            };
+            console.log(`✅ Wrapped function: ${functionName}`);
+        }
     }
     
     updateSyncIndicator(connected, message) {
@@ -251,7 +310,7 @@ class SyncClient {
     handleIndicatorClick() {
         if (this.isConnected) {
             console.log('🔄 Manual sync triggered');
-            this.requestInitialSync();
+            this.requestServerState();
         } else {
             console.log('🔄 Manual reconnect triggered');
             this.reconnect();
@@ -285,29 +344,29 @@ class SyncClient {
     }
     
     setupWindowEvents() {
-        // Expose functions globally for app to use
         window.syncClient = this;
         
-        // Debug functions
         window.debugSync = () => {
             console.log('🐛 Sync Debug Info:', {
                 connected: this.isConnected,
+                hasInitialState: this.hasReceivedInitialState,
                 socketId: this.socket?.id,
                 reconnectAttempts: this.reconnectAttempts,
-                lastSyncTime: this.lastSyncTime
+                lastSyncTime: this.lastSyncTime,
+                riders: window.riders?.length || 0,
+                leaderboard: window.leaderboardData?.length || 0
             });
         };
         
         window.manualSync = () => {
-            this.requestInitialSync();
+            this.requestServerState();
         };
         
-        window.reconnectSync = () => {
-            this.reconnect();
+        window.forceSync = () => {
+            this.sendFullStateUpdate();
         };
     }
     
-    // LocalStorage helpers
     saveToLocalStorage(key, data) {
         try {
             localStorage.setItem(key, JSON.stringify(data));
@@ -327,7 +386,6 @@ class SyncClient {
     }
 }
 
-// Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         window.syncClientInstance = new SyncClient();
@@ -336,5 +394,4 @@ if (document.readyState === 'loading') {
     window.syncClientInstance = new SyncClient();
 }
 
-// Export for manual initialization if needed
 window.SyncClient = SyncClient;
