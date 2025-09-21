@@ -686,6 +686,7 @@
                          onerror="this.outerHTML='<div style=color:white;font-size:18px;>🛠️ GRNDbrekers 🐂<br><small>Bull Riding Leaderboard</small></div>';">
                 </div>
             </div>
+            <!-- FIXED: Only clears LOCAL data, NOT server data -->
             <button class="btn" onclick="startLeaderboardWithClear()">Start Leaderboard!</button>
         </div>
     </div>
@@ -745,7 +746,8 @@
     <!-- Leaderboard Screen -->
     <div class="screen" id="leaderboardScreen">
         <div class="screen-content">
-            <button class="btn-red" onclick="resetAll()">🗑️ Reset</button>
+            <!-- FIXED: Now uses resetServerData for server data reset -->
+            <button class="btn-red" onclick="resetAllServerData()">🗑️ Reset</button>
             
             <!-- Logo Header -->
             <div class="leaderboard-header">
@@ -812,6 +814,10 @@
         <img class="photo-modal-content" id="photoModalContent" alt="Full size photo">
     </div>
 
+    <!-- Socket.IO and Sync Client -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="sync-client.js"></script>
+
     <script>
         // Debug function
         function updateDebug(message) {
@@ -829,20 +835,25 @@
         window.duplicateName = '';
         window.selectedPhotoForDuplicate = null;
 
-        // *** NEW: Auto-clear localStorage function for fresh start ***
+        // FIXED: Auto-clear localStorage function for fresh start (LOCAL ONLY)
         window.startLeaderboardWithClear = function() {
-            console.log('🧹 Starting fresh - clearing old data...');
+            console.log('🧹 Starting fresh - clearing LOCAL data only...');
             
-            // Clear localStorage items
-            try {
-                localStorage.removeItem('rodeoRiders');
-                localStorage.removeItem('rodeoLeaderboard');
-                localStorage.removeItem('riders');
-                localStorage.removeItem('leaderboard');
-                localStorage.removeItem('currentPhoto');
-                console.log('✅ LocalStorage cleared');
-            } catch (error) {
-                console.warn('⚠️ Could not clear localStorage:', error);
+            // Use sync client's startLeaderboard function if available (only clears local data)
+            if (typeof startLeaderboard === 'function') {
+                startLeaderboard();
+            } else {
+                // Fallback if sync client not loaded yet - clear only local data
+                try {
+                    localStorage.removeItem('rodeoRiders');
+                    localStorage.removeItem('rodeoLeaderboard');
+                    localStorage.removeItem('riders');
+                    localStorage.removeItem('leaderboard');
+                    localStorage.removeItem('currentPhoto');
+                    console.log('✅ LocalStorage cleared (fallback)');
+                } catch (error) {
+                    console.warn('⚠️ Could not clear localStorage:', error);
+                }
             }
             
             // Clear global variables
@@ -853,9 +864,6 @@
             window.duplicateName = '';
             window.selectedPhotoForDuplicate = null;
             
-            // Show status message to user
-            updateDebug('Data cleared - connecting to server...');
-            
             // Update UI elements
             updateRidersList();
             updateRiderDropdown();
@@ -865,10 +873,43 @@
             const nextBtn = document.getElementById('nextToTimeBtn');
             if (nextBtn) nextBtn.style.display = 'none';
             
-            console.log('🚀 Starting app with fresh data - server will provide authoritative state');
+            console.log('🚀 Starting app with fresh LOCAL data - server data preserved');
             
             // Navigate to main screen
             showScreen('nameEntryScreen');
+        }
+
+        // FIXED: Reset server data function
+        function resetAllServerData() {
+            if (confirm('⚠️ WAARSCHUWING!\n\nDit wist ALLE data van de server (riders en leaderboard).\nDeze actie is NIET omkeerbaar!\n\nWeet je zeker dat je wilt doorgaan?')) {
+                console.log('🗑️ Resetting ALL server data...');
+                
+                // Use the sync client's resetServerData function
+                if (typeof resetServerData === 'function') {
+                    resetServerData();
+                } else {
+                    console.error('❌ resetServerData function not available');
+                    alert('Error: Cannot reset server data - sync not available');
+                    return;
+                }
+                
+                // Clear local data as well
+                window.riders = [];
+                window.leaderboardData = [];
+                localStorage.removeItem('rodeoRiders');
+                localStorage.removeItem('rodeoLeaderboard');
+                
+                // Update displays
+                updateRidersList();
+                updateRiderDropdown();
+                updateLeaderboard();
+                
+                const nextBtn = document.getElementById('nextToTimeBtn');
+                if (nextBtn) nextBtn.style.display = 'none';
+                
+                showScreen('homeScreen');
+                console.log('✅ All server data reset complete');
+            }
         }
 
         // Generate unique ID
@@ -1570,24 +1611,9 @@
             }
         }
 
-        // Reset all data
+        // Legacy resetAll function for compatibility - now redirects to resetAllServerData
         window.resetAll = function() {
-            if (confirm('Weet je zeker dat je alle data wilt wissen?')) {
-                window.riders = [];
-                window.leaderboardData = [];
-                localStorage.removeItem('rodeoRiders');
-                localStorage.removeItem('rodeoLeaderboard');
-                
-                updateRidersList();
-                updateRiderDropdown();
-                updateLeaderboard();
-                
-                const nextBtn = document.getElementById('nextToTimeBtn');
-                if (nextBtn) nextBtn.style.display = 'none';
-                
-                showScreen('homeScreen');
-                updateDebug('All data reset');
-            }
+            resetAllServerData();
         }
 
         // Initialize app with all enhancements
@@ -1622,7 +1648,5 @@
 
         updateDebug('Script loaded');
     </script>
-<script src="socket.io.min.js"></script>
-<script src="sync-client.js"></script>
 </body>
 </html>
