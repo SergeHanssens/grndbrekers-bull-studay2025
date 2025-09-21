@@ -686,7 +686,7 @@
                          onerror="this.outerHTML='<div style=color:white;font-size:18px;>🛠️ GRNDbrekers 🐂<br><small>Bull Riding Leaderboard</small></div>';">
                 </div>
             </div>
-            <button class="btn" onclick="showScreen('nameEntryScreen')">Start Leaderboard!</button>
+            <button class="btn" onclick="startLeaderboardWithClear()">Start Leaderboard!</button>
         </div>
     </div>
 
@@ -828,6 +828,48 @@
         window.editingRiderIndex = null;
         window.duplicateName = '';
         window.selectedPhotoForDuplicate = null;
+
+        // *** NEW: Auto-clear localStorage function for fresh start ***
+        window.startLeaderboardWithClear = function() {
+            console.log('🧹 Starting fresh - clearing old data...');
+            
+            // Clear localStorage items
+            try {
+                localStorage.removeItem('rodeoRiders');
+                localStorage.removeItem('rodeoLeaderboard');
+                localStorage.removeItem('riders');
+                localStorage.removeItem('leaderboard');
+                localStorage.removeItem('currentPhoto');
+                console.log('✅ LocalStorage cleared');
+            } catch (error) {
+                console.warn('⚠️ Could not clear localStorage:', error);
+            }
+            
+            // Clear global variables
+            window.riders = [];
+            window.leaderboardData = [];
+            window.currentPhoto = null;
+            window.editingRiderIndex = null;
+            window.duplicateName = '';
+            window.selectedPhotoForDuplicate = null;
+            
+            // Show status message to user
+            updateDebug('Data cleared - connecting to server...');
+            
+            // Update UI elements
+            updateRidersList();
+            updateRiderDropdown();
+            updateLeaderboard();
+            
+            // Hide next button
+            const nextBtn = document.getElementById('nextToTimeBtn');
+            if (nextBtn) nextBtn.style.display = 'none';
+            
+            console.log('🚀 Starting app with fresh data - server will provide authoritative state');
+            
+            // Navigate to main screen
+            showScreen('nameEntryScreen');
+        }
 
         // Generate unique ID
         function generateId() {
