@@ -278,7 +278,7 @@ function Main {
     }
     
     # Show existing rules
-    Write-Info "`nCurrent firewall rules for Node.js/port $Port:"
+    Write-Info "`nCurrent firewall rules for Node.js/port ${Port}:"
     try {
         $existingRules = Get-NetFirewallRule | Where-Object { 
             $_.DisplayName -like "*GRNDbrekers*" -or 
