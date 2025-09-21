@@ -81,7 +81,7 @@ function loadDataFromFile(filename) {
       console.log(`📁 File ${filename} does not exist - will create new database`);
       DATA_FILE = filename;
       centralState.dataFile = filename;
-      saveDataToFile(); // Create empty file
+      saveDataToFile();
       return false;
     }
   } catch (error) {
