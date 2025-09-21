@@ -1,65 +1,46 @@
 {
   "name": "grndbrekers-bull-riding-studay2025",
   "version": "2.0.0",
-  "description": "🐂 Multi-device Bull Riding Leaderboard voor StuDAY 2025 - Realtime sync via WiFi hotspot",
+  "description": "GRNDbrekers Bull Riding Leaderboard voor StuDAY 2025 - Multi-device setup",
   "main": "sync-server.js",
   "scripts": {
     "prestart": "node -e \"console.log('\\n🛡️  BELANGRIJK: Controleer eerst firewall setup!\\n'); console.log('Als je problemen hebt met GSM verbinding:\\n'); console.log('1. Open PowerShell als Administrator\\n2. Run: .\\\\firewall-setup.ps1\\n3. Dan: npm start\\n'); console.log('Of run: npm run setup-complete voor volledige setup\\n');\"",
     "start": "node sync-server.js",
-    "dev": "nodemon sync-server.js",
-    "setup-complete": "npm run doctor && echo \"\\n🔥 Als doctor score < 90%, fix eerst issues hierboven!\" && echo \"\\n⚠️  Windows gebruikers: Run .\\\\firewall-setup.ps1 als Administrator\" && echo \"\\n✅ Dan run: npm start\"",
+    "start:new": "node sync-server.js new",
+    "start:studay": "node sync-server.js studay2025.json",
+    "start:test": "node sync-server.js test-data.json",
     "doctor": "node scripts/doctor.js",
-    "test-server": "node -e \"const http = require('http'); http.get('http://localhost:3000/health', (res) => { let data = ''; res.on('data', chunk => data += chunk); res.on('end', () => { console.log('✅ Server health:', JSON.parse(data)); }); }).on('error', err => console.log('❌ Server not running:', err.message));\"",
-    "test-clients": "node -e \"const http = require('http'); http.get('http://localhost:3000/clients', (res) => { let data = ''; res.on('data', chunk => data += chunk); res.on('end', () => { const clients = JSON.parse(data); console.log('👥 Connected clients:', clients.count); clients.clients.forEach(c => console.log('  📱', c.device, 'on', c.screen, '(' + c.ip + ')')); }); }).on('error', err => console.log('❌ Cannot get clients:', err.message));\"",
-    "ip-info": "node -e \"const os = require('os'); const interfaces = os.networkInterfaces(); console.log('🌐 Available network interfaces:'); Object.keys(interfaces).forEach(name => { interfaces[name].forEach(iface => { if (iface.family === 'IPv4' && !iface.internal) { const isHotspot = iface.address.startsWith('192.168.137.') || iface.address.startsWith('192.168.43.'); console.log(isHotspot ? '🔥' : '📍', name + ':', iface.address); } }); });\"",
-    "setup-firewall": "echo \"🛡️  Run dit commando als Administrator:\" && echo \".\\\\firewall-setup.ps1\"",
-    "remove-firewall": "echo \"🛡️  Run dit commando als Administrator:\" && echo \".\\\\firewall-setup.ps1 -Remove\"",
-    "debug": "DEBUG=* node sync-server.js",
-    "clean": "rm -rf node_modules package-lock.json && npm install",
-    "validate": "npm run doctor && npm run test-server",
-    "studay-ready": "npm run doctor && echo \"\\n🎯 Checklist voor StuDAY 2025:\" && echo \"✅ Doctor score moet 90%+ zijn\" && echo \"✅ Firewall geconfigureerd (.\\\\firewall-setup.ps1)\" && echo \"✅ Hotspot actief (GRNDbrekers-Bull)\" && echo \"✅ Server start zonder errors\" && echo \"\\n🚀 Als alles ✅ is: npm start\"",
-    "quick-setup": "echo \"\\n🚀 GRNDbrekers Bull Riding - Quick Setup\\n\" && echo \"1️⃣  npm install (done)\" && echo \"2️⃣  npm run doctor\" && echo \"3️⃣  .\\\\firewall-setup.ps1 (als Administrator)\" && echo \"4️⃣  npm start\\n\" && echo \"📱 Voor StuDAY: npm run studay-ready\""
+    "setup-complete": "powershell -ExecutionPolicy Bypass .\\firewall-setup.ps1 && npm start",
+    "setup-firewall": "powershell -ExecutionPolicy Bypass .\\firewall-setup.ps1",
+    "test-server": "node -e \"const http = require('http'); http.get('http://localhost:3000/health', (res) => { console.log('✅ Server responding'); }).on('error', () => { console.log('❌ Server not responding'); });\"",
+    "test-clients": "node -e \"const http = require('http'); http.get('http://localhost:3000/clients', (res) => { let data = ''; res.on('data', chunk => data += chunk); res.on('end', () => console.log('Connected clients:', JSON.parse(data).length)); }).on('error', () => console.log('❌ Cannot get client info'));\"",
+    "ip-info": "node -e \"const os = require('os'); const interfaces = os.networkInterfaces(); Object.keys(interfaces).forEach(name => { interfaces[name].forEach(iface => { if (iface.family === 'IPv4' && !iface.internal) { const isHotspot = iface.address.startsWith('192.168.137') || iface.address.startsWith('192.168.43'); console.log((isHotspot ? '🔥 HOTSPOT: ' : '📍 ') + name + ': http://' + iface.address + ':3000'); } }); });\"",
+    "studay-ready": "npm run doctor && npm run setup-firewall"
   },
   "keywords": [
     "bull-riding",
-    "leaderboard", 
-    "multi-device",
-    "realtime",
+    "leaderboard",
+    "PWA",
     "socket.io",
-    "wifi-sync",
-    "studay2025",
-    "grndbrekers"
+    "multi-device",
+    "real-time",
+    "grndbrekers",
+    "studay2025"
   ],
-  "author": "Serge Hanssens",
+  "author": "Serge Hanssens - GRNDbrekers",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025.git",
-    "branch": "multi-device-setup"
-  },
   "dependencies": {
-    "express": "^4.18.2",
+    "express": "^4.21.2",
     "socket.io": "^4.7.5"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.1.10"
   },
   "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0"
+    "node": ">=16.0.0"
   },
-  "os": [
-    "win32",
-    "darwin", 
-    "linux"
-  ],
-  "config": {
-    "defaultPort": 3000,
-    "hotspotSSID": "GRNDbrekers-Bull",
-    "hotspotPassword": "studay2025"
-  },
-  "bugs": {
-    "url": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025/issues"
-  },
-  "homepage": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025#readme"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025.git"
+  }
 }
