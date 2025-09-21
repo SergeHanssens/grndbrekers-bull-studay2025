@@ -3,6 +3,8 @@ const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
 const os = require('os');
+const fs = require('fs');
+const readline = require('readline');
 
 const app = express();
 const server = http.createServer(app);
@@ -13,12 +15,14 @@ const io = socketIo(server, {
   }
 });
 
-// AUTHORITATIVE CENTRAL STATE - Single source of truth
+// Data file configuration
+let DATA_FILE = 'bull-riding-data.json';
 let centralState = {
   riders: [],
   leaderboard: [],
   lastUpdated: null,
-  createdAt: new Date().toISOString()
+  createdAt: new Date().toISOString(),
+  dataFile: DATA_FILE
 };
 
 // Verbonden clients tracking
@@ -39,6 +43,112 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, '.')));
 app.use(express.json());
 
+// Data persistence functions
+function saveDataToFile() {
+  try {
+    const dataToSave = {
+      ...centralState,
+      savedAt: new Date().toISOString()
+    };
+    
+    fs.writeFileSync(DATA_FILE, JSON.stringify(dataToSave, null, 2));
+    console.log(`💾 Data saved to ${DATA_FILE}`);
+    console.log(`   📊 ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard entries`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Error saving data to ${DATA_FILE}:`, error);
+    return false;
+  }
+}
+
+function loadDataFromFile(filename) {
+  try {
+    if (fs.existsSync(filename)) {
+      const data = JSON.parse(fs.readFileSync(filename, 'utf8'));
+      centralState = {
+        riders: data.riders || [],
+        leaderboard: data.leaderboard || [],
+        lastUpdated: data.lastUpdated,
+        createdAt: data.createdAt || new Date().toISOString(),
+        dataFile: filename
+      };
+      
+      console.log(`📂 Data loaded from ${filename}`);
+      console.log(`   📊 ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard entries`);
+      console.log(`   🕒 Last updated: ${centralState.lastUpdated || 'Never'}`);
+      return true;
+    } else {
+      console.log(`📁 File ${filename} does not exist - will create new database`);
+      DATA_FILE = filename;
+      centralState.dataFile = filename;
+      saveDataToFile(); // Create empty file
+      return false;
+    }
+  } catch (error) {
+    console.error(`❌ Error loading data from ${filename}:`, error);
+    return false;
+  }
+}
+
+function listExistingDataFiles() {
+  try {
+    const files = fs.readdirSync('.').filter(file => 
+      file.endsWith('.json') && file.includes('data')
+    );
+    return files;
+  } catch (error) {
+    return [];
+  }
+}
+
+async function promptForDataFile() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  return new Promise((resolve) => {
+    const existingFiles = listExistingDataFiles();
+    
+    console.log(`
+🐂 =====================================================
+📁 GRNDbrekers Bull Riding - Data File Selection
+🐂 =====================================================
+`);
+
+    if (existingFiles.length > 0) {
+      console.log(`📋 Existing data files found:`);
+      existingFiles.forEach((file, index) => {
+        console.log(`   ${index + 1}. ${file}`);
+      });
+      console.log('');
+    }
+
+    console.log(`Options:
+   • Enter filename (e.g., 'studay2025.json')
+   • Press Enter for default: ${DATA_FILE}
+   • Type 'new' for a new database
+`);
+
+    rl.question('Data file to use: ', (answer) => {
+      rl.close();
+      
+      if (!answer.trim()) {
+        resolve(DATA_FILE);
+      } else if (answer.toLowerCase() === 'new') {
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+        resolve(`bull-riding-${timestamp}.json`);
+      } else {
+        let filename = answer.trim();
+        if (!filename.endsWith('.json')) {
+          filename += '.json';
+        }
+        resolve(filename);
+      }
+    });
+  });
+}
+
 // Routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -53,6 +163,7 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
+    dataFile: DATA_FILE,
     connectedClients: connectedClients.size,
     centralState: {
       riders: centralState.riders.length,
@@ -80,7 +191,8 @@ app.get('/api/debug', (req, res) => {
       status: 'running',
       uptime: process.uptime(),
       memory: process.memoryUsage(),
-      platform: process.platform
+      platform: process.platform,
+      dataFile: DATA_FILE
     },
     network: getNetworkInfo(),
     clients: connectedClients.size,
@@ -105,7 +217,7 @@ function getNetworkInfo() {
   return info;
 }
 
-// ENHANCED: Centralized broadcast function
+// Enhanced broadcast function
 function broadcastToAllClients(data, excludeSocketId = null) {
   const connectedSockets = Array.from(connectedClients.keys());
   let broadcastCount = 0;
@@ -130,11 +242,10 @@ function broadcastToAllClients(data, excludeSocketId = null) {
   return broadcastCount;
 }
 
-// ENHANCED: State update with guaranteed broadcast
+// State update with file save and broadcast
 function updateCentralStateAndBroadcast(newState, sourceSocketId, updateType) {
   console.log(`🔄 State update: ${updateType} from ${sourceSocketId}`);
   
-  // Update central state
   let hasChanges = false;
   
   if (newState.riders !== undefined) {
@@ -156,7 +267,10 @@ function updateCentralStateAndBroadcast(newState, sourceSocketId, updateType) {
   if (hasChanges) {
     centralState.lastUpdated = new Date().toISOString();
     
-    // GUARANTEED BROADCAST TO ALL CLIENTS
+    // Save to file immediately
+    saveDataToFile();
+    
+    // Broadcast to all clients
     const broadcastData = {
       type: updateType,
       riders: centralState.riders,
@@ -165,42 +279,29 @@ function updateCentralStateAndBroadcast(newState, sourceSocketId, updateType) {
       source: sourceSocketId
     };
     
-    // Broadcast to all clients INCLUDING the sender for confirmation
-    broadcastToAllClients(broadcastData, null); // null = include all clients
+    broadcastToAllClients(broadcastData, null);
     
-    console.log(`✅ State update complete and broadcasted`);
+    console.log(`✅ State update complete, saved, and broadcasted`);
   } else {
-    console.log(`   ⏭️ No changes detected, skipping broadcast`);
+    console.log(`   ⏭️ No changes detected, skipping save and broadcast`);
   }
   
   return hasChanges;
 }
 
-// Periodic sync to ensure all clients stay synchronized
-function periodicSync() {
-  if (connectedClients.size > 0) {
-    console.log(`🔄 Periodic sync check (${connectedClients.size} clients)`);
-    
-    const syncData = {
-      type: 'periodicSync',
-      riders: centralState.riders,
-      leaderboard: centralState.leaderboard,
-      lastUpdated: centralState.lastUpdated
-    };
-    
-    broadcastToAllClients(syncData);
+// Auto-save every 5 minutes as backup
+setInterval(() => {
+  if (centralState.lastUpdated) {
+    console.log('🔄 Auto-save backup');
+    saveDataToFile();
   }
-}
-
-// Start periodic sync every 30 seconds
-setInterval(periodicSync, 30000);
+}, 5 * 60 * 1000);
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   const clientIP = socket.handshake.address || socket.request.connection.remoteAddress;
   const userAgent = socket.handshake.headers['user-agent'] || 'Unknown';
   
-  // Client info opslaan
   connectedClients.set(socket.id, {
     id: socket.id,
     ip: clientIP,
@@ -212,29 +313,28 @@ io.on('connection', (socket) => {
   console.log(`🔗 Nieuwe client verbonden: ${socket.id}`);
   console.log(`🌐 IP: ${clientIP}`);
   console.log(`📊 Total clients: ${connectedClients.size}`);
-  console.log(`📋 Centrale state: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard`);
 
-  // IMMEDIATE: Send current state to new client
+  // IMMEDIATE: Send authoritative server state to client
   socket.emit('syncData', {
     type: 'serverState',
     riders: centralState.riders,
     leaderboard: centralState.leaderboard,
-    lastUpdated: centralState.lastUpdated
+    lastUpdated: centralState.lastUpdated,
+    dataFile: DATA_FILE
   });
-  console.log(`📤 Initial state sent to ${socket.id}`);
+  console.log(`📤 Authoritative state sent to ${socket.id} (${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard)`);
 
-  // Handle request for server state
   socket.on('getServerState', () => {
     console.log(`📤 Server state requested by ${socket.id}`);
     socket.emit('syncData', {
       type: 'serverState',
       riders: centralState.riders,
       leaderboard: centralState.leaderboard,
-      lastUpdated: centralState.lastUpdated
+      lastUpdated: centralState.lastUpdated,
+      dataFile: DATA_FILE
     });
   });
 
-  // Handle sync data from clients
   socket.on('syncData', (data) => {
     console.log(`📥 Sync data received from ${socket.id}:`, data.type);
     
@@ -272,55 +372,53 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Handle disconnect
   socket.on('disconnect', (reason) => {
     console.log(`❌ Client disconnected: ${socket.id} (${reason})`);
     connectedClients.delete(socket.id);
     console.log(`📊 Remaining clients: ${connectedClients.size}`);
-    
-    // Notify remaining clients about disconnection
-    if (connectedClients.size > 0) {
-      broadcastToAllClients({
-        type: 'clientDisconnected',
-        disconnectedClientId: socket.id,
-        remainingClients: connectedClients.size
-      });
-    }
   });
 
-  // Handle errors
   socket.on('error', (error) => {
     console.log(`⚠️ Socket error voor ${socket.id}:`, error);
   });
-  
-  // Send heartbeat every 10 seconds to maintain connection
-  const heartbeat = setInterval(() => {
-    if (socket.connected) {
-      socket.emit('heartbeat', { timestamp: new Date().toISOString() });
-    } else {
-      clearInterval(heartbeat);
-    }
-  }, 10000);
 });
 
-// Server opstarten
-const PORT = process.env.PORT || 3000;
+// Enhanced startup with data file selection
+async function startServer() {
+  console.clear();
+  
+  // Check command line arguments for data file
+  const args = process.argv.slice(2);
+  if (args.length > 0) {
+    DATA_FILE = args[0];
+    if (!DATA_FILE.endsWith('.json')) {
+      DATA_FILE += '.json';
+    }
+    console.log(`📁 Using data file from command line: ${DATA_FILE}`);
+    loadDataFromFile(DATA_FILE);
+  } else {
+    // Interactive prompt
+    DATA_FILE = await promptForDataFile();
+    loadDataFromFile(DATA_FILE);
+  }
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`
+  const PORT = process.env.PORT || 3000;
+
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`
 🐂 =====================================================
 🚀 GRNDbrekers Bull Riding Server Started!
 🐂 =====================================================
 
 🌐 Server running on port: ${PORT}
-📡 Accessible on all network interfaces
+📁 Data file: ${DATA_FILE}
+📊 Loaded: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard entries
 
-🏛️ ENHANCED SYNC SERVER
-   ✅ Guaranteed broadcast on every data change
-   ✅ All clients receive immediate updates
-   ✅ Periodic sync every 30 seconds
-   ✅ Heartbeat monitoring
-   ✅ Automatic client cleanup
+🏛️ PERSISTENT DATA SERVER
+   ✅ Data automatically saved to file on every change
+   ✅ All clients receive same authoritative data
+   ✅ Auto-backup every 5 minutes
+   ✅ Single source of truth: ${DATA_FILE}
 
 🔥 Hotspot URLs (meest waarschijnlijk):
    http://192.168.137.1:${PORT}
@@ -332,46 +430,44 @@ server.listen(PORT, '0.0.0.0', () => {
 
 📱 Test URLs voor andere devices:`);
 
-  // Toon alle beschikbare IP adressen
-  const interfaces = os.networkInterfaces();
-  Object.keys(interfaces).forEach(name => {
-    interfaces[name].forEach(iface => {
-      if (iface.family === 'IPv4' && !iface.internal) {
-        const isHotspot = iface.address.startsWith('192.168.137') || 
-                         iface.address.startsWith('192.168.43') ||
-                         name.toLowerCase().includes('hotspot');
-        
-        if (isHotspot) {
-          console.log(`   🔥 (HOTSPOT) ${name}: http://${iface.address}:${PORT}`);
-        } else {
-          console.log(`   📍 ${name}: http://${iface.address}:${PORT}`);
+    const interfaces = os.networkInterfaces();
+    Object.keys(interfaces).forEach(name => {
+      interfaces[name].forEach(iface => {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          const isHotspot = iface.address.startsWith('192.168.137') || 
+                           iface.address.startsWith('192.168.43') ||
+                           name.toLowerCase().includes('hotspot');
+          
+          if (isHotspot) {
+            console.log(`   🔥 (HOTSPOT) ${name}: http://${iface.address}:${PORT}`);
+          } else {
+            console.log(`   📍 ${name}: http://${iface.address}:${PORT}`);
+          }
         }
-      }
+      });
     });
-  });
 
-  console.log(`
+    console.log(`
 📊 Debug endpoints:
    http://192.168.137.1:${PORT}/health
    http://192.168.137.1:${PORT}/clients  
    http://192.168.137.1:${PORT}/api/debug
 
-💡 Real-time sync features:
-   🔄 Every data change broadcasts to ALL clients
-   📡 Periodic sync every 30 seconds
-   💓 Heartbeat monitoring
-   🔗 Immediate state sync for new connections
+💡 Command line usage for next time:
+   npm start myevent.json
+   npm start studay2025.json
 
 🐂 =====================================================
 `);
-});
+  });
+}
 
-// Graceful shutdown
+// Graceful shutdown with data save
 process.on('SIGTERM', () => {
   console.log('🛑 Server shutdown signal ontvangen');
-  console.log(`📊 Final state: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard entries`);
+  console.log('💾 Saving final data...');
+  saveDataToFile();
   
-  // Notify all clients of server shutdown
   broadcastToAllClients({
     type: 'serverShutdown',
     message: 'Server is shutting down'
@@ -385,16 +481,14 @@ process.on('SIGTERM', () => {
 
 process.on('SIGINT', () => {
   console.log('\n🛑 Server stop via Ctrl+C');
-  console.log(`📊 Final state: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard entries`);
-  
-  // Notify all clients of server shutdown
-  broadcastToAllClients({
-    type: 'serverShutdown',
-    message: 'Server is shutting down'
-  });
+  console.log('💾 Saving final data...');
+  saveDataToFile();
   
   server.close(() => {
     console.log('✅ Server gestopt');
     process.exit(0);
   });
 });
+
+// Start the server
+startServer().catch(console.error);
