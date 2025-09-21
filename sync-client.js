@@ -160,6 +160,11 @@ class SyncClient {
                     }
                     break;
                     
+                case 'serverReset':
+                    console.log('🗑️ Server data reset - clearing all local data');
+                    this.applyServerState(data);
+                    break;
+                    
                 case 'serverShutdown':
                     console.warn('⚠️ Server is shutting down');
                     this.updateSyncIndicator(false, 'Server shutting down');
@@ -299,6 +304,49 @@ class SyncClient {
         });
     }
     
+    // ADDED: Data clearing functions for integration with app
+    
+    // FIXED: Start Leaderboard function - only clears LOCAL data
+    startLeaderboard() {
+        console.log('🏁 Starting leaderboard - clearing LOCAL data only...');
+        
+        // Clear only local storage, NOT server data
+        this.clearLocalStorage();
+        
+        // Clear global variables
+        window.riders = [];
+        window.leaderboardData = [];
+        
+        console.log('✅ Local data cleared');
+        
+        // Request fresh data from server
+        if (this.isConnected) {
+            console.log('📨 Requesting fresh server state...');
+            this.socket.emit('getServerState');
+        } else {
+            console.log('⚠️ Not connected to server - will sync when connected');
+        }
+        
+        // Update UI immediately
+        this.refreshUI();
+    }
+    
+    // ADDED: Reset function for server data clearing (used by Reset button)
+    resetServerData() {
+        console.log('🗑️ Resetting SERVER data...');
+        
+        if (this.isConnected) {
+            // Send reset command to server
+            this.socket.emit('syncData', {
+                type: 'resetServerData'
+            });
+            console.log('📤 Reset command sent to server');
+        } else {
+            console.log('❌ Cannot reset server data - not connected');
+            alert('Cannot reset data - not connected to server');
+        }
+    }
+    
     // Intercept app functions to add sync calls
     interceptAppFunctions() {
         const self = this;
@@ -338,6 +386,9 @@ class SyncClient {
         try {
             localStorage.removeItem('riders');
             localStorage.removeItem('leaderboard');
+            localStorage.removeItem('rodeoRiders');
+            localStorage.removeItem('rodeoLeaderboard');
+            localStorage.removeItem('currentPhoto');
             console.log('🧹 LocalStorage cleared - server is source of truth');
         } catch (error) {
             console.warn('⚠️ Could not clear localStorage:', error);
@@ -393,6 +444,10 @@ class SyncClient {
     
     setupWindowEvents() {
         window.syncClient = this;
+        
+        // ADDED: Make the data clearing functions globally available
+        window.startLeaderboard = () => this.startLeaderboard();
+        window.resetServerData = () => this.resetServerData();
         
         window.debugSync = () => {
             console.log('🐛 Sync Debug Info:', {
