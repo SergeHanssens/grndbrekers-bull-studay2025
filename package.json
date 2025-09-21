@@ -1,125 +1,62 @@
 {
-  "name": "grndbrekers-bull-studay2025",
-  "version": "2.1.0",
-  "description": "🐂 Geavanceerde Progressive Web App voor mechanische stier rijtijden tijdens StuDAY 2025 - met multi-device realtime synchronisatie en Windows hotspot ondersteuning",
+  "name": "grndbrekers-bull-riding-studay2025",
+  "version": "2.0.0",
+  "description": "🐂 Multi-device Bull Riding Leaderboard voor StuDAY 2025 - Realtime sync via WiFi hotspot",
   "main": "sync-server.js",
   "scripts": {
     "start": "node sync-server.js",
-    "dev": "nodemon sync-server.js --watch sync-server.js --watch sync-client.js",
-    "debug": "node --inspect sync-server.js",
-    "test-server": "curl -s http://localhost:3000/health | json_pp || echo 'Server not running'",
-    "test-clients": "curl -s http://localhost:3000/clients | json_pp || echo 'Server not running'",
-    "setup-firewall": "powershell -ExecutionPolicy Bypass -File firewall-setup.ps1",
-    "remove-firewall": "powershell -ExecutionPolicy Bypass -File firewall-setup.ps1 -Remove",
-    "setup-wifi": "chmod +x setup-wifi.sh && sudo ./setup-wifi.sh",
-    "stop-wifi": "sudo nmcli connection down GRNDbrekers-Bull",
-    "backup-state": "curl -s http://localhost:3000/api/state > backup-$(date +%Y%m%d-%H%M%S).json",
-    "restore-demo-data": "node scripts/restore-demo-data.js",
-    "monitor": "watch -n 5 'curl -s http://localhost:3000/health'",
-    "logs": "journalctl -u NetworkManager -f",
-    "ip-info": "node -e \"const os=require('os'); Object.entries(os.networkInterfaces()).forEach(([name,interfaces])=>interfaces.forEach(i=>!i.internal&&i.family==='IPv4'&&console.log(`${name}: http://${i.address}:3000`)))\"",
-    "clean": "rm -f backup-*.json && rm -f *.log",
-    "postinstall": "echo '🐂 GRNDbrekers Bull Riding geïnstalleerd! Run: npm start'",
-    "test": "echo '🧪 Tests komen later - dit is een live event app!' && exit 0",
-    "build": "echo '📦 Geen build process nodig - dit is een statische PWA!'",
-    "deploy-github": "git push origin main && echo '🚀 Check GitHub Pages na 5-10 minuten'",
-    "doctor": "node scripts/doctor.js"
+    "dev": "nodemon sync-server.js",
+    "doctor": "node scripts/doctor.js",
+    "test-server": "node -e \"const http = require('http'); http.get('http://localhost:3000/health', (res) => { let data = ''; res.on('data', chunk => data += chunk); res.on('end', () => { console.log('✅ Server health:', JSON.parse(data)); }); }).on('error', err => console.log('❌ Server not running:', err.message));\"",
+    "test-clients": "node -e \"const http = require('http'); http.get('http://localhost:3000/clients', (res) => { let data = ''; res.on('data', chunk => data += chunk); res.on('end', () => { const clients = JSON.parse(data); console.log('👥 Connected clients:', clients.count); clients.clients.forEach(c => console.log('  📱', c.device, 'on', c.screen, '(' + c.ip + ')')); }); }).on('error', err => console.log('❌ Cannot get clients:', err.message));\"",
+    "ip-info": "node -e \"const os = require('os'); const interfaces = os.networkInterfaces(); console.log('🌐 Available network interfaces:'); Object.keys(interfaces).forEach(name => { interfaces[name].forEach(iface => { if (iface.family === 'IPv4' && !iface.internal) { const isHotspot = iface.address.startsWith('192.168.137.') || iface.address.startsWith('192.168.43.'); console.log(isHotspot ? '🔥' : '📍', name + ':', iface.address); } }); });\"",
+    "setup-firewall": "powershell -ExecutionPolicy Bypass -File ./firewall-setup.ps1",
+    "remove-firewall": "powershell -ExecutionPolicy Bypass -File ./firewall-setup.ps1 -Remove",
+    "debug": "DEBUG=* node sync-server.js",
+    "clean": "rm -rf node_modules package-lock.json && npm install",
+    "validate": "npm run doctor && npm run test-server",
+    "studay-ready": "npm run doctor && npm run test-server && npm run test-clients && echo '🐂 Ready for StuDAY 2025! 🤠'"
+  },
+  "keywords": [
+    "bull-riding",
+    "leaderboard", 
+    "multi-device",
+    "realtime",
+    "socket.io",
+    "wifi-sync",
+    "studay2025",
+    "grndbrekers"
+  ],
+  "author": "Serge Hanssens",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025.git",
+    "branch": "multi-device-setup"
   },
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.7.5"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.1"
   },
-  "keywords": [
-    "bull-riding",
-    "leaderboard", 
-    "pwa",
-    "offline",
-    "socket.io",
-    "multi-device",
-    "grndbrekers",
-    "studay2025",
-    "makerspace",
-    "realtime-sync",
-    "windows-hotspot",
-    "mobile-friendly"
-  ],
-  "author": {
-    "name": "Serge Hanssens",
-    "email": "contact@jcbouckenborgh.be",
-    "url": "https://github.com/SergeHanssens"
-  },
-  "contributors": [
-    {
-      "name": "Thomas Willems",
-      "role": "Python basis code"
-    },
-    {
-      "name": "GRNDbrekers Community",
-      "role": "Testing & feedback"
-    }
-  ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025.git"
-  },
-  "bugs": {
-    "url": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025/issues"
-  },
-  "homepage": "https://sergehanssens.github.io/grndbrekers-bull-studay2025",
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=8.0.0"
   },
   "os": [
-    "linux",
+    "win32",
     "darwin", 
-    "win32"
+    "linux"
   ],
   "config": {
-    "port": 3000,
-    "host": "0.0.0.0",
-    "wifi_name": "GRNDbrekers-Bull",
-    "wifi_password": "studay2025"
+    "defaultPort": 3000,
+    "hotspotSSID": "GRNDbrekers-Bull",
+    "hotspotPassword": "studay2025"
   },
-  "pwa": {
-    "name": "GRNDbrekers Bull Riding",
-    "short_name": "Bull Leaderboard",
-    "description": "Realtime bull riding leaderboard voor StuDAY 2025",
-    "theme_color": "#4CAF50",
-    "background_color": "#667eea",
-    "display": "standalone",
-    "orientation": "portrait"
+  "bugs": {
+    "url": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025/issues"
   },
-  "grndbrekers": {
-    "event": "StuDAY 2025",
-    "makerspace": "JC Bouckenborgh",
-    "location": "Merksem, Belgium",
-    "motto": "Think like an engineer, build like a lunatic",
-    "version": "Multi-Device Sync v2.1",
-    "features": [
-      "Windows hotspot support",
-      "Automatic server detection", 
-      "Client device tracking",
-      "Intelligent state synchronization",
-      "Comprehensive firewall support",
-      "Advanced debugging tools"
-    ]
-  },
-  "troubleshooting": {
-    "common_issues": {
-      "mobile_not_reachable": "Run firewall-setup.ps1 and check TROUBLESHOOTING.md",
-      "sync_not_working": "Check browser console for sync-client errors",
-      "server_not_starting": "Ensure port 3000 is free: netstat -an | findstr :3000"
-    },
-    "debug_commands": {
-      "server_health": "npm run test-server",
-      "connected_clients": "npm run test-clients", 
-      "network_info": "npm run ip-info",
-      "firewall_setup": "npm run setup-firewall"
-    }
-  }
+  "homepage": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025#readme"
 }
