@@ -14,142 +14,207 @@
 
 ---
 
-## 🎯 **Wat doet deze app?**
+## 🚨 **BELANGRIJK - Windows Firewall Setup**
 
-De GRNDbrekers Bull Riding app is ontworpen voor **StuDAY 2025** en biedt:
+> **⚠️ WINDOWS GEBRUIKERS: Deze stap is VERPLICHT voor mobiele toegang!**
 
-- 📱 **Multi-device synchronisatie** - Werk op meerdere toestellen tegelijk
-- 🏆 **Live leaderboard** - Toon rankings op een groot scherm
-- ⏱️ **Tijdmeting** - Nauwkeurige bull riding tijden
-- 🔄 **Realtime updates** - Alles sync automatisch tussen devices
-- 📶 **Offline functionaliteit** - Werkt zonder internet via lokale WiFi
+Na installatie moet je **ALTIJD** de Windows Firewall configureren, anders kunnen telefoons/tablets niet verbinden met de server.
 
-Perfect voor wedstrijden waarbij je:
-- Riders toevoegt op je telefoon
-- Tijden bijhoudt op een tablet  
-- Het leaderboard toont op een groot scherm
-- Alles automatisch gesynchroniseerd blijft
+### 🛡️ **Firewall Setup (VERPLICHT op Windows):**
+
+```powershell
+# Open PowerShell als Administrator (Rechtermuisknop → "Run as Administrator")
+.\firewall-setup.ps1
+```
+
+**Verwacht resultaat:**
+```
+🎉 Firewall successfully configured!
+✅ Port 3000 is accessible
+```
+
+**⚠️ Zonder deze stap krijg je connect/disconnect problemen op mobiele devices!**
 
 ---
 
-## 🚀 **Snel aan de slag**
+## 🚀 **Complete setup procedure**
 
-### 📋 **Wat heb je nodig?**
-- Laptop/PC (Windows, Mac of Linux)
-- Node.js v16+ geïnstalleerd
-- WiFi hotspot mogelijkheid
-- Telefoon/tablet voor extra schermen
-
-### ⚡ **5-minuten setup**
+### 📥 **Installatie**
 
 ```bash
-# 1. Download het project
+# 1. Clone het project
 git clone -b multi-device-setup https://github.com/SergeHanssens/grndbrekers-bull-studay2025.git
 cd grndbrekers-bull-studay2025
 
 # 2. Installeer dependencies  
 npm install
 
-# 3. Check of alles werkt
+# 3. 🩺 Controleer systeem (ALTIJD eerst doen)
 npm run doctor
+```
 
-# 4. Start de server
+### 🛡️ **Firewall configuratie (Windows - VERPLICHT)**
+
+```powershell
+# Als Administrator PowerShell:
+.\firewall-setup.ps1
+```
+
+### 🔥 **Hotspot setup**
+
+**Windows 10/11:**
+1. **Windows + I** → **Netwerk en internet** → **Mobiele hotspot**
+2. Zet "Mobiele hotspot" **AAN**
+3. Klik **"Bewerken"**:
+   - Netwerknaam: `GRNDbrekers-Bull`
+   - Wachtwoord: `studay2025`
+4. **Opslaan**
+
+### ✅ **Pre-flight check**
+
+```bash
+# Controleer of alles klaar is voor StuDAY:
+npm run studay-ready
+```
+
+**Verwachte output:**
+```
+📊 Score: 92% (12/13 checks passed)
+🎯 Grade: EXCELLENT
+✅ Ready for StuDAY 2025!
+```
+
+### 🚀 **Start de server**
+
+```bash
 npm start
 ```
 
-🎉 **Klaar!** Je server draait nu en toont de IP-adressen waar je mee kunt verbinden.
+**Verwachte output:**
+```
+🔥 ⭐ HOTSPOT IP: http://192.168.137.1:3000 ⭐
+📱 Test URL's op je telefoon:
+   🏠 Hoofdpagina: http://192.168.137.1:3000
+   📊 Leaderboard: http://192.168.137.1:3000/leaderboard.html
+```
 
 ---
 
 ## 📱 **Devices verbinden**
 
-### 🔥 **Stap 1: Maak hotspot**
-Zet een WiFi hotspot aan op je laptop:
-- **Naam**: `GRNDbrekers-Bull`  
-- **Wachtwoord**: `studay2025`
+### 📲 **Mobiele devices**
+1. Verbind met WiFi: `GRNDbrekers-Bull` (wachtwoord: `studay2025`)
+2. Open browser → ga naar IP uit server console (meestal `http://192.168.137.1:3000`)
+3. **Controleer groene status indicator** (🟢) rechts bovenin
+4. Test door een rider toe te voegen
 
-### 📲 **Stap 2: Verbind toestellen** 
-1. Verbind je telefoon/tablet met de `GRNDbrekers-Bull` WiFi
-2. Open een browser en ga naar: `http://192.168.137.1:3000`
-3. Kijk naar de groene status indicator (🟢) rechts bovenin
-
-### 🖥️ **Stap 3: Setup schermen**
-- **Hoofdscherm**: `http://192.168.137.1:3000` - Voor rider management
-- **Leaderboard**: `http://192.168.137.1:3000/leaderboard.html` - Voor publiek
+### 🖥️ **Extra schermen**
+- **Leaderboard display**: `http://192.168.137.1:3000/leaderboard.html`
+- **Admin interface**: `http://192.168.137.1:3000`
 
 ---
 
-## 🔧 **Handige commando's**
+## 🔧 **Troubleshooting**
+
+### 🩺 **Eerste hulp:**
 
 ```bash
-npm start                 # Start de server
-npm run doctor           # 🩺 Diagnose systeem problemen
-npm run test-server      # ✅ Check of server werkt  
-npm run test-clients     # 👥 Zie verbonden devices
-npm run setup-firewall   # 🛡️ Configureer Windows firewall
-npm run ip-info          # 🌐 Toon alle beschikbare IP's
-```
-
----
-
-## 🎮 **Hoe te gebruiken**
-
-### 👤 **Riders toevoegen**
-1. Open de hoofdpagina op je telefoon
-2. Vul naam in en klik "Rider Toevoegen"  
-3. Rider verschijnt automatisch op alle verbonden schermen
-
-### ⏱️ **Tijden meten**
-1. Selecteer een rider
-2. Klik "Start Timer" wanneer de rit begint
-3. Klik "Stop Timer" wanneer de rit eindigt
-4. Tijd wordt automatisch toegevoegd aan leaderboard
-
-### 🏆 **Leaderboard bekijken**
-- Het leaderboard update automatisch op alle schermen
-- Riders worden gesorteerd op beste tijd
-- Perfect voor een groot scherm tijdens het evenement
-
----
-
-## 🛠️ **Troubleshooting**
-
-### 🚨 **Problemen? Start hier:**
-
-```bash
+# Altijd eerst deze diagnose runnen:
 npm run doctor
 ```
 
-Dit script controleert automatisch:
-- ✅ Node.js versie
-- ✅ Netwerkverbindingen  
-- ✅ Firewall instellingen
-- ✅ Poort beschikbaarheid
+### 📱 **"GSM kan server niet bereiken"**
 
-### 📱 **GSM bereikt server niet?**
+**99% van de gevallen: Firewall niet geconfigureerd**
 
-1. **Check je IP**: Gebruik het exacte IP uit de server console
-2. **Firewall**: Run `.\firewall-setup.ps1` (Windows) of open poort 3000
-3. **WiFi**: Zorg dat GSM verbonden is met `GRNDbrekers-Bull`
-4. **Data**: Zet mobiele data en VPN uit
+```powershell
+# Fix: Open PowerShell als Administrator
+.\firewall-setup.ps1
+```
 
-### 🔄 **Sync werkt niet?**
+**Andere checks:**
+- Zorg dat GSM verbonden is met `GRNDbrekers-Bull` WiFi
+- Gebruik exacte IP uit server console
+- Zet mobiele data en VPN uit op telefoon
 
-1. **Check status**: Kijk naar de groene/rode indicator rechts bovenin
-2. **Herlaad pagina**: Soms helpt een refresh
-3. **Debug console**: Druk F12 → Console voor error berichten
+### 🔄 **"Verbinding valt steeds weg"**
+
+**Symptoom:** Rode indicator, connect/disconnect cycling in server console
+
+**Oplossing:** Firewall + Socket.IO CDN probleem:
+
+```bash
+# 1. Firewall fixen (Administrator PowerShell):
+.\firewall-setup.ps1
+
+# 2. Als het nog steeds niet werkt: download Socket.IO lokaal
+# Op PC met internet: ga naar https://cdn.socket.io/4.7.5/socket.io.min.js
+# Save as: socket.io.min.js in project folder
+# Update HTML files: verander CDN naar lokaal bestand
+```
+
+### 🔥 **Server start niet**
+
+```bash
+# Dependencies opnieuw installeren:
+npm run clean
+
+# Poort bezet:
+PORT=4000 npm start
+```
 
 👉 **Meer hulp?** Zie [TROUBLESHOOTING.md](TROUBLESHOOTING.md) voor uitgebreide oplossingen
 
 ---
 
-## 🏗️ **Technische details**
+## 🎪 **Voor StuDAY 2025 organisatoren**
+
+### 📋 **Setup checklist**
+
+```bash
+# Volledige setup check:
+npm run studay-ready
+```
+
+**Voor de wedstrijd:**
+- [ ] `npm run doctor` → 90%+ score
+- [ ] Firewall geconfigureerd (`.\\firewall-setup.ps1`)
+- [ ] Hotspot actief (`GRNDbrekers-Bull`)
+- [ ] Server start zonder errors (`npm start`)
+- [ ] Telefoon verbindt met groene indicator
+- [ ] Backup devices getest
+
+### ⚡ **Quick commands**
+
+```bash
+npm run quick-setup     # Toon setup stappen
+npm run studay-ready    # Pre-event check
+npm run doctor          # Systeem diagnose
+npm run test-clients    # Zie verbonden devices
+npm start              # Start de server
+```
+
+### 🆘 **Emergency procedures**
+
+**Als firewall script faalt:**
+1. Windows + R → `wf.msc`
+2. Inbound Rules → New Rule → Port → TCP → 3000 → Allow
+3. Herhaal voor Outbound Rules
+
+**Als hotspot niet werkt:**
+- Gebruik telefoon hotspot als backup
+- Of ethernet + internetdeling
+
+---
+
+## 🛠️ **Technische details**
 
 ### 🔌 **Architectuur**
 - **Backend**: Node.js + Express + Socket.IO
 - **Frontend**: Vanilla HTML/CSS/JavaScript  
 - **Sync**: Realtime via WebSockets
 - **Storage**: LocalStorage + in-memory state
+- **Networking**: WiFi hotspot (192.168.137.x)
 
 ### 📊 **Features**
 - ✅ Cross-platform hotspot support (Windows/Linux/Mac)
@@ -187,34 +252,41 @@ grndbrekers-bull-studay2025/
 
 ---
 
-## 🎪 **Voor StuDAY 2025**
+## 🚨 **Veelgemaakte fouten**
 
-### 📋 **Setup checklist**
-- [ ] Laptop volledig opgeladen
-- [ ] `GRNDbrekers-Bull` hotspot actief
-- [ ] Server gestart (`npm start`)
-- [ ] Leaderboard scherm verbonden en getest
-- [ ] Backup telefoon/tablet beschikbaar
-- [ ] Firewall geconfigureerd
+### ❌ **"npm start, maar telefoon kan niet verbinden"**
+**Oorzaak:** Firewall niet geconfigureerd (95% van de gevallen)  
+**Oplossing:** `.\\firewall-setup.ps1` als Administrator
 
-### 🎯 **Best practices**
-- Test de setup vooraf op de locatie
-- Houd laptop aangesloten op stroom
-- Zorg voor backup internetverbinding indien nodig
-- Download de QR code voor snelle WiFi verbinding
+### ❌ **"Verbinding valt steeds weg"**
+**Oorzaak:** Socket.IO CDN kan niet laden (hotspot heeft geen internet)  
+**Oplossing:** Download Socket.IO lokaal + update HTML files
+
+### ❌ **"Server start niet"**
+**Oorzaak:** Dependencies niet geïnstalleerd of poort bezet  
+**Oplossing:** `npm install` of `PORT=4000 npm start`
+
+### ❌ **"Doctor score laag"**
+**Oorzaak:** Hotspot niet actief of firewall geblokkeerd  
+**Oplossing:** Check hotspot + run firewall script
 
 ---
 
 ## 👥 **Support & bijdragen**
 
-### 🐛 **Bug gevonden?**
-Open een [issue](https://github.com/SergeHanssens/grndbrekers-bull-studay2025/issues) met:
-- Browser en OS informatie
-- Screenshot van de error
-- Stappen om het probleem te reproduceren
+### 🐛 **Problemen tijdens StuDAY 2025?**
 
-### 💡 **Feature request?**
-Suggesties zijn welkom! Open een [issue](https://github.com/SergeHanssens/grndbrekers-bull-studay2025/issues) met het `enhancement` label.
+1. **Run altijd eerst:** `npm run doctor`
+2. **Check firewall:** `.\\firewall-setup.ps1` (Administrator)
+3. **Bekijk server console** voor foutmeldingen
+4. **Check TROUBLESHOOTING.md** voor specifieke errors
+
+### 💡 **Bug reports**
+Open een [issue](https://github.com/SergeHanssens/grndbrekers-bull-studay2025/issues) met:
+- `npm run doctor` output
+- Server console logs
+- Browser console errors (F12)
+- OS en browser info
 
 ---
 
@@ -238,7 +310,7 @@ copies or substantial portions of the Software.
 
 <div align="center">
 
-**🐂 Ready to ride? Laten we deze bull temmen! 🤠**
+**🐂 Ready to ride? Let's tame this bull! 🤠**
 
 *Made with ❤️ for StuDAY 2025*
 
