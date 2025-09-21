@@ -211,38 +211,65 @@ function checkFirewall() {
   }
 }
 
-function checkWindowsFirewall() {
-  const fwStatus = runCommand('netsh advfirewall show allprofiles state');
-  
-  if (!fwStatus) {
-    logCheck('Windows Firewall status', false, 'Kan status niet ophalen');
-    return;
-  }
-  
-  const firewallOn = fwStatus.toLowerCase().includes('on');
-  logCheck('Windows Firewall status', true, firewallOn ? 'Actief' : 'Uitgeschakeld');
-  
-  if (firewallOn) {
-    // Check for GRNDbrekers firewall rules (created by firewall-setup.ps1)
-    const grndRules = runCommand('netsh advfirewall firewall show rule name="GRNDbrekers Bull Riding*" dir=in');
-    const hasGrndRule = grndRules && grndRules.includes('GRNDbrekers Bull Riding');
-    
-    // Also check for generic Node.js rules
-    const nodeRules = runCommand('netsh advfirewall firewall show rule name="Node.js*" dir=in');
-    const hasNodeRule = nodeRules && nodeRules.includes('Node.js');
-    
-    const hasAnyRule = hasGrndRule || hasNodeRule;
-    
-    logCheck('Node.js firewall regel', hasAnyRule, hasGrndRule ? 'GRNDbrekers regels gevonden' : hasNodeRule ? 'Node.js regels gevonden' : 'Niet gevonden');
-    
-    if (!hasNodeRule) {
-      logInfo('Windows Firewall configuratie:');
-      console.log('   1. Open PowerShell als Administrator');
-      console.log('   2. Run: .\\firewall-setup.ps1');
-      console.log('   3. Of handmatig: Windows Defender Firewall → Toestaan van app');
-      recommendations.push('Configureer Windows Firewall voor Node.js (run: .\\firewall-setup.ps1)');
+async function checkWindowsFirewall() {
+    try {
+        // Check multiple possible rule names
+        const ruleNames = [
+            'GRNDbrekers Bull Riding*',
+            'Node.js*',
+            'nodejs*'
+        ];
+        
+        let rulesFound = [];
+        
+        for (const ruleName of ruleNames) {
+            const result = execSync(
+                `powershell "Get-NetFirewallRule -DisplayName '${ruleName}' -ErrorAction SilentlyContinue | Select-Object DisplayName, Enabled"`,
+                { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
+            );
+            
+            if (result.trim()) {
+                const lines = result.trim().split('\n').slice(2); // Skip headers
+                for (const line of lines) {
+                    if (line.trim() && !line.includes('DisplayName') && !line.includes('-------')) {
+                        const parts = line.trim().split(/\s+/);
+                        if (parts.length >= 2) {
+                            const displayName = parts.slice(0, -1).join(' ');
+                            const enabled = parts[parts.length - 1];
+                            rulesFound.push({ name: displayName, enabled: enabled === 'True' });
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (rulesFound.length > 0) {
+            const enabledRules = rulesFound.filter(rule => rule.enabled);
+            if (enabledRules.length > 0) {
+                return {
+                    status: 'PASS',
+                    message: `${enabledRules.length} firewall regel(s) actief`,
+                    details: enabledRules.map(rule => `   • ${rule.name} - ✅ ENABLED`).join('\n')
+                };
+            } else {
+                return {
+                    status: 'WARN', 
+                    message: `${rulesFound.length} regel(s) gevonden maar uitgeschakeld`
+                };
+            }
+        } else {
+            return {
+                status: 'FAIL',
+                message: 'Geen Node.js/GRNDbrekers firewall regels gevonden'
+            };
+        }
+        
+    } catch (error) {
+        return {
+            status: 'WARN',
+            message: 'Kon firewall status niet controleren'
+        };
     }
-  }
 }
 
 function checkLinuxFirewall() {
