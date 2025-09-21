@@ -105,26 +105,95 @@ function getNetworkInfo() {
   return info;
 }
 
-// Helper: Update central state and broadcast
-function updateCentralState(newState, sourceSocketId) {
-  const oldState = JSON.parse(JSON.stringify(centralState));
+// ENHANCED: Centralized broadcast function
+function broadcastToAllClients(data, excludeSocketId = null) {
+  const connectedSockets = Array.from(connectedClients.keys());
+  let broadcastCount = 0;
+  
+  console.log(`📡 Broadcasting ${data.type} to ${connectedSockets.length} clients`);
+  
+  connectedSockets.forEach(socketId => {
+    if (socketId !== excludeSocketId) {
+      const socket = io.sockets.sockets.get(socketId);
+      if (socket && socket.connected) {
+        socket.emit('syncData', data);
+        broadcastCount++;
+        console.log(`   ✅ Sent to ${socketId} (${connectedClients.get(socketId)?.ip})`);
+      } else {
+        console.log(`   ⚠️ Socket ${socketId} not connected, removing from clients`);
+        connectedClients.delete(socketId);
+      }
+    }
+  });
+  
+  console.log(`📊 Broadcast complete: ${broadcastCount} clients updated`);
+  return broadcastCount;
+}
+
+// ENHANCED: State update with guaranteed broadcast
+function updateCentralStateAndBroadcast(newState, sourceSocketId, updateType) {
+  console.log(`🔄 State update: ${updateType} from ${sourceSocketId}`);
   
   // Update central state
+  let hasChanges = false;
+  
   if (newState.riders !== undefined) {
-    centralState.riders = newState.riders;
+    if (JSON.stringify(centralState.riders) !== JSON.stringify(newState.riders)) {
+      centralState.riders = newState.riders;
+      hasChanges = true;
+      console.log(`   👥 Riders updated: ${centralState.riders.length} total`);
+    }
   }
+  
   if (newState.leaderboard !== undefined) {
-    centralState.leaderboard = newState.leaderboard;
+    if (JSON.stringify(centralState.leaderboard) !== JSON.stringify(newState.leaderboard)) {
+      centralState.leaderboard = newState.leaderboard;
+      hasChanges = true;
+      console.log(`   🏆 Leaderboard updated: ${centralState.leaderboard.length} entries`);
+    }
   }
   
-  centralState.lastUpdated = new Date().toISOString();
+  if (hasChanges) {
+    centralState.lastUpdated = new Date().toISOString();
+    
+    // GUARANTEED BROADCAST TO ALL CLIENTS
+    const broadcastData = {
+      type: updateType,
+      riders: centralState.riders,
+      leaderboard: centralState.leaderboard,
+      lastUpdated: centralState.lastUpdated,
+      source: sourceSocketId
+    };
+    
+    // Broadcast to all clients INCLUDING the sender for confirmation
+    broadcastToAllClients(broadcastData, null); // null = include all clients
+    
+    console.log(`✅ State update complete and broadcasted`);
+  } else {
+    console.log(`   ⏭️ No changes detected, skipping broadcast`);
+  }
   
-  console.log(`📊 Central state updated by ${sourceSocketId}:`);
-  console.log(`   Riders: ${centralState.riders.length}`);
-  console.log(`   Leaderboard: ${centralState.leaderboard.length}`);
-  
-  return oldState;
+  return hasChanges;
 }
+
+// Periodic sync to ensure all clients stay synchronized
+function periodicSync() {
+  if (connectedClients.size > 0) {
+    console.log(`🔄 Periodic sync check (${connectedClients.size} clients)`);
+    
+    const syncData = {
+      type: 'periodicSync',
+      riders: centralState.riders,
+      leaderboard: centralState.leaderboard,
+      lastUpdated: centralState.lastUpdated
+    };
+    
+    broadcastToAllClients(syncData);
+  }
+}
+
+// Start periodic sync every 30 seconds
+setInterval(periodicSync, 30000);
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
@@ -142,11 +211,21 @@ io.on('connection', (socket) => {
 
   console.log(`🔗 Nieuwe client verbonden: ${socket.id}`);
   console.log(`🌐 IP: ${clientIP}`);
-  console.log(`📊 Huidige centrale state: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard`);
+  console.log(`📊 Total clients: ${connectedClients.size}`);
+  console.log(`📋 Centrale state: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard`);
+
+  // IMMEDIATE: Send current state to new client
+  socket.emit('syncData', {
+    type: 'serverState',
+    riders: centralState.riders,
+    leaderboard: centralState.leaderboard,
+    lastUpdated: centralState.lastUpdated
+  });
+  console.log(`📤 Initial state sent to ${socket.id}`);
 
   // Handle request for server state
   socket.on('getServerState', () => {
-    console.log(`📤 Sending authoritative server state to ${socket.id}`);
+    console.log(`📤 Server state requested by ${socket.id}`);
     socket.emit('syncData', {
       type: 'serverState',
       riders: centralState.riders,
@@ -161,38 +240,28 @@ io.on('connection', (socket) => {
     
     try {
       if (data.type === 'ridersUpdate') {
-        updateCentralState({ riders: data.riders }, socket.id);
-        
-        // Broadcast to all OTHER clients
-        socket.broadcast.emit('syncData', {
-          type: 'ridersUpdate',
-          riders: centralState.riders,
-          source: socket.id
-        });
+        updateCentralStateAndBroadcast(
+          { riders: data.riders }, 
+          socket.id, 
+          'ridersUpdate'
+        );
         
       } else if (data.type === 'leaderboardUpdate') {
-        updateCentralState({ leaderboard: data.leaderboard }, socket.id);
-        
-        // Broadcast to all OTHER clients
-        socket.broadcast.emit('syncData', {
-          type: 'leaderboardUpdate',
-          leaderboard: centralState.leaderboard,
-          source: socket.id
-        });
+        updateCentralStateAndBroadcast(
+          { leaderboard: data.leaderboard }, 
+          socket.id, 
+          'leaderboardUpdate'
+        );
         
       } else if (data.type === 'fullStateSync') {
-        updateCentralState({
-          riders: data.riders || [],
-          leaderboard: data.leaderboard || []
-        }, socket.id);
-        
-        // Broadcast to all OTHER clients
-        socket.broadcast.emit('syncData', {
-          type: 'fullStateSync',
-          riders: centralState.riders,
-          leaderboard: centralState.leaderboard,
-          source: socket.id
-        });
+        updateCentralStateAndBroadcast(
+          {
+            riders: data.riders || [],
+            leaderboard: data.leaderboard || []
+          }, 
+          socket.id, 
+          'fullStateSync'
+        );
         
       } else {
         console.warn(`⚠️ Unknown sync data type: ${data.type}`);
@@ -207,14 +276,31 @@ io.on('connection', (socket) => {
   socket.on('disconnect', (reason) => {
     console.log(`❌ Client disconnected: ${socket.id} (${reason})`);
     connectedClients.delete(socket.id);
-    
     console.log(`📊 Remaining clients: ${connectedClients.size}`);
+    
+    // Notify remaining clients about disconnection
+    if (connectedClients.size > 0) {
+      broadcastToAllClients({
+        type: 'clientDisconnected',
+        disconnectedClientId: socket.id,
+        remainingClients: connectedClients.size
+      });
+    }
   });
 
   // Handle errors
   socket.on('error', (error) => {
     console.log(`⚠️ Socket error voor ${socket.id}:`, error);
   });
+  
+  // Send heartbeat every 10 seconds to maintain connection
+  const heartbeat = setInterval(() => {
+    if (socket.connected) {
+      socket.emit('heartbeat', { timestamp: new Date().toISOString() });
+    } else {
+      clearInterval(heartbeat);
+    }
+  }, 10000);
 });
 
 // Server opstarten
@@ -229,10 +315,12 @@ server.listen(PORT, '0.0.0.0', () => {
 🌐 Server running on port: ${PORT}
 📡 Accessible on all network interfaces
 
-🏛️ AUTHORITATIVE DATA SERVER
-   - Single source of truth for all data
-   - All clients sync to same central state
-   - Real-time synchronization enabled
+🏛️ ENHANCED SYNC SERVER
+   ✅ Guaranteed broadcast on every data change
+   ✅ All clients receive immediate updates
+   ✅ Periodic sync every 30 seconds
+   ✅ Heartbeat monitoring
+   ✅ Automatic client cleanup
 
 🔥 Hotspot URLs (meest waarschijnlijk):
    http://192.168.137.1:${PORT}
@@ -268,11 +356,11 @@ server.listen(PORT, '0.0.0.0', () => {
    http://192.168.137.1:${PORT}/clients  
    http://192.168.137.1:${PORT}/api/debug
 
-💡 Voor mobiele toegang:
-   1. Zorg dat Windows firewall geconfigureerd is
-   2. Verbind telefoon met jouw hotspot
-   3. Ga naar hotspot URL in browser
-   4. Beide devices werken nu op DEZELFDE data!
+💡 Real-time sync features:
+   🔄 Every data change broadcasts to ALL clients
+   📡 Periodic sync every 30 seconds
+   💓 Heartbeat monitoring
+   🔗 Immediate state sync for new connections
 
 🐂 =====================================================
 `);
@@ -282,6 +370,13 @@ server.listen(PORT, '0.0.0.0', () => {
 process.on('SIGTERM', () => {
   console.log('🛑 Server shutdown signal ontvangen');
   console.log(`📊 Final state: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard entries`);
+  
+  // Notify all clients of server shutdown
+  broadcastToAllClients({
+    type: 'serverShutdown',
+    message: 'Server is shutting down'
+  });
+  
   server.close(() => {
     console.log('✅ Server gestopt');
     process.exit(0);
@@ -291,6 +386,13 @@ process.on('SIGTERM', () => {
 process.on('SIGINT', () => {
   console.log('\n🛑 Server stop via Ctrl+C');
   console.log(`📊 Final state: ${centralState.riders.length} riders, ${centralState.leaderboard.length} leaderboard entries`);
+  
+  // Notify all clients of server shutdown
+  broadcastToAllClients({
+    type: 'serverShutdown',
+    message: 'Server is shutting down'
+  });
+  
   server.close(() => {
     console.log('✅ Server gestopt');
     process.exit(0);
