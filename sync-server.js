@@ -149,6 +149,20 @@ async function promptForDataFile() {
   });
 }
 
+// ADDED: Reset server data function
+function resetServerData() {
+  console.log('🗑️ Resetting server data...');
+  
+  centralState.riders = [];
+  centralState.leaderboard = [];
+  centralState.lastUpdated = new Date().toISOString();
+  
+  // Save empty data to file
+  saveDataToFile();
+  
+  console.log('✅ Server data reset complete');
+}
+
 // Routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -363,6 +377,20 @@ io.on('connection', (socket) => {
           'fullStateSync'
         );
         
+      } else if (data.type === 'resetServerData') {
+        // ADDED: Handle server data reset
+        console.log(`🗑️ Server data reset requested by ${socket.id}`);
+        resetServerData();
+        
+        // Broadcast reset to all clients
+        broadcastToAllClients({
+          type: 'serverReset',
+          riders: centralState.riders,
+          leaderboard: centralState.leaderboard,
+          lastUpdated: centralState.lastUpdated,
+          source: socket.id
+        });
+        
       } else {
         console.warn(`⚠️ Unknown sync data type: ${data.type}`);
       }
@@ -419,6 +447,7 @@ async function startServer() {
    ✅ All clients receive same authoritative data
    ✅ Auto-backup every 5 minutes
    ✅ Single source of truth: ${DATA_FILE}
+   ✅ Server data reset support added
 
 🔥 Hotspot URLs (meest waarschijnlijk):
    http://192.168.137.1:${PORT}
