@@ -1,361 +1,227 @@
-# 🐂 GRNDbrekers Bull Riding Leaderboard
-### *StuDAY 2025 - Multiplayer Realtime Experience*
+# 🐂 GRNDbrekers Bull Riding - StuDay 2025
+### 🏆 Multi-Device Leaderboard System
 
 <div align="center">
 
-**"Think like an engineer, build like a lunatic"** - *GRNDbrekers motto*
+![Bull Riding](https://img.shields.io/badge/Bull%20Riding-StuDAY%202025-red?style=for-the-badge&logo=activity)
+![Status](https://img.shields.io/badge/Status-Ready%20to%20Ride-green?style=for-the-badge)
+![Multi-Device](https://img.shields.io/badge/Multi--Device-WiFi%20Sync-blue?style=for-the-badge&logo=wifi)
 
-[![PWA Ready](https://img.shields.io/badge/PWA-Ready-brightgreen.svg)](https://web.dev/progressive-web-apps/)
-[![Offline Capable](https://img.shields.io/badge/Offline-Capable-blue.svg)](#offline-functionaliteit)
-[![Multi-Device](https://img.shields.io/badge/Multi--Device-Sync-orange.svg)](#multi-device-synchronisatie)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-*Een geavanceerde Progressive Web App voor het bijhouden van mechanische stier rijtijden tijdens StuDAY 2025, ontwikkeld door/voor GRNDbrekers - de makerspace van JC Bouckenborgh.*
-
-[🚀 Live Demo](#) • [📖 Documentatie](#functionaliteiten) • [💬 Support](#support) • [🔧 Contributing](#bijdragen)
+**Een realtime leaderboard systeem voor Bull Riding wedstrijden**  
+*Geen internetverbinding nodig - werkt volledig lokaal via WiFi hotspot*
 
 </div>
 
 ---
 
-## ✨ Highlights
+## 🎯 **Wat doet deze app?**
 
-🎯 **Complete Offline Ervaring** - Werkt volledig zonder internet via lokale WiFi-hotspot  
-🔄 **Realtime Synchronisatie** - Automatische sync tussen alle verbonden apparaten  
-📱 **Multi-Device Support** - Eén hoofdstation + onbeperkt aantal mobiele clients  
-📸 **Geavanceerde Camera Integratie** - Automatische foto compressie naar 150x150px  
-⚡ **Lightning Fast** - <2 seconden laadtijd, 95% foto compressie  
-🛡️ **Bulletproof Validation** - Strikte tijdsvalidatie en foutpreventie  
+De GRNDbrekers Bull Riding app is ontworpen voor **StuDAY 2025** en biedt:
 
----
+- 📱 **Multi-device synchronisatie** - Werk op meerdere toestellen tegelijk
+- 🏆 **Live leaderboard** - Toon rankings op een groot scherm
+- ⏱️ **Tijdmeting** - Nauwkeurige bull riding tijden
+- 🔄 **Realtime updates** - Alles sync automatisch tussen devices
+- 📶 **Offline functionaliteit** - Werkt zonder internet via lokale WiFi
 
-## 🏗️ Architectuur Overview
-
-```mermaid
-graph TB
-    A[📱 Mobiele Clients] --> B[📡 WiFi Hotspot<br/>GRNDbrekers-Bull]
-    B --> C[💻 Hoofdstation<br/>Express.js + Socket.IO]
-    C --> D[🧠 Centrale State<br/>Riders & Leaderboard]
-    C --> E[📁 Lokale Opslag<br/>localStorage + backup]
-    
-    F[🎯 Live Leaderboard] --> B
-    G[📊 Admin Interface] --> B
-    H[📸 Camera Clients] --> B
-    
-    style A fill:#e1f5fe
-    style C fill:#f3e5f5
-    style D fill:#fff3e0
-    style F fill:#e8f5e8
-```
+Perfect voor wedstrijden waarbij je:
+- Riders toevoegt op je telefoon
+- Tijden bijhoudt op een tablet  
+- Het leaderboard toont op een groot scherm
+- Alles automatisch gesynchroniseerd blijft
 
 ---
 
-## 🚀 Quick Start
+## 🚀 **Snel aan de slag**
 
-### 📋 Vereisten
-- **Node.js** 14+ 
-- **Linux** met NetworkManager (Ubuntu/Debian/CentOS)
-- **WiFi-capabele hardware**
-- **Modern browser** met camera ondersteuning
+### 📋 **Wat heb je nodig?**
+- Laptop/PC (Windows, Mac of Linux)
+- Node.js v16+ geïnstalleerd
+- WiFi hotspot mogelijkheid
+- Telefoon/tablet voor extra schermen
 
-### ⚡ Express Installatie
+### ⚡ **5-minuten setup**
 
 ```bash
-# 1️⃣ Clone repository
+# 1. Download het project
 git clone -b multi-device-setup https://github.com/SergeHanssens/grndbrekers-bull-studay2025.git
 cd grndbrekers-bull-studay2025
 
-# 2️⃣ Installeer dependencies
+# 2. Installeer dependencies  
 npm install
 
-# 3️⃣ Setup WiFi hotspot (Linux only)
-chmod +x setup-wifi.sh
-sudo ./setup-wifi.sh
+# 3. Check of alles werkt
+npm run doctor
 
-# 4️⃣ Start sync server
+# 4. Start de server
 npm start
 ```
 
-### 📱 Client Verbinding
-
-**WiFi Instellingen:**
-- 🔗 **Netwerk:** `GRNDbrekers-Bull`
-- 🔐 **Wachtwoord:** `studay2025`
-- 🌐 **Server IP:** `192.168.4.1:3000`
-
-**Toegang URLs:**
-- 🏠 **Hoofdpaneel:** `http://192.168.4.1:3000`
-- 🏆 **Live Leaderboard:** `http://192.168.4.1:3000/leaderboard.html`
-- 💡 **Health Check:** `http://192.168.4.1:3000/health`
+🎉 **Klaar!** Je server draait nu en toont de IP-adressen waar je mee kunt verbinden.
 
 ---
 
-## 🎮 Functionaliteiten
+## 📱 **Devices verbinden**
 
-### 📸 **Camera & Foto Management**
-- **Automatische compressie** naar 150x150px bij 70% kwaliteit
-- **Voorkeur achtercamera** voor betere kwaliteit  
-- **Bewerk functie** voor riders die nog niet gereden hebben
-- **~95% opslagreductie** (2MB → 15KB per foto)
+### 🔥 **Stap 1: Maak hotspot**
+Zet een WiFi hotspot aan op je laptop:
+- **Naam**: `GRNDbrekers-Bull`  
+- **Wachtwoord**: `studay2025`
 
-### ⏱️ **Geavanceerde Tijdsregistratie**
-- **Strikte validatie** van natuurlijke getallen
-- **Real-time filtering** voorkomt ongeldige invoer
-- **Maximumlimiet controle** (seconden ≤ 59, honderdsten ≤ 99)
-- **Enter-toets ondersteuning** voor snellere invoer
-- **MM:SS:HH formaat** met automatische sortering
+### 📲 **Stap 2: Verbind toestellen** 
+1. Verbind je telefoon/tablet met de `GRNDbrekers-Bull` WiFi
+2. Open een browser en ga naar: `http://192.168.137.1:3000`
+3. Kijk naar de groene status indicator (🟢) rechts bovenin
 
-### 🏆 **Intelligent Leaderboard System**
-- **Unified lijst** - alle posities in één scrollbare lijst
-- **Medaille emoji's** voor top 3 (🥇🥈🥉)
-- **Live waitlist functie** in aparte leaderboard pagina
-- **Bescherming** - riders op leaderboard kunnen niet bewerkt worden
-- **Auto-refresh** elke 5 seconden
-
-### 🔄 **Multi-Device Synchronisatie**
-- **Centrale state management** op server
-- **Automatische conflict resolutie** tussen clients
-- **Heartbeat monitoring** voor verbindingsstatus
-- **Graceful reconnection** met exponential backoff
-- **Visual connection indicators** op alle clients
+### 🖥️ **Stap 3: Setup schermen**
+- **Hoofdscherm**: `http://192.168.137.1:3000` - Voor rider management
+- **Leaderboard**: `http://192.168.137.1:3000/leaderboard.html` - Voor publiek
 
 ---
 
-## 📂 Project Structuur
+## 🔧 **Handige commando's**
+
+```bash
+npm start                 # Start de server
+npm run doctor           # 🩺 Diagnose systeem problemen
+npm run test-server      # ✅ Check of server werkt  
+npm run test-clients     # 👥 Zie verbonden devices
+npm run setup-firewall   # 🛡️ Configureer Windows firewall
+npm run ip-info          # 🌐 Toon alle beschikbare IP's
+```
+
+---
+
+## 🎮 **Hoe te gebruiken**
+
+### 👤 **Riders toevoegen**
+1. Open de hoofdpagina op je telefoon
+2. Vul naam in en klik "Rider Toevoegen"  
+3. Rider verschijnt automatisch op alle verbonden schermen
+
+### ⏱️ **Tijden meten**
+1. Selecteer een rider
+2. Klik "Start Timer" wanneer de rit begint
+3. Klik "Stop Timer" wanneer de rit eindigt
+4. Tijd wordt automatisch toegevoegd aan leaderboard
+
+### 🏆 **Leaderboard bekijken**
+- Het leaderboard update automatisch op alle schermen
+- Riders worden gesorteerd op beste tijd
+- Perfect voor een groot scherm tijdens het evenement
+
+---
+
+## 🛠️ **Troubleshooting**
+
+### 🚨 **Problemen? Start hier:**
+
+```bash
+npm run doctor
+```
+
+Dit script controleert automatisch:
+- ✅ Node.js versie
+- ✅ Netwerkverbindingen  
+- ✅ Firewall instellingen
+- ✅ Poort beschikbaarheid
+
+### 📱 **GSM bereikt server niet?**
+
+1. **Check je IP**: Gebruik het exacte IP uit de server console
+2. **Firewall**: Run `.\firewall-setup.ps1` (Windows) of open poort 3000
+3. **WiFi**: Zorg dat GSM verbonden is met `GRNDbrekers-Bull`
+4. **Data**: Zet mobiele data en VPN uit
+
+### 🔄 **Sync werkt niet?**
+
+1. **Check status**: Kijk naar de groene/rode indicator rechts bovenin
+2. **Herlaad pagina**: Soms helpt een refresh
+3. **Debug console**: Druk F12 → Console voor error berichten
+
+👉 **Meer hulp?** Zie [TROUBLESHOOTING.md](TROUBLESHOOTING.md) voor uitgebreide oplossingen
+
+---
+
+## 🏗️ **Technische details**
+
+### 🔌 **Architectuur**
+- **Backend**: Node.js + Express + Socket.IO
+- **Frontend**: Vanilla HTML/CSS/JavaScript  
+- **Sync**: Realtime via WebSockets
+- **Storage**: LocalStorage + in-memory state
+
+### 📊 **Features**
+- ✅ Cross-platform hotspot support (Windows/Linux/Mac)
+- ✅ Automatische IP detectie en server discovery
+- ✅ Offline-first met localStorage fallback
+- ✅ Visual connection status indicators
+- ✅ Intelligent reconnection met exponential backoff
+- ✅ Platform-specific firewall configuration
+- ✅ Comprehensive system diagnostics
+
+### 🔧 **Debug endpoints**
+- `/health` - Server status en uptime
+- `/clients` - Overzicht verbonden devices
+- `/api/state` - Huidige applicatie state
+- `/api/debug` - Volledige debug informatie
+
+---
+
+## 📁 **Project structuur**
 
 ```
 grndbrekers-bull-studay2025/
-├── 🏠 index.html              # Hoofdapplicatie interface
-├── 🏆 leaderboard.html        # Standalone live leaderboard  
-├── 🔄 sync-server.js          # Express + Socket.IO server
-├── 📱 sync-client.js          # Client-side sync logica
-├── 🛜 setup-wifi.sh           # WiFi hotspot automation
-├── 📦 package.json            # Project configuratie
-├── 🎨 manifest.json           # PWA configuratie
-├── ⚙️ sw.js                   # Service Worker voor offline
-└── 📁 images/                 # Logo en app iconen
-    ├── grndbrekers-bull-logo-transparant.jpg
-    ├── icon-192.png
-    └── icon-512.png
+├── 🏠 index.html              # Hoofdscherm (rider management)
+├── 🏆 leaderboard.html        # Leaderboard display  
+├── 🚀 sync-server.js          # Express server + Socket.IO
+├── 📱 sync-client.js          # Client sync logic
+├── 🛡️ firewall-setup.ps1      # Windows firewall configuratie
+├── 🐧 setup-wifi.sh           # Linux hotspot script
+├── 📦 package.json            # Dependencies en scripts
+├── 📖 README.md               # Deze documentatie
+├── 🛠️ TROUBLESHOOTING.md      # Probleemoplossing gids
+└── 📁 scripts/
+    └── 🩺 doctor.js           # Systeem diagnose tool
 ```
 
 ---
 
-## 🔧 Geavanceerde Configuratie
+## 🎪 **Voor StuDAY 2025**
 
-### 🎨 **UI Aanpassingen**
+### 📋 **Setup checklist**
+- [ ] Laptop volledig opgeladen
+- [ ] `GRNDbrekers-Bull` hotspot actief
+- [ ] Server gestart (`npm start`)
+- [ ] Leaderboard scherm verbonden en getest
+- [ ] Backup telefoon/tablet beschikbaar
+- [ ] Firewall geconfigureerd
 
-```css
-/* CSS variabelen in style sectie */
---primary-color: #4CAF50;      /* Hoofdkleur knoppen */
---accent-color: #FFD700;       /* Goud voor leaderboard */
---background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-```
-
-### 📸 **Foto Kwaliteit Tweaks**
-
-```javascript
-// In compressImage() functie aanpassen:
-compressImage(file, 
-  maxWidth = 100,     // Kleinere waarde = minder opslag
-  maxHeight = 100,    // Kleinere waarde = minder opslag  
-  quality = 0.5       // 0.1 (laag) tot 1.0 (hoog)
-)
-```
-
-### 🏆 **Sortering Aanpassen**
-
-```javascript
-// Huidige sortering: langste tijd eerst (wie bleef het langst op)
-window.leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
-
-// Voor kortste tijd eerst:
-window.leaderboardData.sort((a, b) => a.timeValue - b.timeValue);
-```
+### 🎯 **Best practices**
+- Test de setup vooraf op de locatie
+- Houd laptop aangesloten op stroom
+- Zorg voor backup internetverbinding indien nodig
+- Download de QR code voor snelle WiFi verbinding
 
 ---
 
-## 🛠️ API Endpoints
+## 👥 **Support & bijdragen**
 
-| Endpoint | Method | Beschrijving |
-|----------|--------|-------------|
-| `/` | GET | Hoofdapplicatie interface |
-| `/leaderboard.html` | GET | Live leaderboard scherm |
-| `/health` | GET | Server status & statistieken |
-| `/api/state` | GET | Volledige centrale state (JSON) |
+### 🐛 **Bug gevonden?**
+Open een [issue](https://github.com/SergeHanssens/grndbrekers-bull-studay2025/issues) met:
+- Browser en OS informatie
+- Screenshot van de error
+- Stappen om het probleem te reproduceren
 
-### 🔌 **Socket.IO Events**
-
-| Event | Richting | Data | Beschrijving |
-|-------|----------|------|-------------|
-| `addRider` | ↕️ | `{name, photo, ...}` | Rider toevoegen/updaten |
-| `updateLeaderboard` | ↕️ | `[riders...]` | Leaderboard data sync |
-| `startTimer` | ↕️ | `{name}` | Timer start broadcast |
-| `stopTimer` | ↕️ | `{name, time}` | Timer stop + resultaat |
-| `requestState` | → | - | Request volledige state |
-| `syncFullState` | ← | `{riders, leaderboard}` | Complete state response |
+### 💡 **Feature request?**
+Suggesties zijn welkom! Open een [issue](https://github.com/SergeHanssens/grndbrekers-bull-studay2025/issues) met het `enhancement` label.
 
 ---
 
-## 📱 Progressive Web App Features
+## 📜 **Licentie**
 
-### 🔧 **Installatie per Platform**
-
-**📱 iPhone (Safari):**
 ```
-Safari → Deel → "Voeg toe aan beginscherm"
-```
-
-**🤖 Android (Chrome):**
-```
-Chrome menu → "App installeren"
-```
-
-### ✅ **Browser Compatibiliteit**
-- ✅ **Chrome 60+** - Volledige ondersteuning
-- ✅ **Safari 12+** - Volledige ondersteuning  
-- ✅ **Firefox 60+** - Volledige ondersteuning
-- ✅ **Edge 79+** - Volledige ondersteuning
-
-### 🛡️ **Offline Capabilities**
-- **Service Worker** cached alle bestanden
-- **localStorage persistentie** voor alle data
-- **100% functionaliteit** zonder internet na eerste load
-- **Automatische cache updates** bij nieuwe versies
-
----
-
-## 🔐 Privacy & Security
-
-### 🛡️ **Data Protection**
-- **Lokale opslag alleen** - geen data upload naar externe servers
-- **Geen tracking** - geen analytics of externe scripts
-- **Foto compressie** - minimale opslagruimte
-- **HTTPS vereist** voor camera toegang
-
-### 🔒 **Network Security**
-- **WPA2 Protected WiFi** met strong password
-- **Lokaal netwerk isolatie** - geen internet toegang
-- **No external dependencies** tijdens gebruik
-
----
-
-## 🚀 Deployment Opties
-
-### 🌐 **GitHub Pages (Public)**
-```bash
-# Setup GitHub Pages deployment
-git checkout main
-git push origin main
-
-# Repository → Settings → Pages → Deploy from branch: main
-# Beschikbaar op: https://username.github.io/repository-name
-```
-
-### 🐳 **Docker Deployment** 
-```dockerfile
-FROM node:16-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
-COPY . .
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
-### ☁️ **Server Deployment**
-```bash
-# Voor productie met PM2
-npm install -g pm2
-pm2 start npm --name "grndbrekers-bull" -- start
-pm2 startup
-pm2 save
-```
-
----
-
-## 🔧 Troubleshooting
-
-### 🚨 **Veelvoorkomende Problemen**
-
-**🔗 WiFi Hotspot Start Niet**
-```bash
-# Check NetworkManager status
-sudo systemctl status NetworkManager
-
-# Reset interface
-sudo nmcli device disconnect wlan0
-sudo nmcli connection up GRNDbrekers-Bull
-```
-
-**📷 Camera Werkt Niet**
-- ✅ Controleer HTTPS (vereist voor camera API)
-- ✅ Geef browser cameratoegang  
-- ✅ Test op fysiek apparaat (niet simulator)
-
-**🔄 Sync Problemen**
-- ✅ Check connection indicator (🟢/🔴)
-- ✅ Refresh browser en verbind opnieuw
-- ✅ Controleer server logs: `npm start`
-
-**📊 Data Verloren**
-```bash
-# Check localStorage in browser developer tools
-localStorage.getItem('riders')
-localStorage.getItem('leaderboard')
-
-# Backup state via API
-curl http://192.168.4.1:3000/api/state > backup.json
-```
-
----
-
-## 📊 Performance Metrics
-
-| Metric | Waarde |
-|--------|--------|
-| 📦 **App grootte** | <100KB total |
-| ⚡ **Laadtijd** | <2 seconden op 3G |
-| 📸 **Foto compressie** | ~95% reductie |
-| 🔄 **Sync latency** | <100ms lokaal netwerk |
-| 💾 **Storage efficiency** | 15KB per rider |
-| 🔋 **Battery impact** | Minimal (local network) |
-
----
-
-## 🏢 Over GRNDbrekers
-
-<div align="center">
-
-**GRNDbrekers** is een makerspace project dat in 2020 startte in JC Bouckenborgh (Merksem), waarbij een gezamenlijke werkruimte wordt uitgebouwd voor het maken, leren, verkennen en delen.
-
-</div>
-
-### 📍 **Locaties**
-- **🏠 JC Bouckenborgh** - Bredabaan 559, 2170 Merksem
-- **🚢 CO Merksem Dok** - Emiel Lemineurstraat 72, 2170 Merksem  
-- **📚 Bib Park** - Bibliotheek Park
-- **🌊 Broedplaats Borrewater** - Borrewaterstraat 1, 2170 Antwerpen
-
-### 🛠️ **Beschikbare Apparatuur**
-- **3D-printers & lasersnijders** voor precisiewerk
-- **Arduino's & microcontrollers** voor IoT projecten
-- **Soldeerbouten & electronica tools** voor circuits
-- **En veel meer hightech apparatuur!**
-
-### 📅 **Activiteiten**
-- **#openGRND** - Open toegang (woensdag/vrijdag/zaterdag)
-- **GRNDbrekers Workshops** - 5 per trimester
-- **IJSbrekers** - Voor kinderen (5de/6de leerjaar)  
-- **GRNDrepair** - Repair Café (1ste/3de woensdag)
-
----
-
-## 📄 Licentie & Credits
-
-### 📝 **MIT License**
-```
-MIT License © 2025 GRNDbrekers & Serge Hanssens
+MIT License © 2025 Serge Hanssens
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -364,46 +230,18 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-✅ Gebruiken en aanpassen toegestaan
-✅ Commercieel gebruik voor goede doelen  
-✅ Delen van verbeteringen wordt aangemoedigd
-✅ Attribution vereist: Vermeld GRNDbrekers als originele makers
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 ```
-
-### 👥 **Credits**
-- **🔧 Ontwikkeling:** Serge Hanssens
-- **🐍 Python Basis:** Thomas Willems  
-- **🏢 Organisatie:** GRNDbrekers Makerspace
-- **🎪 Evenement:** StuDAY 2025
-
----
-
-## 💬 Support
-
-### 🆘 **Hulp Nodig?**
-
-**📧 Contact:**
-- **GitHub Issues** voor bugs en feature requests
-- **JC Bouckenborgh** voor directe ondersteuning  
-- **GRNDbrekers Community** voor technische vragen
-
-**🔗 Links:**
-- [🌐 GRNDbrekers Website](https://jcbouckenborgh.be)
-- [📱 GitHub Repository](https://github.com/SergeHanssens/grndbrekers-bull-studay2025)
-- [🎯 Live Demo](#) *(na deployment)*
 
 ---
 
 <div align="center">
 
-### 🚀 **Ready to Rock & Roll?**
+**🐂 Ready to ride? Laten we deze bull temmen! 🤠**
 
-**[⚡ Start Nu](#quick-start)** • **[📖 Meer Info](#functionaliteiten)** • **[🔧 Configuratie](#geavanceerde-configuratie)**
+*Made with ❤️ for StuDAY 2025*
 
----
-
-*Ontwikkeld met ❤️ voor de maker community*
-
-**"Van analoge stieren tot digitale leaderboards - we bouwen de toekomst!"**
+[![GitHub](https://img.shields.io/badge/GitHub-View%20Source-black?style=for-the-badge&logo=github)](https://github.com/SergeHanssens/grndbrekers-bull-studay2025)
 
 </div>
