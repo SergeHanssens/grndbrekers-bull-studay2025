@@ -1,429 +1,340 @@
-// 🔄 GRNDbrekers Bull Riding - Smart Sync Client
-// Automatische server detectie + localStorage sync + debug tools
+// GRNDbrekers Bull Riding - Sync Client
+// Multi-device synchronization via Socket.IO
 
-(function() {
-  'use strict';
-
-  // 🎯 CONFIGURATIE
-  const CONFIG = {
-    possibleHosts: [
-      window.location.hostname,  // ⭐ EERST: huidige host
-      '192.168.137.1',          // Windows hotspot  
-      '192.168.43.1',           // Android hotspot
-      '192.168.4.1',            // Linux hotspot
-      'localhost',              // Development
-      '127.0.0.1'               // Fallback
-    ],
-    port: window.location.port || '3000',
-    connectionTimeout: 3000,
-    maxReconnectAttempts: 10,
-    reconnectDelay: 1000,
-    debug: window.location.search.includes('debug=true')
-  };
-
-  // 🌐 STATE MANAGEMENT
-  let socket = null;
-  let isConnected = false;
-  let reconnectAttempts = 0;
-  let reconnectTimer = null;
-  let currentHost = null;
-  let statusIndicator = null;
-
-  // 📱 DEVICE DETECTION
-  function getDeviceInfo() {
-    const ua = navigator.userAgent;
-    let device = 'Unknown Device';
-    
-    if (ua.includes('iPhone')) device = 'iPhone';
-    else if (ua.includes('iPad')) device = 'iPad';
-    else if (ua.includes('Android')) device = 'Android';
-    else if (ua.includes('Windows')) device = 'Windows PC';
-    else if (ua.includes('Macintosh')) device = 'Mac';
-    else if (ua.includes('Linux')) device = 'Linux';
-    
-    const browser = ua.includes('Chrome') ? 'Chrome' : 
-                   ua.includes('Firefox') ? 'Firefox' : 
-                   ua.includes('Safari') ? 'Safari' : 'Browser';
-    
-    return `${device} (${browser})`;
-  }
-
-  // 🎨 STATUS INDICATOR
-  function createStatusIndicator() {
-    if (statusIndicator) return;
-    
-    statusIndicator = document.createElement('div');
-    statusIndicator.id = 'sync-status';
-    statusIndicator.style.cssText = `
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #ff4444;
-      border: 2px solid white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      z-index: 9999;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    `;
-    
-    statusIndicator.title = 'Sync status - Klik voor info';
-    statusIndicator.onclick = () => showConnectionInfo();
-    
-    document.body.appendChild(statusIndicator);
-  }
-
-  function updateStatusIndicator(connected, host = null) {
-    if (!statusIndicator) createStatusIndicator();
-    
-    if (connected) {
-      statusIndicator.style.background = '#44ff44';
-      statusIndicator.title = `✅ Verbonden met ${host || 'server'}`;
-    } else {
-      statusIndicator.style.background = '#ff4444';
-      statusIndicator.title = '❌ Niet verbonden - Klik voor info';
+class SyncClient {
+    constructor() {
+        this.socket = null;
+        this.isConnected = false;
+        this.reconnectAttempts = 0;
+        this.maxReconnectAttempts = 5;
+        this.syncIndicator = null;
+        this.lastSyncTime = null;
+        
+        this.init();
     }
-  }
-
-  // 💾 LOCALSTORAGE SYNC
-  function syncToLocalStorage(data) {
-    try {
-      if (!data || !data.type) return;
-      
-      log('💾 Syncing to localStorage:', data.type);
-      
-      switch (data.type) {
-        case 'fullState':
-          if (data.data) {
-            localStorage.setItem('bullRiding_appState', JSON.stringify(data.data));
-            restoreFromState(data.data);
-          }
-          break;
-          
-        case 'riderAdded':
-        case 'riderUpdated':
-          updateLocalStorageRiders(data);
-          break;
-          
-        case 'leaderboardUpdated':
-          if (data.leaderboard) {
-            localStorage.setItem('bullRiding_leaderboard', JSON.stringify(data.leaderboard));
-            updateLeaderboardDisplay(data.leaderboard);
-          }
-          break;
-          
-        case 'timerStart':
-        case 'timerStop':
-          localStorage.setItem('bullRiding_timerState', JSON.stringify({
-            active: data.type === 'timerStart',
-            currentRider: data.rider || null,
-            startTime: data.startTime || null
-          }));
-          break;
-      }
-      
-      localStorage.setItem('bullRiding_lastSync', Date.now().toString());
-      
-    } catch (error) {
-      log('❌ Fout bij localStorage sync:', error);
+    
+    init() {
+        console.log('🔄 Sync Client initializing...');
+        this.createSyncIndicator();
+        this.connectToServer();
+        this.setupWindowEvents();
     }
-  }
-
-  function updateLocalStorageRiders(data) {
-    try {
-      const stored = localStorage.getItem('bullRiding_riders');
-      let riders = stored ? JSON.parse(stored) : [];
-      
-      if (data.type === 'riderAdded' && data.rider) {
-        const exists = riders.find(r => r.id === data.rider.id);
-        if (!exists) {
-          riders.push(data.rider);
+    
+    createSyncIndicator() {
+        // Create sync status indicator
+        const indicator = document.createElement('div');
+        indicator.id = 'syncIndicator';
+        indicator.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #ff4444;
+            z-index: 10000;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        `;
+        indicator.title = 'Sync Status: Disconnected';
+        indicator.onclick = () => this.handleIndicatorClick();
+        
+        document.body.appendChild(indicator);
+        this.syncIndicator = indicator;
+    }
+    
+    connectToServer() {
+        try {
+            console.log('🔗 Attempting to connect to server...');
+            
+            // Auto-detect server URL
+            const serverUrl = this.detectServerUrl();
+            console.log('🎯 Connecting to:', serverUrl);
+            
+            this.socket = io(serverUrl, {
+                transports: ['websocket', 'polling'],
+                timeout: 10000,
+                forceNew: true
+            });
+            
+            this.setupSocketEvents();
+            
+        } catch (error) {
+            console.error('❌ Connection error:', error);
+            this.updateSyncIndicator(false, 'Connection Error');
         }
-      } else if (data.type === 'riderUpdated' && data.rider) {
-        const index = riders.findIndex(r => r.id === data.rider.id);
-        if (index !== -1) {
-          riders[index] = { ...riders[index], ...data.rider };
+    }
+    
+    detectServerUrl() {
+        const hostname = window.location.hostname;
+        const port = window.location.port || '3000';
+        
+        // If we're already on the right host, use current location
+        if (hostname === '192.168.137.1' || hostname === 'localhost' || hostname === '127.0.0.1') {
+            return `${window.location.protocol}//${hostname}:${port}`;
         }
-      }
-      
-      localStorage.setItem('bullRiding_riders', JSON.stringify(riders));
-      updateRidersDisplay(riders);
-      
-    } catch (error) {
-      log('❌ Fout bij riders localStorage:', error);
+        
+        // Default fallback for hotspot
+        return 'http://192.168.137.1:3000';
     }
-  }
-
-  function restoreFromLocalStorage() {
-    try {
-      log('📤 Restoring from localStorage...');
-      
-      const appState = localStorage.getItem('bullRiding_appState');
-      if (appState) {
-        const state = JSON.parse(appState);
-        restoreFromState(state);
-        return true;
-      }
-      
-      return false;
-    } catch (error) {
-      log('❌ Fout bij localStorage restore:', error);
-      return false;
-    }
-  }
-
-  function restoreFromState(state) {
-    if (!state) return;
     
-    log('🔄 Restoring UI from state...');
+    setupSocketEvents() {
+        // Connection events
+        this.socket.on('connect', () => {
+            console.log('✅ Connected to server! ID:', this.socket.id);
+            this.isConnected = true;
+            this.reconnectAttempts = 0;
+            this.updateSyncIndicator(true, 'Connected');
+            this.requestInitialSync();
+        });
+        
+        this.socket.on('disconnect', (reason) => {
+            console.warn('❌ Disconnected from server:', reason);
+            this.isConnected = false;
+            this.updateSyncIndicator(false, `Disconnected: ${reason}`);
+            
+            if (reason === 'io server disconnect') {
+                // Server initiated disconnect, reconnect manually
+                setTimeout(() => this.reconnect(), 2000);
+            }
+        });
+        
+        this.socket.on('connect_error', (error) => {
+            console.error('🔴 Connection error:', error);
+            this.isConnected = false;
+            this.updateSyncIndicator(false, 'Connection Error');
+            this.scheduleReconnect();
+        });
+        
+        // CONSISTENT EVENT: Listen for syncData
+        this.socket.on('syncData', (data) => {
+            console.log('📥 Sync data received:', data);
+            this.handleSyncData(data);
+            this.lastSyncTime = new Date();
+        });
+        
+        // Error handling
+        this.socket.on('error', (error) => {
+            console.error('⚠️ Socket error:', error);
+        });
+    }
     
-    if (state.riders) updateRidersDisplay(state.riders);
-    if (state.leaderboard) updateLeaderboardDisplay(state.leaderboard);
-    if (state.timerActive !== undefined) updateTimerDisplay(state.timerActive, state.currentRider);
-  }
-
-  // 🎮 UI UPDATE FUNCTIONS
-  function updateRidersDisplay(riders) {
-    // Update riders list in UI if elements exist
-    const ridersList = document.getElementById('ridersList');
-    if (ridersList && Array.isArray(riders)) {
-      log(`🏇 Updating riders display: ${riders.length} riders`);
-      // Trigger custom event for main app
-      window.dispatchEvent(new CustomEvent('ridersUpdated', { detail: riders }));
+    handleSyncData(data) {
+        try {
+            switch(data.type) {
+                case 'ridersUpdate':
+                    this.updateRiders(data.riders);
+                    break;
+                    
+                case 'leaderboardUpdate':
+                    this.updateLeaderboard(data.leaderboard);
+                    break;
+                    
+                case 'fullStateSync':
+                    this.syncFullState(data);
+                    break;
+                    
+                default:
+                    console.warn('🤷 Unknown sync data type:', data.type);
+            }
+        } catch (error) {
+            console.error('❌ Error handling sync data:', error);
+        }
     }
-  }
-
-  function updateLeaderboardDisplay(leaderboard) {
-    const leaderboardElement = document.getElementById('leaderboard');
-    if (leaderboardElement && Array.isArray(leaderboard)) {
-      log(`🏆 Updating leaderboard: ${leaderboard.length} entries`);
-      window.dispatchEvent(new CustomEvent('leaderboardUpdated', { detail: leaderboard }));
+    
+    updateRiders(riders) {
+        console.log('👥 Updating riders:', riders.length);
+        
+        if (window.riders && Array.isArray(riders)) {
+            window.riders = riders;
+            
+            // Update localStorage
+            this.saveToLocalStorage('riders', riders);
+            
+            // Update UI if functions exist
+            if (typeof updateRidersList === 'function') {
+                updateRidersList();
+            }
+            if (typeof updateRiderDropdown === 'function') {
+                updateRiderDropdown();
+            }
+        }
     }
-  }
-
-  function updateTimerDisplay(active, rider) {
-    log(`⏱️ Timer ${active ? 'started' : 'stopped'}${rider ? ` for ${rider.name}` : ''}`);
-    window.dispatchEvent(new CustomEvent('timerStateChanged', { 
-      detail: { active, rider } 
-    }));
-  }
-
-  // 🔍 LOGGING
-  function log(...args) {
-    if (CONFIG.debug) {
-      console.log('[SyncClient]', ...args);
+    
+    updateLeaderboard(leaderboard) {
+        console.log('🏆 Updating leaderboard:', leaderboard.length);
+        
+        if (window.leaderboardData && Array.isArray(leaderboard)) {
+            window.leaderboardData = leaderboard;
+            
+            // Update localStorage
+            this.saveToLocalStorage('leaderboard', leaderboard);
+            
+            // Update UI if functions exist
+            if (typeof updateLeaderboard === 'function') {
+                updateLeaderboard();
+            }
+        }
     }
-  }
+    
+    syncFullState(data) {
+        console.log('🔄 Full state sync received');
+        
+        if (data.riders) {
+            this.updateRiders(data.riders);
+        }
+        
+        if (data.leaderboard) {
+            this.updateLeaderboard(data.leaderboard);
+        }
+        
+        console.log('✅ Full state sync complete');
+    }
+    
+    requestInitialSync() {
+        console.log('📤 Requesting initial sync...');
+        
+        // Send current local state to server
+        const localState = {
+            type: 'fullStateSync',
+            riders: this.loadFromLocalStorage('riders') || window.riders || [],
+            leaderboard: this.loadFromLocalStorage('leaderboard') || window.leaderboardData || []
+        };
+        
+        this.sendSyncData(localState);
+    }
+    
+    sendSyncData(data) {
+        if (this.isConnected && this.socket) {
+            console.log('📤 Sending sync data:', data.type);
+            this.socket.emit('syncData', data);
+        } else {
+            console.warn('⚠️ Cannot send sync data: not connected');
+        }
+    }
+    
+    // Public methods for app to call
+    syncRiders(riders) {
+        this.sendSyncData({
+            type: 'ridersUpdate',
+            riders: riders
+        });
+    }
+    
+    syncLeaderboard(leaderboard) {
+        this.sendSyncData({
+            type: 'leaderboardUpdate',
+            leaderboard: leaderboard
+        });
+    }
+    
+    syncFullState(riders, leaderboard) {
+        this.sendSyncData({
+            type: 'fullStateSync',
+            riders: riders || [],
+            leaderboard: leaderboard || []
+        });
+    }
+    
+    updateSyncIndicator(connected, message) {
+        if (!this.syncIndicator) return;
+        
+        this.syncIndicator.style.backgroundColor = connected ? '#44ff44' : '#ff4444';
+        this.syncIndicator.title = `Sync Status: ${message}`;
+        
+        if (connected && this.lastSyncTime) {
+            this.syncIndicator.title += `\nLast sync: ${this.lastSyncTime.toLocaleTimeString()}`;
+        }
+    }
+    
+    handleIndicatorClick() {
+        if (this.isConnected) {
+            console.log('🔄 Manual sync triggered');
+            this.requestInitialSync();
+        } else {
+            console.log('🔄 Manual reconnect triggered');
+            this.reconnect();
+        }
+    }
+    
+    reconnect() {
+        if (this.socket) {
+            this.socket.disconnect();
+        }
+        
+        setTimeout(() => {
+            this.connectToServer();
+        }, 1000);
+    }
+    
+    scheduleReconnect() {
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+            this.reconnectAttempts++;
+            const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+            
+            console.log(`🔄 Scheduling reconnect attempt ${this.reconnectAttempts} in ${delay}ms`);
+            
+            setTimeout(() => {
+                this.reconnect();
+            }, delay);
+        } else {
+            console.error('❌ Max reconnect attempts reached');
+            this.updateSyncIndicator(false, 'Connection Failed');
+        }
+    }
+    
+    setupWindowEvents() {
+        // Expose functions globally for app to use
+        window.syncClient = this;
+        
+        // Debug functions
+        window.debugSync = () => {
+            console.log('🐛 Sync Debug Info:', {
+                connected: this.isConnected,
+                socketId: this.socket?.id,
+                reconnectAttempts: this.reconnectAttempts,
+                lastSyncTime: this.lastSyncTime
+            });
+        };
+        
+        window.manualSync = () => {
+            this.requestInitialSync();
+        };
+        
+        window.reconnectSync = () => {
+            this.reconnect();
+        };
+    }
+    
+    // LocalStorage helpers
+    saveToLocalStorage(key, data) {
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch (error) {
+            console.warn('⚠️ LocalStorage save failed:', error);
+        }
+    }
+    
+    loadFromLocalStorage(key) {
+        try {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : null;
+        } catch (error) {
+            console.warn('⚠️ LocalStorage load failed:', error);
+            return null;
+        }
+    }
+}
 
-  // 🔌 CONNECTION LOGIC
-  async function tryConnect(host) {
-    return new Promise((resolve) => {
-      log(`🔌 Proberen te verbinden met ${host}:${CONFIG.port}...`);
-      
-      const testSocket = io(`http://${host}:${CONFIG.port}`, {
-        timeout: CONFIG.connectionTimeout,
-        transports: ['websocket', 'polling']
-      });
-
-      const timer = setTimeout(() => {
-        testSocket.disconnect();
-        resolve(false);
-      }, CONFIG.connectionTimeout);
-
-      testSocket.on('connect', () => {
-        clearTimeout(timer);
-        log(`✅ Verbinding gelukt met ${host}`);
-        resolve(testSocket);
-      });
-
-      testSocket.on('connect_error', () => {
-        clearTimeout(timer);
-        testSocket.disconnect();
-        resolve(false);
-      });
+// Auto-initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.syncClientInstance = new SyncClient();
     });
-  }
+} else {
+    window.syncClientInstance = new SyncClient();
+}
 
-  async function findAndConnect() {
-    log('🔍 Zoeken naar server...');
-    
-    for (const host of CONFIG.possibleHosts) {
-      if (!host) continue;
-      
-      const result = await tryConnect(host);
-      if (result) {
-        currentHost = host;
-        return result;
-      }
-    }
-    
-    return null;
-  }
-
-  function setupSocketEvents(socket) {
-    socket.on('connect', () => {
-      log(`🎉 Verbonden met server op ${currentHost}`);
-      isConnected = true;
-      reconnectAttempts = 0;
-      updateStatusIndicator(true, currentHost);
-      
-      // Registreer client bij server
-      socket.emit('registerClient', {
-        name: getDeviceInfo(),
-        screen: window.location.pathname,
-        timestamp: Date.now()
-      });
-      
-      // Vraag huidige state op
-      socket.emit('getState');
-    });
-
-    socket.on('disconnect', (reason) => {
-      log(`💔 Verbinding verbroken: ${reason}`);
-      isConnected = false;
-      updateStatusIndicator(false);
-      
-      if (reason !== 'io client disconnect') {
-        scheduleReconnect();
-      }
-    });
-
-    socket.on('syncData', (data) => {
-      log('📥 Data ontvangen:', data.type);
-      
-      // Sync naar localStorage
-      syncToLocalStorage(data);
-      
-      // Trigger event voor main app
-      window.dispatchEvent(new CustomEvent('syncDataReceived', { detail: data }));
-    });
-
-    socket.on('connect_error', (error) => {
-      log('❌ Verbindingsfout:', error.message);
-      scheduleReconnect();
-    });
-  }
-
-  function scheduleReconnect() {
-    if (reconnectTimer) return;
-    
-    reconnectAttempts++;
-    if (reconnectAttempts > CONFIG.maxReconnectAttempts) {
-      log('❌ Maximum reconnect attempts bereikt');
-      return;
-    }
-    
-    const delay = Math.min(CONFIG.reconnectDelay * Math.pow(2, reconnectAttempts - 1), 30000);
-    log(`🔄 Reconnect over ${delay}ms... (poging ${reconnectAttempts})`);
-    
-    reconnectTimer = setTimeout(() => {
-      reconnectTimer = null;
-      initializeConnection();
-    }, delay);
-  }
-
-  // 🚀 INITIALIZATION
-  async function initializeConnection() {
-    if (socket && isConnected) return;
-    
-    if (socket) {
-      socket.disconnect();
-    }
-    
-    socket = await findAndConnect();
-    
-    if (socket) {
-      setupSocketEvents(socket);
-    } else {
-      log('❌ Geen server gevonden');
-      updateStatusIndicator(false);
-      scheduleReconnect();
-    }
-  }
-
-  // 📡 PUBLIC API
-  window.syncClient = {
-    emit: function(event, data) {
-      if (socket && isConnected) {
-        socket.emit(event, data);
-        return true;
-      }
-      log('⚠️ Kan niet verzenden: niet verbonden');
-      return false;
-    },
-    
-    isConnected: function() {
-      return isConnected;
-    },
-    
-    reconnect: function() {
-      reconnectAttempts = 0;
-      initializeConnection();
-    },
-    
-    getStatus: function() {
-      return {
-        connected: isConnected,
-        host: currentHost,
-        attempts: reconnectAttempts,
-        hasLocalData: !!localStorage.getItem('bullRiding_appState')
-      };
-    }
-  };
-
-  // 🔧 DEBUG TOOLS
-  function showConnectionInfo() {
-    const status = window.syncClient.getStatus();
-    const message = status.connected 
-      ? `✅ Verbonden met ${status.host}\n\n🔧 Debug info:\n• Host: ${status.host}:${CONFIG.port}\n• Lokale data: ${status.hasLocalData ? 'Ja' : 'Nee'}`
-      : `❌ Niet verbonden\n\n🔧 Debug info:\n• Pogingen: ${status.attempts}/${CONFIG.maxReconnectAttempts}\n• Lokale data: ${status.hasLocalData ? 'Ja' : 'Nee'}\n\nKlik OK om opnieuw te proberen.`;
-    
-    alert(message);
-    
-    if (!status.connected) {
-      window.syncClient.reconnect();
-    }
-  }
-
-  window.debugSync = showConnectionInfo;
-  window.manualSync = () => {
-    if (socket && isConnected) {
-      socket.emit('getState');
-      log('📋 State opgevraagd');
-    }
-  };
-  window.reconnectSync = () => window.syncClient.reconnect();
-
-  // 🚀 START
-  document.addEventListener('DOMContentLoaded', () => {
-    log('🚀 SyncClient wordt geïnitialiseerd...');
-    createStatusIndicator();
-    
-    // Probeer eerst localStorage te restoren
-    const hasLocalData = restoreFromLocalStorage();
-    if (hasLocalData) {
-      log('✅ Lokale data hersteld');
-    }
-    
-    // Start verbinding
-    initializeConnection();
-  });
-
-  // Fallback als DOM al geladen is
-  if (document.readyState === 'loading') {
-    // DOM wordt nog geladen, event listener is al toegevoegd
-  } else {
-    // DOM is al geladen
-    setTimeout(() => {
-      if (!socket) {
-        log('🚀 Late SyncClient initialisatie...');
-        createStatusIndicator();
-        restoreFromLocalStorage();
-        initializeConnection();
-      }
-    }, 100);
-  }
-
-})();
+// Export for manual initialization if needed
+window.SyncClient = SyncClient;
