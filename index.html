@@ -754,7 +754,7 @@
         @media (max-width: 480px) {
             .leaderboard-logo {
                 max-width: 100%;
-                max-height: 180px; /* Smaller on mobile but still proportional */
+                max-height: 140px; /* Smaller on mobile */
             }
             
             .time-input {
@@ -773,17 +773,17 @@
             }
             
             .top-button, .btn-red {
-                padding: 12px 20px;
+                padding: 10px 20px;
                 font-size: 14px;
                 margin-bottom: 15px;
-                height: 40px;
+                height: 36px;
                 box-sizing: border-box;
             }
             
             .btn-blue, .btn-green {
-                padding: 12px 15px;
+                padding: 10px 15px;
                 font-size: 14px;
-                height: 40px;
+                height: 36px;
                 box-sizing: border-box;
             }
             
@@ -832,35 +832,75 @@
                 padding: 10px;
             }
             
-            /* Mobile button heights consistent */
+            /* Mobile button heights much smaller */
             .btn-photo-left {
-                padding: 12px 12px;
+                padding: 8px 12px;
                 font-size: 16px;
-                height: 40px;
+                height: 36px;
                 box-sizing: border-box;
             }
             
             .btn-save-right {
-                height: 40px;
+                height: 36px;
                 box-sizing: border-box;
-                padding: 12px 20px;
+                padding: 8px 16px;
+                font-size: 14px;
             }
             
-            /* Adjust bottom navigation for mobile */
+            /* Bottom navigation much smaller on mobile */
             .bottom-navigation {
                 padding: 0 10px;
+                bottom: 10px; /* Closer to bottom */
             }
             
-            .btn-bottom-left, .btn-bottom-right, .btn-time-right, .btn-reset-center, .btn-leaderboard-left {
-                padding: 12px 15px;
-                font-size: 14px;
-                height: 40px;
+            .btn-bottom-left, .btn-bottom-right, .btn-time-right {
+                padding: 8px 12px;
+                font-size: 12px;
+                height: 32px;
                 box-sizing: border-box;
             }
             
-            /* Adjust remaining riders height for mobile with smaller logo */
+            /* Mobile scrollist heights - much more conservative */
+            #nameEntryScreen .added-names {
+                max-height: calc(100vh - 320px);
+                margin-bottom: 60px;
+            }
+            
+            #timeEntryScreen .added-names {
+                max-height: calc(100vh - 280px);
+                margin-bottom: 60px;
+            }
+            
+            /* Leaderboard mobile optimization */
             .remaining-riders {
-                height: calc(100vh - 300px); /* Adjusted for mobile layout */
+                height: calc(100vh - 240px); /* Much shorter for mobile */
+                margin-bottom: 10px;
+            }
+            
+            /* H2 titles smaller on mobile */
+            h2 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+            
+            /* Input field smaller on mobile */
+            .input-field {
+                padding: 12px !important;
+                font-size: 14px !important;
+            }
+            
+            /* Mobile specific overrides for leaderboard buttons */
+            .leaderboard-btn {
+                padding: 8px 12px !important;
+                font-size: 12px !important;
+                height: 32px !important;
+                margin: 0 5px !important;
+            }
+            
+            /* Bottom navigation container for leaderboard */
+            #leaderboardScreen .screen-content > div[style*="position: absolute"] {
+                bottom: 10px !important;
+                padding: 0 10px !important;
             }
         }
     </style>
@@ -946,19 +986,22 @@
                 <button onclick="showScreen('timeEntryScreen')" 
                         style="background: linear-gradient(45deg, #2196F3, #1976D2); color: white; padding: 14px 20px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); height: 48px; box-sizing: border-box;"
                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'"
-                        onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+                        onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'"
+                        class="leaderboard-btn">
                     Tijden
                 </button>
                 <button onclick="resetAllServerData()" 
                         style="background: linear-gradient(45deg, #f44336, #d32f2f); color: white; padding: 14px 25px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin: 0 10px; height: 48px; box-sizing: border-box;"
                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'"
-                        onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+                        onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'"
+                        class="leaderboard-btn">
                     🗑️ Reset
                 </button>
                 <button onclick="showScreen('nameEntryScreen')" 
                         style="background: linear-gradient(45deg, #4CAF50, #45a049); color: white; padding: 14px 20px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); height: 48px; box-sizing: border-box;"
                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'"
-                        onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+                        onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'"
+                        class="leaderboard-btn">
                     Rijders
                 </button>
             </div>
