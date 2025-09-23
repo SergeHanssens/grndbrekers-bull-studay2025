@@ -333,7 +333,7 @@
         }
 
         .btn-photo-left {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
+            background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
             padding: 12px 15px;
             border: none;
@@ -377,7 +377,7 @@
             align-items: center;
         }
 
-        .btn-bottom-left, .btn-bottom-right {
+        .btn-bottom-left {
             background: linear-gradient(45deg, #FFD700, #FFA000);
             color: white;
             padding: 12px 20px;
@@ -392,12 +392,42 @@
             visibility: visible !important;
         }
 
-        .btn-bottom-left:hover, .btn-bottom-right:hover {
+        .btn-bottom-right {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block !important;
+            visibility: visible !important;
+        }
+
+        .btn-bottom-left:hover, .btn-bottom-right:hover, .btn-time-right:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
-        /* Adjust added-names container to make room for bottom navigation */
+        .btn-time-right {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block !important;
+            visibility: visible !important;
+        }
+
+        /* Adjust containers to make room for bottom navigation */
         #nameEntryScreen .added-names {
             max-height: calc(100vh - 280px);
             overflow-y: auto;
@@ -405,8 +435,15 @@
             padding-bottom: 20px;
         }
 
+        #timeEntryScreen .added-names {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            margin: 20px 0 80px 0; /* Extra bottom margin for navigation */
+            padding-bottom: 20px;
+        }
+
         /* Ensure screen content has relative positioning for absolute bottom nav */
-        #nameEntryScreen .screen-content {
+        #nameEntryScreen .screen-content, #timeEntryScreen .screen-content {
             position: relative;
             min-height: calc(100vh - 40px);
         }
@@ -816,17 +853,17 @@
     <!-- Time Entry Screen -->
     <div class="screen" id="timeEntryScreen">
         <div class="screen-content">
-            <button class="top-button" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
-            
             <h2>Voeg Tijd Toe</h2>
             
-            <div class="side-buttons-time">
-                <button class="btn-green" onclick="showScreen('nameEntryScreen')">Rijders</button>
+            <!-- Riders Without Time List -->
+            <div class="added-names" id="ridersForTimeEntry" style="max-height: calc(100vh - 200px); flex: 1; margin: 20px 0 80px 0;">
+                <p style="text-align: center; opacity: 0.7;">Selecteer een rijder om een tijd toe te voegen...</p>
             </div>
             
-            <!-- Riders Without Time List -->
-            <div class="added-names" id="ridersForTimeEntry" style="max-height: calc(100vh - 200px); flex: 1;">
-                <p style="text-align: center; opacity: 0.7;">Selecteer een rijder om een tijd toe te voegen...</p>
+            <!-- Bottom Navigation -->
+            <div class="bottom-navigation">
+                <button class="btn-bottom-left" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
+                <button class="btn-time-right" onclick="showScreen('nameEntryScreen')">Rijders</button>
             </div>
         </div>
     </div>
@@ -1312,13 +1349,13 @@
                     const compressed = await compressImage(e.target.files[0]);
                     window.currentPhoto = compressed; // Now contains {thumbnail, fullsize}
                     
-                    // Visual feedback via button color change
+                    // Visual feedback via button color change - darker green with checkmark
                     const photoBtn = document.querySelector('.btn-photo-left');
                     if (photoBtn) {
-                        photoBtn.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+                        photoBtn.style.background = 'linear-gradient(45deg, #2E7D32, #1B5E20)';
                         photoBtn.textContent = '✓';
                         setTimeout(() => {
-                            photoBtn.style.background = 'linear-gradient(45deg, #2196F3, #1976D2)';
+                            photoBtn.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
                             photoBtn.textContent = '📷';
                         }, 1500);
                     }
@@ -1429,10 +1466,10 @@
             document.getElementById('riderName').value = '';
             window.currentPhoto = null;
             
-            // Reset photo button visual state
+            // Reset photo button visual state to default green
             const photoBtn = document.querySelector('.btn-photo-left');
             if (photoBtn) {
-                photoBtn.style.background = 'linear-gradient(45deg, #2196F3, #1976D2)';
+                photoBtn.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
                 photoBtn.textContent = '📷';
             }
             
