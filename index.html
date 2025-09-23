@@ -16,233 +16,10 @@
             box-sizing: border-box;
         }
 
-        // Validate time input fields
-        function validateTimeInput(inputId, maxValue, fieldName) {
-            const input = document.getElementById(inputId);
-            if (!input) return false;
-            
-            const value = input.value;
-            
-            // Check if empty (allow empty for optional fields)
-            if (value === '' || value === null) {
-                return true; // Empty is okay, will default to 0
-            }
-            
-            // Check if it's a valid number
-            const numValue = parseFloat(value);
-            
-            // Must be a natural number (positive integer, no decimals)
-            if (!Number.isInteger(numValue) || numValue < 0) {
-                alert(`${fieldName} moet een natuurlijk getal zijn (0, 1, 2, 3, ...)!`);
-                input.focus();
-                return false;
-            }
-            
-            // Check maximum value
-            if (numValue > maxValue) {
-                alert(`${fieldName} mag maximaal ${maxValue} zijn!`);
-                input.focus();
-                return false;
-            }
-            
-            return true;
-        }
-
-        // Real-time input validation as user types
-        function addRealTimeValidation() {
-            // Original time inputs (if they still exist for backward compatibility)
-            const minutesField = document.getElementById('minutes');
-            const secondsField = document.getElementById('seconds');
-            const hundredthsField = document.getElementById('hundredths');
-            
-            if (minutesField) {
-                minutesField.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    value = value.replace(/[^0-9]/g, '');
-                    e.target.value = value;
-                });
-            }
-            
-            if (secondsField) {
-                secondsField.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    value = value.replace(/[^0-9]/g, '');
-                    if (parseInt(value) > 59) {
-                        value = '59';
-                    }
-                    e.target.value = value;
-                });
-            }
-            
-            if (hundredthsField) {
-                hundredthsField.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    value = value.replace(/[^0-9]/g, '');
-                    if (parseInt(value) > 99) {
-                        value = '99';
-                    }
-                    e.target.value = value;
-                });
-            }
-
-            // Edit time inputs (new modal fields)
-            const editMinutes = document.getElementById('editMinutes');
-            const editSeconds = document.getElementById('editSeconds');
-            const editHundredths = document.getElementById('editHundredths');
-            
-            if (editMinutes) {
-                editMinutes.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    value = value.replace(/[^0-9]/g, '');
-                    e.target.value = value;
-                });
-            }
-            
-            if (editSeconds) {
-                editSeconds.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    value = value.replace(/[^0-9]/g, '');
-                    if (parseInt(value) > 59) {
-                        value = '59';
-                    }
-                    e.target.value = value;
-                });
-            }
-            
-            if (editHundredths) {
-                editHundredths.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    value = value.replace(/[^0-9]/g, '');
-                    if (parseInt(value) > 99) {
-                        value = '99';
-                    }
-                    e.target.value = value;
-                });
-            }
-        }
-
-        // Add Enter key support for better UX
-        function addEnterKeySupport() {
-            // Enter key on rider name adds rider
-            const riderNameField = document.getElementById('riderName');
-            if (riderNameField) {
-                riderNameField.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        addRider();
-                    }
-                });
-            }
-            
-            // Enter key on time fields in edit modal
-            ['editMinutes', 'editSeconds', 'editHundredths'].forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                if (field) {
-                    field.addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter') {
-                            saveRiderTime();
-                        }
-                    });
-                }
-            });
-        }
-
-        // Save data to localStorage
-        function saveData() {
-            try {
-                localStorage.setItem('rodeoRiders', JSON.stringify(window.riders));
-                localStorage.setItem('rodeoLeaderboard', JSON.stringify(window.leaderboardData));
-                updateDebug('Data saved');
-            } catch (e) {
-                updateDebug('Save failed: ' + e.message);
-            }
-        }
-
-        // Validate time input fields
-        function validateTimeInput(inputId, maxValue, fieldName) {
-            const input = document.getElementById(inputId);
-            if (!input) return false;
-            
-            const value = input.value;
-            
-            // Check if empty (allow empty for optional fields)
-            if (value === '' || value === null) {
-                return true; // Empty is okay, will default to 0
-            }
-            
-            // Check if it's a valid number
-            const numValue = parseFloat(value);
-            
-            // Must be a natural number (positive integer, no decimals)
-            if (!Number.isInteger(numValue) || numValue < 0) {
-                alert(`${fieldName} moet een natuurlijk getal zijn (0, 1, 2, 3, ...)!`);
-                input.focus();
-                return false;
-            }
-            
-            // Check maximum value
-            if (numValue > maxValue) {
-                alert(`${fieldName} mag maximaal ${maxValue} zijn!`);
-                input.focus();
-                return false;
-            }
-            
-            return true;
-        }
-
-        // Update leaderboard display as single scrollable list
-        function updateLeaderboard() {
-            updateLeaderboardList();
-        }
-
-        // Update leaderboard list (all positions) - uses thumbnails for display, fullsize for zoom
-        function updateLeaderboardList() {
-            const container = document.getElementById('leaderboardList');
-            const section = document.getElementById('leaderboardSection');
-            if (!container || !section) return;
-            
-            if (window.leaderboardData.length === 0) {
-                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nog geen tijden toegevoegd...</p>';
-                return;
-            }
-            
-            const leaderboardContainer = document.createElement('div');
-            leaderboardContainer.className = 'remaining-leaderboard';
-            
-            window.leaderboardData.forEach((entry, index) => {
-                const position = index + 1; // Start from position 1
-                
-                const entryDiv = document.createElement('div');
-                entryDiv.className = 'remaining-entry';
-                
-                // Add special styling for top 3
-                let medalEmoji = '';
-                if (position === 1) medalEmoji = '🥇 ';
-                else if (position === 2) medalEmoji = '🥈 ';
-                else if (position === 3) medalEmoji = '🥉 ';
-                
-                // Handle both old string format and new object format
-                const thumbnailSrc = entry.photo && typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo;
-                const hasPhoto = entry.photo && (typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo);
-                
-                entryDiv.innerHTML = `
-                    <div class="remaining-position">${medalEmoji}#${position}</div>
-                    <div class="remaining-photo" onclick="openPhotoModal(${JSON.stringify(entry.photo).replace(/"/g, '&quot;')}, '${entry.name}')">
-                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${entry.name}" class="clickable-photo">` : '👤'}
-                    </div>
-                    <div class="remaining-name">${entry.name}</div>
-                    <div class="remaining-time">${entry.time}</div>
-                `;
-                
-                leaderboardContainer.appendChild(entryDiv);
-            });
-            
-            container.innerHTML = '';
-            container.appendChild(leaderboardContainer);
-        }
-
+        /* FIXED: Force body background to be visible */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -265,6 +42,8 @@
         .screen-content {
             max-width: 400px;
             width: 100%;
+            display: block !important;
+            visibility: visible !important;
         }
 
         .logo-container {
@@ -304,7 +83,8 @@
             min-height: 50px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: inline-block;
+            display: inline-block !important;
+            visibility: visible !important;
             width: auto;
         }
 
@@ -320,6 +100,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block !important;
+            visibility: visible !important;
         }
 
         .btn-green {
@@ -333,6 +115,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block !important;
+            visibility: visible !important;
         }
 
         .btn-red {
@@ -346,6 +130,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block !important;
+            visibility: visible !important;
         }
 
         .top-button {
@@ -359,7 +145,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: block;
+            display: block !important;
+            visibility: visible !important;
             margin: 0 auto 20px;
         }
 
@@ -378,16 +165,19 @@
             transform: translateY(0);
         }
 
+        /* FIXED: Force input fields to be visible */
         .input-field, select.input-field {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 15px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 16px;
-            backdrop-filter: blur(10px);
+            width: 100% !important;
+            padding: 15px !important;
+            margin: 10px 0 !important;
+            border: 2px solid rgba(255,255,255,0.3) !important;
+            border-radius: 15px !important;
+            background: rgba(255,255,255,0.1) !important;
+            color: white !important;
+            font-size: 16px !important;
+            backdrop-filter: blur(10px) !important;
+            display: block !important;
+            visibility: visible !important;
         }
 
         .input-field::placeholder {
@@ -662,25 +452,30 @@
             display: none; /* Hidden in production */
         }
 
+        /* FIXED: Force photo input section to be visible */
         .photo-input-section {
-            margin: 15px 0;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            border: 2px dashed rgba(255,255,255,0.3);
+            margin: 15px 0 !important;
+            padding: 15px !important;
+            background: rgba(255,255,255,0.05) !important;
+            border-radius: 15px !important;
+            border: 2px dashed rgba(255,255,255,0.3) !important;
+            display: block !important;
+            visibility: visible !important;
         }
 
+        /* FIXED: Force photo preview to be visible */
         .photo-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            margin: 0 auto 15px;
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 3px solid rgba(255,255,255,0.3);
+            width: 120px !important;
+            height: 120px !important;
+            border-radius: 50% !important;
+            margin: 0 auto 15px !important;
+            background: rgba(255,255,255,0.1) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+            border: 3px solid rgba(255,255,255,0.3) !important;
+            visibility: visible !important;
         }
 
         .photo-preview img {
@@ -1086,24 +881,19 @@
         window.startLeaderboardWithClear = function() {
             console.log('🧹 Starting fresh - clearing LOCAL data only...');
             
-            // Use sync client's startLeaderboard function if available (only clears local data)
-            if (typeof startLeaderboard === 'function') {
-                startLeaderboard();
-            } else {
-                // Fallback if sync client not loaded yet - clear only local data
-                try {
-                    localStorage.removeItem('rodeoRiders');
-                    localStorage.removeItem('rodeoLeaderboard');
-                    localStorage.removeItem('riders');
-                    localStorage.removeItem('leaderboard');
-                    localStorage.removeItem('currentPhoto');
-                    console.log('✅ LocalStorage cleared (fallback)');
-                } catch (error) {
-                    console.warn('⚠️ Could not clear localStorage:', error);
-                }
+            // 1. Clear local data first
+            try {
+                localStorage.removeItem('rodeoRiders');
+                localStorage.removeItem('rodeoLeaderboard');
+                localStorage.removeItem('riders');
+                localStorage.removeItem('leaderboard');
+                localStorage.removeItem('currentPhoto');
+                console.log('✅ LocalStorage cleared');
+            } catch (error) {
+                console.warn('⚠️ Could not clear localStorage:', error);
             }
             
-            // Clear global variables
+            // 2. Clear global variables
             window.riders = [];
             window.leaderboardData = [];
             window.currentPhoto = null;
@@ -1112,19 +902,41 @@
             window.duplicateName = '';
             window.selectedPhotoForDuplicate = null;
             
-            // Update UI elements
+            // 3. Update UI elements immediately
             updateRidersList();
             updateRidersForTimeEntry();
             updateLeaderboard();
             
-            // Hide next button
+            // 4. Hide next button initially
             const nextBtn = document.getElementById('nextToTimeBtn');
             if (nextBtn) nextBtn.style.display = 'none';
             
-            console.log('🚀 Starting app with fresh LOCAL data - server data preserved');
-            
-            // Navigate to main screen
+            // 5. IMPORTANT: Navigate to the correct screen immediately
             showScreen('nameEntryScreen');
+            
+            // 6. Debug check na navigatie
+            setTimeout(() => {
+                const photoSection = document.getElementById('photoPreview');
+                const nameField = document.getElementById('riderName');
+                const timesBtn = document.getElementById('nextToTimeBtn');
+                
+                console.log('🔍 Debug check na navigatie:');
+                console.log('- Photo section exists:', !!photoSection);
+                console.log('- Name field exists:', !!nameField);
+                console.log('- Times button exists:', !!timesBtn);
+                console.log('- Times button visible:', timesBtn ? timesBtn.style.display : 'not found');
+            }, 500);
+            
+            // 7. Notify sync client (if available) - this is optional
+            if (typeof startLeaderboard === 'function') {
+                try {
+                    startLeaderboard();
+                } catch (error) {
+                    console.log('ℹ️ Sync client not ready yet:', error);
+                }
+            }
+            
+            console.log('🚀 Started with fresh LOCAL data - navigated to name entry screen');
         }
 
         // FIXED: Reset server data function
@@ -1174,6 +986,7 @@
             }
 
             window.timeEditingRiderIndex = index;
+            console.log('🔧 Opening time edit modal for rider:', rider.name, 'at index:', index);
             
             // Fill modal
             const timeEditPreview = document.getElementById('timeEditPhotoPreview');
@@ -1204,30 +1017,38 @@
             window.timeEditingRiderIndex = null;
         }
 
-        // Save rider time
+        // FIXED: Verbeterde saveRiderTime functie
         window.saveRiderTime = function() {
-            if (window.timeEditingRiderIndex === null) return;
+            console.log('🔧 saveRiderTime called, timeEditingRiderIndex:', window.timeEditingRiderIndex);
+            
+            if (window.timeEditingRiderIndex === null || window.timeEditingRiderIndex === undefined) {
+                alert('Fout: Geen rijder geselecteerd voor tijdinvoer!');
+                return;
+            }
             
             const rider = window.riders[window.timeEditingRiderIndex];
-            if (!rider) return;
-            
-            // Validate all time inputs
-            if (!validateTimeInput('editMinutes', 999, 'Minuten')) return;
-            if (!validateTimeInput('editSeconds', 59, 'Seconden')) return;
-            if (!validateTimeInput('editHundredths', 99, 'Honderdsten')) return;
+            if (!rider) {
+                alert('Fout: Rijder niet gevonden!');
+                return;
+            }
             
             // Get values (default to 0 if empty)
             const minutes = document.getElementById('editMinutes').value || '0';
             const seconds = document.getElementById('editSeconds').value || '0';
             const hundredths = document.getElementById('editHundredths').value || '0';
             
-            // Additional validation: ensure they're integers
+            // Validate inputs
             const minInt = parseInt(minutes);
             const secInt = parseInt(seconds);
             const hunInt = parseInt(hundredths);
             
-            if (minInt.toString() !== minutes || secInt.toString() !== seconds || hunInt.toString() !== hundredths) {
-                alert('Alle tijdvelden moeten natuurlijke getallen zijn (geen decimalen)!');
+            if (isNaN(minInt) || isNaN(secInt) || isNaN(hunInt)) {
+                alert('Alle tijdvelden moeten geldige getallen zijn!');
+                return;
+            }
+            
+            if (minInt < 0 || secInt < 0 || secInt > 59 || hunInt < 0 || hunInt > 99) {
+                alert('Ongeldige tijd ingevoerd! Controleer de waarden.');
                 return;
             }
 
@@ -1236,7 +1057,7 @@
 
             // Update photo if changed
             const timeEditPreview = document.getElementById('timeEditPhotoPreview');
-            if (timeEditPreview.dataset.newPhoto) {
+            if (timeEditPreview && timeEditPreview.dataset.newPhoto) {
                 rider.photo = JSON.parse(timeEditPreview.dataset.newPhoto);
             }
 
@@ -1270,8 +1091,8 @@
             // Close modal
             closeTimeEditModal();
             
-            alert(`✅ Tijd toegevoegd voor ${entry.name}: ${timeString}`);
-            updateDebug('Time added for: ' + entry.name);
+            alert(`Tijd toegevoegd voor ${entry.name}: ${timeString}`);
+            console.log('✅ Time successfully added for: ' + entry.name);
         }
 
         // Generate unique ID
@@ -1494,7 +1315,20 @@
             createNewRider(name, window.currentPhoto);
         }
 
-        // Create new rider
+        // FIXED: Nieuwe functie voor "Tijden" button zichtbaarheid
+        function updateNextButtonVisibility() {
+            const nextBtn = document.getElementById('nextToTimeBtn');
+            if (nextBtn) {
+                // Toon knop als er riders zijn (ongeacht of ze een tijd hebben)
+                if (window.riders.length > 0) {
+                    nextBtn.style.display = 'inline-block';
+                } else {
+                    nextBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // FIXED: Create new rider met button zichtbaarheid
         function createNewRider(name, photo) {
             const rider = {
                 id: generateId(),
@@ -1518,11 +1352,8 @@
             updateRidersList();
             updateRidersForTimeEntry();
             
-            // Show next button if we have riders
-            const nextBtn = document.getElementById('nextToTimeBtn');
-            if (nextBtn && window.riders.length > 0) {
-                nextBtn.style.display = 'inline-block';
-            }
+            // FIXED: Update button zichtbaarheid
+            updateNextButtonVisibility();
             
             updateDebug('Rider added: ' + name + ' (total: ' + window.riders.length + ')');
         }
@@ -1679,11 +1510,14 @@
                 updateRidersForTimeEntry();
                 updateLeaderboard();
                 
+                // Update button visibility
+                updateNextButtonVisibility();
+                
                 updateDebug('Rider removed. Remaining: ' + window.riders.length);
             }
         }
 
-        // Update riders list - uses thumbnails for display, fullsize for zoom
+        // FIXED: Update riders list met correcte button zichtbaarheid
         function updateRidersList() {
             const container = document.getElementById('addedNames');
             if (!container) return;
@@ -1721,6 +1555,9 @@
             if (ridersWithoutTime.length === 0 && window.riders.length > 0) {
                 container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Alle rijders hebben al een tijd!</p>';
             }
+            
+            // FIXED: Update "Tijden" button zichtbaarheid
+            updateNextButtonVisibility();
         }
 
         // Update riders for time entry screen - uses same layout as riders list
@@ -1764,43 +1601,91 @@
             });
         }
 
+        // Validate time input fields
+        function validateTimeInput(inputId, maxValue, fieldName) {
+            const input = document.getElementById(inputId);
+            if (!input) return false;
+            
+            const value = input.value;
+            
+            // Check if empty (allow empty for optional fields)
+            if (value === '' || value === null) {
+                return true; // Empty is okay, will default to 0
+            }
+            
+            // Check if it's a valid number
+            const numValue = parseFloat(value);
+            
+            // Must be a natural number (positive integer, no decimals)
+            if (!Number.isInteger(numValue) || numValue < 0) {
+                alert(`${fieldName} moet een natuurlijk getal zijn (0, 1, 2, 3, ...)!`);
+                input.focus();
+                return false;
+            }
+            
+            // Check maximum value
+            if (numValue > maxValue) {
+                alert(`${fieldName} mag maximaal ${maxValue} zijn!`);
+                input.focus();
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Update leaderboard display as single scrollable list
+        function updateLeaderboard() {
+            updateLeaderboardList();
+        }
+
+        // Update leaderboard list (all positions) - uses thumbnails for display, fullsize for zoom
+        function updateLeaderboardList() {
+            const container = document.getElementById('leaderboardList');
+            const section = document.getElementById('leaderboardSection');
+            if (!container || !section) return;
+            
+            if (window.leaderboardData.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nog geen tijden toegevoegd...</p>';
+                return;
+            }
+            
+            const leaderboardContainer = document.createElement('div');
+            leaderboardContainer.className = 'remaining-leaderboard';
+            
+            window.leaderboardData.forEach((entry, index) => {
+                const position = index + 1; // Start from position 1
+                
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'remaining-entry';
+                
+                // Add special styling for top 3
+                let medalEmoji = '';
+                if (position === 1) medalEmoji = '🥇 ';
+                else if (position === 2) medalEmoji = '🥈 ';
+                else if (position === 3) medalEmoji = '🥉 ';
+                
+                // Handle both old string format and new object format
+                const thumbnailSrc = entry.photo && typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo;
+                const hasPhoto = entry.photo && (typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo);
+                
+                entryDiv.innerHTML = `
+                    <div class="remaining-position">${medalEmoji}#${position}</div>
+                    <div class="remaining-photo" onclick="openPhotoModal(${JSON.stringify(entry.photo).replace(/"/g, '&quot;')}, '${entry.name}')">
+                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${entry.name}" class="clickable-photo">` : '👤'}
+                    </div>
+                    <div class="remaining-name">${entry.name}</div>
+                    <div class="remaining-time">${entry.time}</div>
+                `;
+                
+                leaderboardContainer.appendChild(entryDiv);
+            });
+            
+            container.innerHTML = '';
+            container.appendChild(leaderboardContainer);
+        }
+
         // Real-time input validation as user types
         function addRealTimeValidation() {
-            // Original time inputs (if they still exist for backward compatibility)
-            const minutesField = document.getElementById('minutes');
-            const secondsField = document.getElementById('seconds');
-            const hundredthsField = document.getElementById('hundredths');
-            
-            if (minutesField) {
-                minutesField.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    value = value.replace(/[^0-9]/g, '');
-                    e.target.value = value;
-                });
-            }
-            
-            if (secondsField) {
-                secondsField.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    value = value.replace(/[^0-9]/g, '');
-                    if (parseInt(value) > 59) {
-                        value = '59';
-                    }
-                    e.target.value = value;
-                });
-            }
-            
-            if (hundredthsField) {
-                hundredthsField.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    value = value.replace(/[^0-9]/g, '');
-                    if (parseInt(value) > 99) {
-                        value = '99';
-                    }
-                    e.target.value = value;
-                });
-            }
-
             // Edit time inputs (new modal fields)
             const editMinutes = document.getElementById('editMinutes');
             const editSeconds = document.getElementById('editSeconds');
@@ -1913,12 +1798,8 @@
             addRealTimeValidation();
             addEnterKeySupport();
             
-            // Show next button if we have riders without time
-            const ridersWithoutTime = window.riders.filter(r => !r.time);
-            const nextBtn = document.getElementById('nextToTimeBtn');
-            if (nextBtn && ridersWithoutTime.length > 0) {
-                nextBtn.style.display = 'inline-block';
-            }
+            // Update button visibility
+            updateNextButtonVisibility();
             
             updateDebug('App ready! Functions loaded.');
         }
