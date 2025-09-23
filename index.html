@@ -16,6 +16,230 @@
             box-sizing: border-box;
         }
 
+        // Validate time input fields
+        function validateTimeInput(inputId, maxValue, fieldName) {
+            const input = document.getElementById(inputId);
+            if (!input) return false;
+            
+            const value = input.value;
+            
+            // Check if empty (allow empty for optional fields)
+            if (value === '' || value === null) {
+                return true; // Empty is okay, will default to 0
+            }
+            
+            // Check if it's a valid number
+            const numValue = parseFloat(value);
+            
+            // Must be a natural number (positive integer, no decimals)
+            if (!Number.isInteger(numValue) || numValue < 0) {
+                alert(`${fieldName} moet een natuurlijk getal zijn (0, 1, 2, 3, ...)!`);
+                input.focus();
+                return false;
+            }
+            
+            // Check maximum value
+            if (numValue > maxValue) {
+                alert(`${fieldName} mag maximaal ${maxValue} zijn!`);
+                input.focus();
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Real-time input validation as user types
+        function addRealTimeValidation() {
+            // Original time inputs (if they still exist for backward compatibility)
+            const minutesField = document.getElementById('minutes');
+            const secondsField = document.getElementById('seconds');
+            const hundredthsField = document.getElementById('hundredths');
+            
+            if (minutesField) {
+                minutesField.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    e.target.value = value;
+                });
+            }
+            
+            if (secondsField) {
+                secondsField.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    if (parseInt(value) > 59) {
+                        value = '59';
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            if (hundredthsField) {
+                hundredthsField.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    if (parseInt(value) > 99) {
+                        value = '99';
+                    }
+                    e.target.value = value;
+                });
+            }
+
+            // Edit time inputs (new modal fields)
+            const editMinutes = document.getElementById('editMinutes');
+            const editSeconds = document.getElementById('editSeconds');
+            const editHundredths = document.getElementById('editHundredths');
+            
+            if (editMinutes) {
+                editMinutes.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    e.target.value = value;
+                });
+            }
+            
+            if (editSeconds) {
+                editSeconds.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    if (parseInt(value) > 59) {
+                        value = '59';
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            if (editHundredths) {
+                editHundredths.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    if (parseInt(value) > 99) {
+                        value = '99';
+                    }
+                    e.target.value = value;
+                });
+            }
+        }
+
+        // Add Enter key support for better UX
+        function addEnterKeySupport() {
+            // Enter key on rider name adds rider
+            const riderNameField = document.getElementById('riderName');
+            if (riderNameField) {
+                riderNameField.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        addRider();
+                    }
+                });
+            }
+            
+            // Enter key on time fields in edit modal
+            ['editMinutes', 'editSeconds', 'editHundredths'].forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            saveRiderTime();
+                        }
+                    });
+                }
+            });
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            try {
+                localStorage.setItem('rodeoRiders', JSON.stringify(window.riders));
+                localStorage.setItem('rodeoLeaderboard', JSON.stringify(window.leaderboardData));
+                updateDebug('Data saved');
+            } catch (e) {
+                updateDebug('Save failed: ' + e.message);
+            }
+        }
+
+        // Validate time input fields
+        function validateTimeInput(inputId, maxValue, fieldName) {
+            const input = document.getElementById(inputId);
+            if (!input) return false;
+            
+            const value = input.value;
+            
+            // Check if empty (allow empty for optional fields)
+            if (value === '' || value === null) {
+                return true; // Empty is okay, will default to 0
+            }
+            
+            // Check if it's a valid number
+            const numValue = parseFloat(value);
+            
+            // Must be a natural number (positive integer, no decimals)
+            if (!Number.isInteger(numValue) || numValue < 0) {
+                alert(`${fieldName} moet een natuurlijk getal zijn (0, 1, 2, 3, ...)!`);
+                input.focus();
+                return false;
+            }
+            
+            // Check maximum value
+            if (numValue > maxValue) {
+                alert(`${fieldName} mag maximaal ${maxValue} zijn!`);
+                input.focus();
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Update leaderboard display as single scrollable list
+        function updateLeaderboard() {
+            updateLeaderboardList();
+        }
+
+        // Update leaderboard list (all positions) - uses thumbnails for display, fullsize for zoom
+        function updateLeaderboardList() {
+            const container = document.getElementById('leaderboardList');
+            const section = document.getElementById('leaderboardSection');
+            if (!container || !section) return;
+            
+            if (window.leaderboardData.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nog geen tijden toegevoegd...</p>';
+                return;
+            }
+            
+            const leaderboardContainer = document.createElement('div');
+            leaderboardContainer.className = 'remaining-leaderboard';
+            
+            window.leaderboardData.forEach((entry, index) => {
+                const position = index + 1; // Start from position 1
+                
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'remaining-entry';
+                
+                // Add special styling for top 3
+                let medalEmoji = '';
+                if (position === 1) medalEmoji = '🥇 ';
+                else if (position === 2) medalEmoji = '🥈 ';
+                else if (position === 3) medalEmoji = '🥉 ';
+                
+                // Handle both old string format and new object format
+                const thumbnailSrc = entry.photo && typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo;
+                const hasPhoto = entry.photo && (typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo);
+                
+                entryDiv.innerHTML = `
+                    <div class="remaining-position">${medalEmoji}#${position}</div>
+                    <div class="remaining-photo" onclick="openPhotoModal(${JSON.stringify(entry.photo).replace(/"/g, '&quot;')}, '${entry.name}')">
+                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${entry.name}" class="clickable-photo">` : '👤'}
+                    </div>
+                    <div class="remaining-name">${entry.name}</div>
+                    <div class="remaining-time">${entry.time}</div>
+                `;
+                
+                leaderboardContainer.appendChild(entryDiv);
+            });
+            
+            container.innerHTML = '';
+            container.appendChild(leaderboardContainer);
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -724,21 +948,14 @@
             <button class="top-button" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
             
             <h2>Voeg Tijd Toe</h2>
-            <select class="input-field" id="riderSelect">
-                <option value="">Selecteer rijder...</option>
-            </select>
-            
-            <div class="time-inputs-container">
-                <input type="number" class="time-input" id="minutes" placeholder="Min" min="0" max="999">
-                <span class="time-separator">:</span>
-                <input type="number" class="time-input" id="seconds" placeholder="Sec" min="0" max="59">
-                <span class="time-separator">:</span>
-                <input type="number" class="time-input" id="hundredths" placeholder="1/100" min="0" max="99">
-            </div>
             
             <div class="side-buttons-time">
-                <button class="btn-blue" onclick="addTime()">Opslaan</button>
                 <button class="btn-green" onclick="showScreen('nameEntryScreen')">Rijders</button>
+            </div>
+            
+            <!-- Riders Without Time List -->
+            <div class="added-names" id="ridersForTimeEntry" style="max-height: calc(100vh - 200px); flex: 1;">
+                <p style="text-align: center; opacity: 0.7;">Selecteer een rijder om een tijd toe te voegen...</p>
             </div>
         </div>
     </div>
@@ -792,6 +1009,35 @@
         </div>
     </div>
 
+    <!-- Time Edit Modal -->
+    <div class="modal" id="timeEditModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeTimeEditModal()">×</button>
+            <h3>Tijd Toevoegen</h3>
+            
+            <div class="photo-input-section">
+                <div class="photo-preview" id="timeEditPhotoPreview">
+                    📷
+                </div>
+                <input type="file" id="timeEditPhotoInput" accept="image/*" capture="environment" style="display: none;">
+                <button class="btn photo-btn" onclick="document.getElementById('timeEditPhotoInput').click()">Foto Wijzigen</button>
+            </div>
+            
+            <div class="time-inputs-container">
+                <input type="number" class="time-input" id="editMinutes" placeholder="Min" min="0" max="999">
+                <span class="time-separator">:</span>
+                <input type="number" class="time-input" id="editSeconds" placeholder="Sec" min="0" max="59">
+                <span class="time-separator">:</span>
+                <input type="number" class="time-input" id="editHundredths" placeholder="1/100" min="0" max="99">
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="saveRiderTime()">Wijzigingen Opslaan</button>
+                <button class="btn" onclick="closeTimeEditModal()" style="background: rgba(255,255,255,0.2);">Annuleren</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Duplicate Name Modal -->
     <div class="modal" id="duplicateModal">
         <div class="modal-content">
@@ -832,6 +1078,7 @@
         window.leaderboardData = [];
         window.currentPhoto = null;
         window.editingRiderIndex = null;
+        window.timeEditingRiderIndex = null;
         window.duplicateName = '';
         window.selectedPhotoForDuplicate = null;
 
@@ -861,12 +1108,13 @@
             window.leaderboardData = [];
             window.currentPhoto = null;
             window.editingRiderIndex = null;
+            window.timeEditingRiderIndex = null;
             window.duplicateName = '';
             window.selectedPhotoForDuplicate = null;
             
             // Update UI elements
             updateRidersList();
-            updateRiderDropdown();
+            updateRidersForTimeEntry();
             updateLeaderboard();
             
             // Hide next button
@@ -901,7 +1149,7 @@
                 
                 // Update displays
                 updateRidersList();
-                updateRiderDropdown();
+                updateRidersForTimeEntry();
                 updateLeaderboard();
                 
                 const nextBtn = document.getElementById('nextToTimeBtn');
@@ -910,6 +1158,120 @@
                 showScreen('homeScreen');
                 console.log('✅ All server data reset complete');
             }
+        }
+
+        // Edit rider time function
+        window.editRiderTime = function(index) {
+            const rider = window.riders[index];
+            if (!rider) {
+                alert('Rider niet gevonden!');
+                return;
+            }
+            
+            if (rider.time) {
+                alert('Deze rider heeft al een tijd!');
+                return;
+            }
+
+            window.timeEditingRiderIndex = index;
+            
+            // Fill modal
+            const timeEditPreview = document.getElementById('timeEditPhotoPreview');
+            
+            if (rider.photo) {
+                const thumbnailSrc = rider.photo && typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo;
+                timeEditPreview.innerHTML = `<img src="${thumbnailSrc}" alt="Current photo">`;
+            } else {
+                timeEditPreview.innerHTML = '📷';
+            }
+            
+            // Clear form
+            document.getElementById('editMinutes').value = '';
+            document.getElementById('editSeconds').value = '';
+            document.getElementById('editHundredths').value = '';
+            
+            // Clear new photo data
+            timeEditPreview.dataset.newPhoto = '';
+            document.getElementById('timeEditPhotoInput').value = '';
+            
+            // Show modal
+            document.getElementById('timeEditModal').classList.add('active');
+        }
+
+        // Close time edit modal
+        window.closeTimeEditModal = function() {
+            document.getElementById('timeEditModal').classList.remove('active');
+            window.timeEditingRiderIndex = null;
+        }
+
+        // Save rider time
+        window.saveRiderTime = function() {
+            if (window.timeEditingRiderIndex === null) return;
+            
+            const rider = window.riders[window.timeEditingRiderIndex];
+            if (!rider) return;
+            
+            // Validate all time inputs
+            if (!validateTimeInput('editMinutes', 999, 'Minuten')) return;
+            if (!validateTimeInput('editSeconds', 59, 'Seconden')) return;
+            if (!validateTimeInput('editHundredths', 99, 'Honderdsten')) return;
+            
+            // Get values (default to 0 if empty)
+            const minutes = document.getElementById('editMinutes').value || '0';
+            const seconds = document.getElementById('editSeconds').value || '0';
+            const hundredths = document.getElementById('editHundredths').value || '0';
+            
+            // Additional validation: ensure they're integers
+            const minInt = parseInt(minutes);
+            const secInt = parseInt(seconds);
+            const hunInt = parseInt(hundredths);
+            
+            if (minInt.toString() !== minutes || secInt.toString() !== seconds || hunInt.toString() !== hundredths) {
+                alert('Alle tijdvelden moeten natuurlijke getallen zijn (geen decimalen)!');
+                return;
+            }
+
+            const timeString = `${minInt.toString().padStart(2, '0')}:${secInt.toString().padStart(2, '0')}:${hunInt.toString().padStart(2, '0')}`;
+            const timeValue = minInt * 6000 + secInt * 100 + hunInt;
+
+            // Update photo if changed
+            const timeEditPreview = document.getElementById('timeEditPhotoPreview');
+            if (timeEditPreview.dataset.newPhoto) {
+                rider.photo = JSON.parse(timeEditPreview.dataset.newPhoto);
+            }
+
+            // Update rider
+            rider.time = timeString;
+            rider.timeValue = timeValue;
+
+            // Add to leaderboard
+            const entry = {
+                id: rider.id,
+                name: rider.name,
+                photo: rider.photo,
+                time: timeString,
+                timeValue: timeValue,
+                timestamp: new Date().toISOString()
+            };
+
+            // Remove existing entry if any
+            window.leaderboardData = window.leaderboardData.filter(e => e.id !== entry.id);
+            window.leaderboardData.push(entry);
+            
+            // Sort by time (LONGEST first - who stayed on longest)
+            window.leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
+
+            // Save and update
+            saveData();
+            updateRidersList();
+            updateRidersForTimeEntry();
+            updateLeaderboard();
+            
+            // Close modal
+            closeTimeEditModal();
+            
+            alert(`✅ Tijd toegevoegd voor ${entry.name}: ${timeString}`);
+            updateDebug('Time added for: ' + entry.name);
         }
 
         // Generate unique ID
@@ -1068,6 +1430,17 @@
                     preview.dataset.newPhoto = JSON.stringify(compressed); // Store both versions
                 }
             });
+
+            // Time edit photo input
+            document.getElementById('timeEditPhotoInput').addEventListener('change', async function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const compressed = await compressImage(e.target.files[0]);
+                    
+                    const preview = document.getElementById('timeEditPhotoPreview');
+                    preview.innerHTML = `<img src="${compressed.thumbnail}" alt="Preview">`;
+                    preview.dataset.newPhoto = JSON.stringify(compressed); // Store both versions
+                }
+            });
         });
 
         // Simple screen navigation
@@ -1084,13 +1457,10 @@
                 targetScreen.classList.add('active');
                 updateDebug('Screen active: ' + screenId);
                 
-                // Update dropdown when going to time screen
+                // Update displays when going to different screens
                 if (screenId === 'timeEntryScreen') {
-                    updateRiderDropdown();
-                }
-                
-                // Update leaderboard when viewing
-                if (screenId === 'leaderboardScreen') {
+                    updateRidersForTimeEntry();
+                } else if (screenId === 'leaderboardScreen') {
                     updateLeaderboard();
                 }
             } else {
@@ -1146,7 +1516,7 @@
             // Save and update
             saveData();
             updateRidersList();
-            updateRiderDropdown();
+            updateRidersForTimeEntry();
             
             // Show next button if we have riders
             const nextBtn = document.getElementById('nextToTimeBtn');
@@ -1276,7 +1646,7 @@
             // Save and update
             saveData();
             updateRidersList();
-            updateRiderDropdown();
+            updateRidersForTimeEntry();
             closeEditModal();
             
             updateDebug('Rider edited: ' + newName);
@@ -1306,7 +1676,7 @@
                 // Update UI
                 saveData();
                 updateRidersList();
-                updateRiderDropdown();
+                updateRidersForTimeEntry();
                 updateLeaderboard();
                 
                 updateDebug('Rider removed. Remaining: ' + window.riders.length);
@@ -1353,228 +1723,142 @@
             }
         }
 
-        // Update dropdown (without IDs)
-        function updateRiderDropdown() {
-            const select = document.getElementById('riderSelect');
-            if (!select) return;
-            
-            select.innerHTML = '<option value="">Selecteer rijder...</option>';
-            
-            // Only riders without time
-            window.riders.forEach((rider, index) => {
-                if (!rider.time) {
-                    const option = document.createElement('option');
-                    option.value = index;
-                    option.textContent = rider.name; // No ID shown
-                    select.appendChild(option);
-                }
-            });
-        }
-
-        // Validate time input fields
-        function validateTimeInput(inputId, maxValue, fieldName) {
-            const input = document.getElementById(inputId);
-            if (!input) return false;
-            
-            const value = input.value;
-            
-            // Check if empty (allow empty for optional fields)
-            if (value === '' || value === null) {
-                return true; // Empty is okay, will default to 0
-            }
-            
-            // Check if it's a valid number
-            const numValue = parseFloat(value);
-            
-            // Must be a natural number (positive integer, no decimals)
-            if (!Number.isInteger(numValue) || numValue < 0) {
-                alert(`${fieldName} moet een natuurlijk getal zijn (0, 1, 2, 3, ...)!`);
-                input.focus();
-                return false;
-            }
-            
-            // Check maximum value
-            if (numValue > maxValue) {
-                alert(`${fieldName} mag maximaal ${maxValue} zijn!`);
-                input.focus();
-                return false;
-            }
-            
-            return true;
-        }
-
-        // Add time function with enhanced validation
-        window.addTime = function() {
-            updateDebug('Adding time...');
-            
-            const riderIndex = document.getElementById('riderSelect').value;
-            
-            if (!riderIndex && riderIndex !== '0') {
-                alert('Selecteer een rijder!');
-                return;
-            }
-            
-            // Validate all time inputs
-            if (!validateTimeInput('minutes', 999, 'Minuten')) return;
-            if (!validateTimeInput('seconds', 59, 'Seconden')) return;
-            if (!validateTimeInput('hundredths', 99, 'Honderdsten')) return;
-            
-            // Get values (default to 0 if empty)
-            const minutes = document.getElementById('minutes').value || '0';
-            const seconds = document.getElementById('seconds').value || '0';
-            const hundredths = document.getElementById('hundredths').value || '0';
-            
-            // Additional validation: ensure they're integers
-            const minInt = parseInt(minutes);
-            const secInt = parseInt(seconds);
-            const hunInt = parseInt(hundredths);
-            
-            if (minInt.toString() !== minutes || secInt.toString() !== seconds || hunInt.toString() !== hundredths) {
-                alert('Alle tijdvelden moeten natuurlijke getallen zijn (geen decimalen)!');
-                return;
-            }
-
-            const timeString = `${minInt.toString().padStart(2, '0')}:${secInt.toString().padStart(2, '0')}:${hunInt.toString().padStart(2, '0')}`;
-            const timeValue = minInt * 6000 + secInt * 100 + hunInt;
-
-            // Update rider
-            window.riders[riderIndex].time = timeString;
-            window.riders[riderIndex].timeValue = timeValue;
-
-            // Add to leaderboard
-            const entry = {
-                id: window.riders[riderIndex].id,
-                name: window.riders[riderIndex].name,
-                photo: window.riders[riderIndex].photo,
-                time: timeString,
-                timeValue: timeValue,
-                timestamp: new Date().toISOString()
-            };
-
-            // Remove existing entry if any
-            window.leaderboardData = window.leaderboardData.filter(e => e.id !== entry.id);
-            window.leaderboardData.push(entry);
-            
-            // Sort by time (LONGEST first - who stayed on longest)
-            window.leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
-
-            // Save and update
-            saveData();
-            updateRidersList();
-            updateRiderDropdown();
-            
-            // Clear form
-            document.getElementById('riderSelect').value = '';
-            document.getElementById('minutes').value = '';
-            document.getElementById('seconds').value = '';
-            document.getElementById('hundredths').value = '';
-            
-            alert(`✅ Tijd toegevoegd voor ${entry.name}: ${timeString}`);
-            updateDebug('Time added for: ' + entry.name);
-        }
-
-        // Update leaderboard display as single scrollable list
-        function updateLeaderboard() {
-            updateLeaderboardList();
-        }
-
-        // Update leaderboard list (all positions) - uses thumbnails for display, fullsize for zoom
-        function updateLeaderboardList() {
-            const container = document.getElementById('leaderboardList');
-            const section = document.getElementById('leaderboardSection');
-            if (!container || !section) return;
-            
-            if (window.leaderboardData.length === 0) {
-                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nog geen tijden toegevoegd...</p>';
-                return;
-            }
-            
-            const leaderboardContainer = document.createElement('div');
-            leaderboardContainer.className = 'remaining-leaderboard';
-            
-            window.leaderboardData.forEach((entry, index) => {
-                const position = index + 1; // Start from position 1
-                
-                const entryDiv = document.createElement('div');
-                entryDiv.className = 'remaining-entry';
-                
-                // Add special styling for top 3
-                let medalEmoji = '';
-                if (position === 1) medalEmoji = '🥇 ';
-                else if (position === 2) medalEmoji = '🥈 ';
-                else if (position === 3) medalEmoji = '🥉 ';
-                
-                // Handle both old string format and new object format
-                const thumbnailSrc = entry.photo && typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo;
-                const hasPhoto = entry.photo && (typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo);
-                
-                entryDiv.innerHTML = `
-                    <div class="remaining-position">${medalEmoji}#${position}</div>
-                    <div class="remaining-photo" onclick="openPhotoModal(${JSON.stringify(entry.photo).replace(/"/g, '&quot;')}, '${entry.name}')">
-                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${entry.name}" class="clickable-photo">` : '👤'}
-                    </div>
-                    <div class="remaining-name">${entry.name}</div>
-                    <div class="remaining-time">${entry.time}</div>
-                `;
-                
-                leaderboardContainer.appendChild(entryDiv);
-            });
+        // Update riders for time entry screen - uses same layout as riders list
+        function updateRidersForTimeEntry() {
+            const container = document.getElementById('ridersForTimeEntry');
+            if (!container) return;
             
             container.innerHTML = '';
-            container.appendChild(leaderboardContainer);
+            
+            // Only show riders without time
+            const ridersWithoutTime = window.riders.filter(r => !r.time);
+            
+            if (ridersWithoutTime.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Alle rijders hebben al een tijd toegevoegd!</p>';
+                return;
+            }
+            
+            ridersWithoutTime.forEach((rider) => {
+                const fullIndex = window.riders.findIndex(r => r.id === rider.id);
+                
+                const tag = document.createElement('div');
+                tag.className = 'rider-tag';
+                
+                // Handle both old string format and new object format
+                const thumbnailSrc = rider.photo && typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo;
+                const hasPhoto = rider.photo && (typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo);
+                
+                tag.innerHTML = `
+                    <button class="edit-btn-left" onclick="editRiderTime(${fullIndex})">✏️</button>
+                    <div class="rider-photo-small" onclick="openPhotoModal(${JSON.stringify(rider.photo).replace(/"/g, '&quot;')}, '${rider.name}')">
+                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${rider.name}" class="clickable-photo">` : '👤'}
+                    </div>
+                    <div class="rider-info">
+                        <strong>${rider.name}</strong>
+                    </div>
+                    <div class="rider-actions">
+                        <button class="action-btn remove-btn" onclick="removeRider(${fullIndex})">×</button>
+                    </div>
+                `;
+                container.appendChild(tag);
+            });
         }
 
         // Real-time input validation as user types
         function addRealTimeValidation() {
-            // Minutes field - allow any natural number
-            document.getElementById('minutes').addEventListener('input', function(e) {
-                let value = e.target.value;
-                // Remove any non-digit characters
-                value = value.replace(/[^0-9]/g, '');
-                e.target.value = value;
-            });
+            // Original time inputs (if they still exist for backward compatibility)
+            const minutesField = document.getElementById('minutes');
+            const secondsField = document.getElementById('seconds');
+            const hundredthsField = document.getElementById('hundredths');
             
-            // Seconds field - max 59
-            document.getElementById('seconds').addEventListener('input', function(e) {
-                let value = e.target.value;
-                // Remove any non-digit characters
-                value = value.replace(/[^0-9]/g, '');
-                // Limit to 59
-                if (parseInt(value) > 59) {
-                    value = '59';
-                }
-                e.target.value = value;
-            });
+            if (minutesField) {
+                minutesField.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    e.target.value = value;
+                });
+            }
             
-            // Hundredths field - max 99
-            document.getElementById('hundredths').addEventListener('input', function(e) {
-                let value = e.target.value;
-                // Remove any non-digit characters
-                value = value.replace(/[^0-9]/g, '');
-                // Limit to 99
-                if (parseInt(value) > 99) {
-                    value = '99';
-                }
-                e.target.value = value;
-            });
+            if (secondsField) {
+                secondsField.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    if (parseInt(value) > 59) {
+                        value = '59';
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            if (hundredthsField) {
+                hundredthsField.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    if (parseInt(value) > 99) {
+                        value = '99';
+                    }
+                    e.target.value = value;
+                });
+            }
+
+            // Edit time inputs (new modal fields)
+            const editMinutes = document.getElementById('editMinutes');
+            const editSeconds = document.getElementById('editSeconds');
+            const editHundredths = document.getElementById('editHundredths');
+            
+            if (editMinutes) {
+                editMinutes.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    e.target.value = value;
+                });
+            }
+            
+            if (editSeconds) {
+                editSeconds.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    if (parseInt(value) > 59) {
+                        value = '59';
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            if (editHundredths) {
+                editHundredths.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    if (parseInt(value) > 99) {
+                        value = '99';
+                    }
+                    e.target.value = value;
+                });
+            }
         }
 
         // Add Enter key support for better UX
         function addEnterKeySupport() {
             // Enter key on rider name adds rider
-            document.getElementById('riderName').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    addRider();
-                }
-            });
-            
-            // Enter key on time fields adds time
-            ['minutes', 'seconds', 'hundredths'].forEach(fieldId => {
-                document.getElementById(fieldId).addEventListener('keypress', function(e) {
+            const riderNameField = document.getElementById('riderName');
+            if (riderNameField) {
+                riderNameField.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
-                        addTime();
+                        addRider();
                     }
                 });
+            }
+            
+            // Enter key on time fields in edit modal
+            ['editMinutes', 'editSeconds', 'editHundredths'].forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            saveRiderTime();
+                        }
+                    });
+                }
             });
         }
 
@@ -1622,7 +1906,7 @@
             
             loadData();
             updateRidersList();
-            updateRiderDropdown();
+            updateRidersForTimeEntry();
             updateLeaderboard();
             
             // Add the new validation features
