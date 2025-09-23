@@ -88,7 +88,7 @@
             width: auto;
         }
 
-        /* Specific button styles */
+        /* Specific button styles with consistent heights */
         .btn-blue {
             background: linear-gradient(45deg, #2196F3, #1976D2);
             color: white;
@@ -102,6 +102,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: inline-block !important;
             visibility: visible !important;
+            min-height: 48px; /* Match leaderboard buttons height */
         }
 
         .btn-green {
@@ -117,6 +118,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: inline-block !important;
             visibility: visible !important;
+            min-height: 48px; /* Match leaderboard buttons height */
         }
 
         .btn-red {
@@ -132,6 +134,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: inline-block !important;
             visibility: visible !important;
+            min-height: 48px; /* Match leaderboard buttons height */
         }
 
         .top-button {
@@ -345,6 +348,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: inline-block !important;
             visibility: visible !important;
+            min-height: 48px; /* Match leaderboard buttons height */
         }
 
         .btn-save-right {
@@ -360,6 +364,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: inline-block !important;
             visibility: visible !important;
+            min-height: 48px; /* Match leaderboard buttons height */
         }
 
         .btn-photo-left:hover, .btn-save-right:hover {
@@ -390,6 +395,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: inline-block !important;
             visibility: visible !important;
+            min-height: 48px; /* Match leaderboard buttons height */
         }
 
         .btn-bottom-right {
@@ -405,6 +411,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: inline-block !important;
             visibility: visible !important;
+            min-height: 48px; /* Match leaderboard buttons height */
         }
 
         .btn-bottom-left:hover, .btn-bottom-right:hover, .btn-time-right:hover {
@@ -425,6 +432,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: inline-block !important;
             visibility: visible !important;
+            min-height: 48px; /* Match leaderboard buttons height */
         }
 
         /* Adjust containers to make room for bottom navigation */
@@ -466,23 +474,29 @@
             width: 100%;
         }
 
+        /* FIXED: Logo positioning aligned with h2 titles */
         .leaderboard-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            margin-top: 0px; /* Align with h2 titles in other screens */
         }
 
         .leaderboard-logo {
             width: 100%;
             max-width: none;
-            max-height: 300px;
+            max-height: 180px; /* Consistent with h2 title height */
             object-fit: contain;
-            margin: 0 auto 25px;
+            margin: 0 auto 10px; /* Reduced bottom margin */
             display: block;
             border-radius: 15px;
         }
 
+        /* FIXED: Scrollist optimization */
         .remaining-riders {
-            margin-top: 30px;
+            margin-top: 0px; /* Start directly after logo */
+            margin-bottom: 80px; /* Make room for bottom navigation */
+            height: calc(100vh - 280px); /* Dynamic height based on available space */
+            overflow-y: auto;
         }
 
         .remaining-riders h3 {
@@ -493,7 +507,8 @@
         }
 
         .remaining-leaderboard {
-            max-height: 300px;
+            max-height: none; /* Remove max-height constraint */
+            height: 100%; /* Fill available container space */
             overflow-y: auto;
             background: rgba(255,255,255,0.05);
             border-radius: 15px;
@@ -731,7 +746,7 @@
         @media (max-width: 480px) {
             .leaderboard-logo {
                 max-width: 100%;
-                max-height: 180px;
+                max-height: 120px; /* Reduced for mobile to match title heights */
             }
             
             .time-input {
@@ -753,11 +768,13 @@
                 padding: 10px 20px;
                 font-size: 14px;
                 margin-bottom: 15px;
+                min-height: 40px; /* Consistent mobile button height */
             }
             
             .btn-blue, .btn-green {
                 padding: 10px 15px;
                 font-size: 14px;
+                min-height: 40px; /* Consistent mobile button height */
             }
             
             .side-buttons-name, .side-buttons-time {
@@ -809,6 +826,7 @@
             .btn-photo-left {
                 padding: 10px 12px;
                 font-size: 16px;
+                min-height: 40px; /* Consistent mobile button height */
             }
             
             /* Adjust bottom navigation for mobile */
@@ -819,6 +837,12 @@
             .btn-bottom-left, .btn-bottom-right, .btn-time-right, .btn-reset-center, .btn-leaderboard-left {
                 padding: 10px 15px;
                 font-size: 14px;
+                min-height: 40px; /* Consistent mobile button height */
+            }
+            
+            /* Adjust remaining riders height for mobile */
+            .remaining-riders {
+                height: calc(100vh - 220px); /* Adjusted for smaller logo and mobile layout */
             }
         }
     </style>
@@ -902,19 +926,19 @@
             <!-- Bottom Navigation with INLINE STYLES to force correct colors -->
             <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box;">
                 <button onclick="showScreen('timeEntryScreen')" 
-                        style="background: linear-gradient(45deg, #2196F3, #1976D2); color: white; padding: 12px 20px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"
+                        style="background: linear-gradient(45deg, #2196F3, #1976D2); color: white; padding: 12px 20px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-height: 48px;"
                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'"
                         onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
                     Tijden
                 </button>
                 <button onclick="resetAllServerData()" 
-                        style="background: linear-gradient(45deg, #f44336, #d32f2f); color: white; padding: 12px 25px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin: 0 10px;"
+                        style="background: linear-gradient(45deg, #f44336, #d32f2f); color: white; padding: 12px 25px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin: 0 10px; min-height: 48px;"
                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'"
                         onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
                     🗑️ Reset
                 </button>
                 <button onclick="showScreen('nameEntryScreen')" 
-                        style="background: linear-gradient(45deg, #4CAF50, #45a049); color: white; padding: 12px 20px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"
+                        style="background: linear-gradient(45deg, #4CAF50, #45a049); color: white; padding: 12px 20px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-height: 48px;"
                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'"
                         onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
                     Rijders
