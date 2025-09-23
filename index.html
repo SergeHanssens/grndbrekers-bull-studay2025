@@ -871,9 +871,6 @@
     <!-- Leaderboard Screen -->
     <div class="screen" id="leaderboardScreen">
         <div class="screen-content">
-            <!-- FIXED: Now uses resetServerData for server data reset -->
-            <button class="btn-red" onclick="resetAllServerData()">🗑️ Reset</button>
-            
             <!-- Logo Header -->
             <div class="leaderboard-header">
                 <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo-transparant-V5.png" 
@@ -881,15 +878,16 @@
                      onerror="this.outerHTML='<h2 style=color:white;>🛠️ GRNDbrekers Bull Riding</h2>';">
             </div>
             
-            <!-- Navigation buttons above list -->
-            <div class="leaderboard-nav-buttons">
-                <button class="btn-green" onclick="showScreen('timeEntryScreen')">Tijd</button>
-                <button class="btn-green" onclick="showScreen('nameEntryScreen')">Rijders</button>
-            </div>
-            
             <!-- Leaderboard List -->
             <div class="remaining-riders" id="leaderboardSection">
                 <div id="leaderboardList"></div>
+            </div>
+            
+            <!-- Bottom Navigation -->
+            <div class="bottom-navigation">
+                <button class="btn-bottom-left" onclick="showScreen('timeEntryScreen')">Tijd</button>
+                <button class="btn-reset-center" onclick="resetAllServerData()">🗑️ Reset</button>
+                <button class="btn-time-right" onclick="showScreen('nameEntryScreen')">Rijders</button>
             </div>
         </div>
     </div>
@@ -989,8 +987,118 @@
         window.timeEditingRiderIndex = null;
         window.duplicateName = '';
         window.selectedPhotoForDuplicate = null;
+        
+        // Keyboard navigation variables
+        window.selectedRiderIndex = 0;
+        window.keyboardNavigationActive = false;
 
-        // FIXED: Auto-clear localStorage function for fresh start (LOCAL ONLY)
+        // Keyboard Navigation Functions
+        function initKeyboardNavigation() {
+            document.addEventListener('keydown', function(e) {
+                const activeScreen = document.querySelector('.screen.active');
+                if (!activeScreen) return;
+                
+                const screenId = activeScreen.id;
+                
+                // Only handle navigation in rider list screens
+                if (screenId !== 'nameEntryScreen' && screenId !== 'timeEntryScreen') {
+                    return;
+                }
+                
+                let riderElements;
+                if (screenId === 'nameEntryScreen') {
+                    riderElements = document.querySelectorAll('#addedNames .rider-tag');
+                } else if (screenId === 'timeEntryScreen') {
+                    riderElements = document.querySelectorAll('#ridersForTimeEntry .rider-tag');
+                }
+                
+                if (!riderElements || riderElements.length === 0) return;
+                
+                // Enable navigation on first arrow key press
+                if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && !window.keyboardNavigationActive) {
+                    window.keyboardNavigationActive = true;
+                    window.selectedRiderIndex = 0;
+                    updateRiderSelection(riderElements);
+                    e.preventDefault();
+                    return;
+                }
+                
+                if (!window.keyboardNavigationActive) return;
+                
+                switch(e.key) {
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if (window.selectedRiderIndex > 0) {
+                            window.selectedRiderIndex--;
+                            updateRiderSelection(riderElements);
+                            scrollToSelectedRider(riderElements);
+                        }
+                        break;
+                        
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (window.selectedRiderIndex < riderElements.length - 1) {
+                            window.selectedRiderIndex++;
+                            updateRiderSelection(riderElements);
+                            scrollToSelectedRider(riderElements);
+                        }
+                        break;
+                        
+                    case 'Enter':
+                        e.preventDefault();
+                        if (riderElements[window.selectedRiderIndex]) {
+                            const riderTag = riderElements[window.selectedRiderIndex];
+                            const editButton = riderTag.querySelector('.edit-btn-left');
+                            if (editButton) {
+                                editButton.click();
+                            }
+                        }
+                        break;
+                        
+                    case 'Escape':
+                        window.keyboardNavigationActive = false;
+                        clearRiderSelection();
+                        break;
+                }
+            });
+        }
+        
+        function updateRiderSelection(riderElements) {
+            // Clear all selections
+            riderElements.forEach(element => element.classList.remove('selected'));
+            
+            // Highlight current selection
+            if (riderElements[window.selectedRiderIndex]) {
+                riderElements[window.selectedRiderIndex].classList.add('selected');
+            }
+        }
+        
+        function scrollToSelectedRider(riderElements) {
+            if (riderElements[window.selectedRiderIndex]) {
+                const element = riderElements[window.selectedRiderIndex];
+                const container = element.closest('.added-names');
+                if (container) {
+                    const containerRect = container.getBoundingClientRect();
+                    const elementRect = element.getBoundingClientRect();
+                    
+                    if (elementRect.top < containerRect.top || elementRect.bottom > containerRect.bottom) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+        }
+        
+        function clearRiderSelection() {
+            document.querySelectorAll('.rider-tag.selected').forEach(element => {
+                element.classList.remove('selected');
+            });
+        }
+        
+        function resetKeyboardNavigation() {
+            window.keyboardNavigationActive = false;
+            window.selectedRiderIndex = 0;
+            clearRiderSelection();
+        }
         window.startLeaderboardWithClear = function() {
             console.log('🧹 Starting fresh - clearing LOCAL data only...');
             
@@ -1130,7 +1238,7 @@
             window.timeEditingRiderIndex = null;
         }
 
-        // FIXED: Verbeterde saveRiderTime functie
+        // FIXED: Verbeterde saveRiderTime functie met bevestiging voor lege tijd
         window.saveRiderTime = function() {
             console.log('🔧 saveRiderTime called, timeEditingRiderIndex:', window.timeEditingRiderIndex);
             
@@ -1150,7 +1258,47 @@
             const seconds = document.getElementById('editSeconds').value || '0';
             const hundredths = document.getElementById('editHundredths').value || '0';
             
-            // Validate inputs
+            // Check if all time fields are empty/zero
+            const isEmpty = (minutes === '0' || minutes === '') && 
+                           (seconds === '0' || seconds === '') && 
+                           (hundredths === '0' || hundredths === '');
+            
+            if (isEmpty) {
+                // Show confirmation dialog for empty time
+                const confirmed = confirm(
+                    `Er is geen tijd ingevuld voor ${rider.name}.\n\n` +
+                    `Wilt u de wijzigingen opslaan zonder tijd?\n\n` +
+                    `- JA: Opslaan zonder tijd (rijder blijft in lijst)\n` +
+                    `- ANNULEREN: Terug naar invoer om tijd in te vullen`
+                );
+                
+                if (!confirmed) {
+                    // User cancelled, stay in modal to add time
+                    return;
+                }
+                
+                // User confirmed saving without time
+                // Update photo if changed
+                const timeEditPreview = document.getElementById('timeEditPhotoPreview');
+                if (timeEditPreview && timeEditPreview.dataset.newPhoto) {
+                    rider.photo = JSON.parse(timeEditPreview.dataset.newPhoto);
+                }
+                
+                // Save and update without adding to leaderboard
+                saveData();
+                updateRidersList();
+                updateRidersForTimeEntry();
+                updateLeaderboard();
+                
+                // Close modal
+                closeTimeEditModal();
+                
+                alert(`Wijzigingen opgeslagen voor ${rider.name} zonder tijd.`);
+                console.log('✅ Rider updated without time: ' + rider.name);
+                return;
+            }
+            
+            // Validate inputs if not empty
             const minInt = parseInt(minutes);
             const secInt = parseInt(seconds);
             const hunInt = parseInt(hundredths);
@@ -1192,8 +1340,13 @@
             window.leaderboardData = window.leaderboardData.filter(e => e.id !== entry.id);
             window.leaderboardData.push(entry);
             
-            // Sort by time (LONGEST first - who stayed on longest)
-            window.leaderboardData.sort((a, b) => b.timeValue - a.timeValue);
+            // Sort by time (LONGEST first) and by timestamp for ties
+            window.leaderboardData.sort((a, b) => {
+                if (b.timeValue !== a.timeValue) {
+                    return b.timeValue - a.timeValue; // Longest time first
+                }
+                return new Date(a.timestamp) - new Date(b.timestamp); // Earliest timestamp first for ties
+            });
 
             // Save and update
             saveData();
@@ -1385,9 +1538,12 @@
             });
         });
 
-        // Simple screen navigation
+        // Simple screen navigation with keyboard reset
         window.showScreen = function(screenId) {
             updateDebug('Switching to: ' + screenId);
+            
+            // Reset keyboard navigation when switching screens
+            resetKeyboardNavigation();
             
             // Hide all screens
             const screens = document.querySelectorAll('.screen');
@@ -1766,7 +1922,7 @@
             updateLeaderboardList();
         }
 
-        // Update leaderboard list (all positions) - uses thumbnails for display, fullsize for zoom
+        // Update leaderboard list with improved ranking logic for ties
         function updateLeaderboardList() {
             const container = document.getElementById('leaderboardList');
             const section = document.getElementById('leaderboardSection');
@@ -1780,13 +1936,26 @@
             const leaderboardContainer = document.createElement('div');
             leaderboardContainer.className = 'remaining-leaderboard';
             
+            // Calculate rankings with ties
+            let currentPosition = 1;
+            let previousTimeValue = null;
+            let ridersAtSamePosition = 0;
+            
             window.leaderboardData.forEach((entry, index) => {
-                const position = index + 1; // Start from position 1
+                // Check if this is a different time than the previous entry
+                if (previousTimeValue !== null && entry.timeValue !== previousTimeValue) {
+                    currentPosition += ridersAtSamePosition;
+                    ridersAtSamePosition = 0;
+                }
+                
+                ridersAtSamePosition++;
+                const position = currentPosition;
+                previousTimeValue = entry.timeValue;
                 
                 const entryDiv = document.createElement('div');
                 entryDiv.className = 'remaining-entry';
                 
-                // Add special styling for top 3
+                // Medal logic for top 3 positions (including ties)
                 let medalEmoji = '';
                 if (position === 1) medalEmoji = '🥇 ';
                 else if (position === 2) medalEmoji = '🥈 ';
@@ -1926,10 +2095,13 @@
             addRealTimeValidation();
             addEnterKeySupport();
             
+            // Initialize keyboard navigation
+            initKeyboardNavigation();
+            
             // Update button visibility
             updateNextButtonVisibility();
             
-            updateDebug('App ready! Functions loaded.');
+            updateDebug('App ready! Functions loaded with keyboard navigation.');
         }
 
         // Start app when page loads
