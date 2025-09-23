@@ -323,13 +323,92 @@
             margin: 0 2px;
         }
 
-        /* Side buttons layout for name entry screen */
-        .side-buttons-name {
+        /* New layout styles for Name Entry Screen */
+        .input-buttons-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 20px 0;
+            margin: 15px 0 20px 0;
             width: 100%;
+        }
+
+        .btn-photo-left {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block !important;
+            visibility: visible !important;
+        }
+
+        .btn-save-right {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block !important;
+            visibility: visible !important;
+        }
+
+        .btn-photo-left:hover, .btn-save-right:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .bottom-navigation {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-bottom-left, .btn-bottom-right {
+            background: linear-gradient(45deg, #FFD700, #FFA000);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block !important;
+            visibility: visible !important;
+        }
+
+        .btn-bottom-left:hover, .btn-bottom-right:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Adjust added-names container to make room for bottom navigation */
+        #nameEntryScreen .added-names {
+            max-height: calc(100vh - 280px);
+            overflow-y: auto;
+            margin: 20px 0 80px 0; /* Extra bottom margin for navigation */
+            padding-bottom: 20px;
+        }
+
+        /* Ensure screen content has relative positioning for absolute bottom nav */
+        #nameEntryScreen .screen-content {
+            position: relative;
+            min-height: calc(100vh - 40px);
         }
 
         /* Side buttons layout for time entry screen */
@@ -712,28 +791,25 @@
 
     <!-- Name Entry Screen -->
     <div class="screen" id="nameEntryScreen">
-        <div class="screen-content">
-            <button class="top-button" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
-            
+        <div class="screen-content">            
             <h2>Voeg Rijders Toe</h2>
             
-            <!-- Photo Section -->
-            <div class="photo-input-section">
-                <div class="photo-preview" id="photoPreview">
-                    📷
-                </div>
+            <!-- Input and Button Section -->
+            <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder">
+            
+            <div class="input-buttons-row">
                 <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;">
-                <button class="btn photo-btn" onclick="document.getElementById('photoInput').click()">Foto Maken (Optioneel)</button>
-            </div>
-            
-            <input type="text" class="input-field" id="riderName" placeholder="Naam van rijder" style="margin-top: 0;">
-            
-            <div class="side-buttons-name">
-                <button class="btn-blue" onclick="addRider()">Opslaan</button>
-                <button class="btn-green" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Tijden</button>
+                <button class="btn-photo-left" onclick="document.getElementById('photoInput').click()">📷</button>
+                <button class="btn-save-right" onclick="addRider()">Opslaan</button>
             </div>
             
             <div class="added-names" id="addedNames"></div>
+            
+            <!-- Bottom Navigation -->
+            <div class="bottom-navigation">
+                <button class="btn-bottom-left" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
+                <button class="btn-bottom-right" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Tijden</button>
+            </div>
         </div>
     </div>
 
@@ -1230,14 +1306,22 @@
 
         // Handle photo selection
         document.addEventListener('DOMContentLoaded', function() {
-            // Main photo input
+            // Main photo input - simplified without preview
             document.getElementById('photoInput').addEventListener('change', async function(e) {
                 if (e.target.files && e.target.files[0]) {
                     const compressed = await compressImage(e.target.files[0]);
                     window.currentPhoto = compressed; // Now contains {thumbnail, fullsize}
                     
-                    const preview = document.getElementById('photoPreview');
-                    preview.innerHTML = `<img src="${compressed.thumbnail}" alt="Preview">`;
+                    // Visual feedback via button color change
+                    const photoBtn = document.querySelector('.btn-photo-left');
+                    if (photoBtn) {
+                        photoBtn.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+                        photoBtn.textContent = '✓';
+                        setTimeout(() => {
+                            photoBtn.style.background = 'linear-gradient(45deg, #2196F3, #1976D2)';
+                            photoBtn.textContent = '📷';
+                        }, 1500);
+                    }
                 }
             });
 
@@ -1344,7 +1428,14 @@
             // Clear inputs
             document.getElementById('riderName').value = '';
             window.currentPhoto = null;
-            document.getElementById('photoPreview').innerHTML = '📷';
+            
+            // Reset photo button visual state
+            const photoBtn = document.querySelector('.btn-photo-left');
+            if (photoBtn) {
+                photoBtn.style.background = 'linear-gradient(45deg, #2196F3, #1976D2)';
+                photoBtn.textContent = '📷';
+            }
+            
             document.getElementById('photoInput').value = '';
             
             // Save and update
