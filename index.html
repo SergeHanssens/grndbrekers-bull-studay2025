@@ -913,6 +913,8 @@
   background: rgba(0,0,0,0.8); /* iets donkerder zodat hij zichtbaar blijft bij scrollen */
   backdrop-filter: blur(6px);
   z-index: 1000;
+
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
 }
 
 		.screen {
@@ -942,39 +944,8 @@
   background: rgba(0,0,0,0.8); /* iets donkerder zodat hij zichtbaar blijft bij scrollen */
   backdrop-filter: blur(6px);
   z-index: 1000;
-}
 
-    
-/* Flexbox layout voor consistente footer */
-.screen {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.screen-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  padding-bottom: 80px; /* ruimte voor footer */
-}
-
-
-/* Sticky footer variant */
-.screen-footer {
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin-top: auto;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(0,0,0,0.8); /* iets donkerder zodat hij zichtbaar blijft bij scrollen */
-  backdrop-filter: blur(6px);
-  z-index: 1000;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
 }
 
 
@@ -985,7 +956,9 @@
     flex-direction: column;
     gap: 10px;
     padding: 10px;
-  }
+  
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
 
   .screen-footer button {
     width: 100%;
@@ -1009,7 +982,9 @@
     flex-direction: row;
     gap: 20px;
     padding: 15px 30px;
-  }
+  
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
 
   .screen-footer button {
     width: auto;
@@ -1023,7 +998,9 @@
   .screen-footer {
     max-width: 1200px;
     margin: 0 auto;
-  }
+  
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
 }
 
 </style>
@@ -2353,5 +2330,29 @@
 
         updateDebug('Script loaded');
     </script>
+
+<script>
+  function switchToScreen(screenId) {
+    const allScreens = document.querySelectorAll('.screen');
+    allScreens.forEach(screen => screen.classList.remove('active'));
+
+    const target = document.getElementById(screenId);
+    if (target) {
+      target.classList.add('active');
+    } else {
+      console.warn("⚠️ Screen not found:", screenId);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const startButton = document.getElementById("startLeaderboardButton");
+    if (startButton) {
+      startButton.addEventListener("click", function () {
+        switchToScreen("nameEntryScreen");
+      });
+    }
+  });
+</script>
+
 </body>
 </html>
