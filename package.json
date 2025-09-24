@@ -1,0 +1,46 @@
+{
+  "name": "grndbrekers-bull-riding-studay2025",
+  "version": "2.0.0",
+  "description": "GRNDbrekers Bull Riding Leaderboard voor StuDAY 2025 - Multi-device setup",
+  "main": "sync-server.js",
+  "scripts": {
+    "prestart": "node -e \"console.log('\\n🛡️  BELANGRIJK: Controleer eerst firewall setup!\\n'); console.log('Als je problemen hebt met GSM verbinding:\\n'); console.log('1. Open PowerShell als Administrator\\n2. Run: .\\\\firewall-setup.ps1\\n3. Dan: npm start\\n'); console.log('Of run: npm run setup-complete voor volledige setup\\n');\"",
+    "start": "node sync-server.js",
+    "start:new": "node sync-server.js new",
+    "start:studay": "node sync-server.js studay2025.json",
+    "start:test": "node sync-server.js test-data.json",
+    "doctor": "node scripts/doctor.js",
+    "setup-complete": "powershell -ExecutionPolicy Bypass .\\firewall-setup.ps1 && npm start",
+    "setup-firewall": "powershell -ExecutionPolicy Bypass .\\firewall-setup.ps1",
+    "test-server": "node -e \"const http = require('http'); http.get('http://localhost:3000/health', (res) => { console.log('✅ Server responding'); }).on('error', () => { console.log('❌ Server not responding'); });\"",
+    "test-clients": "node -e \"const http = require('http'); http.get('http://localhost:3000/clients', (res) => { let data = ''; res.on('data', chunk => data += chunk); res.on('end', () => console.log('Connected clients:', JSON.parse(data).length)); }).on('error', () => console.log('❌ Cannot get client info'));\"",
+    "ip-info": "node -e \"const os = require('os'); const interfaces = os.networkInterfaces(); Object.keys(interfaces).forEach(name => { interfaces[name].forEach(iface => { if (iface.family === 'IPv4' && !iface.internal) { const isHotspot = iface.address.startsWith('192.168.137') || iface.address.startsWith('192.168.43'); console.log((isHotspot ? '🔥 HOTSPOT: ' : '📍 ') + name + ': http://' + iface.address + ':3000'); } }); });\"",
+    "studay-ready": "npm run doctor && npm run setup-firewall"
+  },
+  "keywords": [
+    "bull-riding",
+    "leaderboard",
+    "PWA",
+    "socket.io",
+    "multi-device",
+    "real-time",
+    "grndbrekers",
+    "studay2025"
+  ],
+  "author": "Serge Hanssens - GRNDbrekers",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SergeHanssens/grndbrekers-bull-studay2025.git"
+  }
+}
