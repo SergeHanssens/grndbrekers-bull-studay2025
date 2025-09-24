@@ -377,15 +377,7 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
-        .bottom-navigation {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        
 
         .btn-bottom-left {
             background: linear-gradient(45deg, #FFD700, #FFA000);
@@ -848,10 +840,7 @@
             }
             
             /* Bottom navigation much smaller on mobile */
-            .bottom-navigation {
-                padding: 0 10px;
-                bottom: 10px; /* Closer to bottom */
-            }
+            
             
             .btn-bottom-left, .btn-bottom-right, .btn-time-right {
                 padding: 8px 12px;
@@ -861,15 +850,9 @@
             }
             
             /* Mobile scrollist heights - much more conservative */
-            #nameEntryScreen .added-names {
-                max-height: calc(100vh - 320px);
-                margin-bottom: 60px;
-            }
+            #nameEntryScreen 
             
-            #timeEntryScreen .added-names {
-                max-height: calc(100vh - 280px);
-                margin-bottom: 60px;
-            }
+            #timeEntryScreen 
             
             /* Leaderboard mobile optimization */
             .remaining-riders {
@@ -903,7 +886,147 @@
                 padding: 0 10px !important;
             }
         }
-    </style>
+		.screen {
+			display: flex;
+			flex-direction: column;
+			min-height: 100vh;
+		}
+
+		.screen-content {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+		}
+
+		
+/* Sticky footer variant */
+.screen-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin-top: auto;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,0,0.8); /* iets donkerder zodat hij zichtbaar blijft bij scrollen */
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+}
+
+		.screen {
+			display: flex;
+			flex-direction: column;
+			min-height: 100vh;
+		}
+
+		.screen-content {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+		}
+
+		
+/* Sticky footer variant */
+.screen-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin-top: auto;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,0,0.8); /* iets donkerder zodat hij zichtbaar blijft bij scrollen */
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+}
+
+    
+/* Flexbox layout voor consistente footer */
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.screen-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-bottom: 80px; /* ruimte voor footer */
+}
+
+
+/* Sticky footer variant */
+.screen-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin-top: auto;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,0,0.8); /* iets donkerder zodat hij zichtbaar blijft bij scrollen */
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+}
+
+
+
+/* Mobielvriendelijke optimalisaties */
+@media (max-width: 768px) {
+  .screen-footer {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .screen-footer button {
+    width: 100%;
+    font-size: 18px;
+    padding: 14px;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .screen-footer button {
+    font-size: 16px;
+    padding: 12px;
+  }
+}
+
+
+/* Tablet & Desktop optimalisaties */
+@media (min-width: 769px) {
+  .screen-footer {
+    flex-direction: row;
+    gap: 20px;
+    padding: 15px 30px;
+  }
+
+  .screen-footer button {
+    width: auto;
+    min-width: 140px;
+    font-size: 16px;
+    padding: 12px 20px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .screen-footer {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+</style>
 </head>
     
 <body>
@@ -941,10 +1064,10 @@
             <div class="added-names" id="addedNames"></div>
             
             <!-- Bottom Navigation -->
-            <div class="bottom-navigation">
-                <button class="btn-bottom-left" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
-                <button class="btn-bottom-right" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Tijden</button>
-            </div>
+            <div class="screen-footer">
+				<button class="btn-bottom-left" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
+				<button class="btn-bottom-right" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Tijden</button>
+			</div>
         </div>
     </div>
 
@@ -959,10 +1082,10 @@
             </div>
             
             <!-- Bottom Navigation -->
-            <div class="bottom-navigation">
-                <button class="btn-bottom-left" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
-                <button class="btn-time-right" onclick="showScreen('nameEntryScreen')">Rijders</button>
-            </div>
+            <div class="screen-footer">
+				<button class="btn-bottom-left" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
+				<button class="btn-time-right" onclick="showScreen('nameEntryScreen')">Rijders</button>
+			</div>
         </div>
     </div>
 
@@ -982,29 +1105,11 @@
             </div>
             
             <!-- Bottom Navigation with INLINE STYLES to force correct colors -->
-            <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box;">
-                <button onclick="showScreen('timeEntryScreen')" 
-                        style="background: linear-gradient(45deg, #2196F3, #1976D2); color: white; padding: 14px 20px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); height: 48px; box-sizing: border-box;"
-                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'"
-                        onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'"
-                        class="leaderboard-btn">
-                    Tijden
-                </button>
-                <button onclick="resetAllServerData()" 
-                        style="background: linear-gradient(45deg, #f44336, #d32f2f); color: white; padding: 14px 25px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin: 0 10px; height: 48px; box-sizing: border-box;"
-                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'"
-                        onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'"
-                        class="leaderboard-btn">
-                    🗑️ Reset
-                </button>
-                <button onclick="showScreen('nameEntryScreen')" 
-                        style="background: linear-gradient(45deg, #4CAF50, #45a049); color: white; padding: 14px 20px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); height: 48px; box-sizing: border-box;"
-                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'"
-                        onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'"
-                        class="leaderboard-btn">
-                    Rijders
-                </button>
-            </div>
+            <div class="screen-footer">
+				<button class="btn-bottom-right" onclick="showScreen('timeEntryScreen')">Tijden</button>
+				<button class="btn-red" onclick="resetAllServerData()">🗑️ Reset</button>
+				<button class="btn-green" onclick="showScreen('nameEntryScreen')">Rijders</button>
+			</div>
         </div>
     </div>
 
@@ -1216,17 +1321,27 @@
             clearRiderSelection();
         }
         window.startLeaderboardWithClear = function() {
-            console.log('🧹 Starting fresh - clearing LOCAL data only...');
-            
-            // 1. Clear local data first
-            try {
-                localStorage.removeItem('rodeoRiders');
-                localStorage.removeItem('rodeoLeaderboard');
-                localStorage.removeItem('riders');
-                localStorage.removeItem('leaderboard');
-                localStorage.removeItem('currentPhoto');
-                console.log('✅ LocalStorage cleared');
-            } catch (error) {
+    console.log('🧹 Starting fresh - clearing LOCAL data only...');
+
+    // 1. Clear local data
+    localStorage.clear();
+    window.riders = [];
+    window.leaderboardData = [];
+
+    // 2. Schakel over naar het scherm "Voeg Rijders Toe"
+    showScreen('nameEntryScreen');
+
+    // 3. Vraag server status opnieuw op via sync-client.js
+    if (typeof window.startLeaderboard === 'function') {
+        try {
+            window.startLeaderboard();
+        } catch (error) {
+            console.error('❌ Fout bij starten leaderboard via sync-client:', error);
+        }
+    } else {
+        console.warn('⚠️ startLeaderboard() niet gevonden in sync-client.js');
+    }
+} catch (error) {
                 console.warn('⚠️ Could not clear localStorage:', error);
             }
             
