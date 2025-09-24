@@ -26,24 +26,26 @@
             color: white;
         }
 
-        .screen {
-            display: none;
-            flex: 1;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .screen.active {
-            display: flex;
-        }
-
         .screen-content {
             max-width: 400px;
             width: 100%;
             display: block !important;
             visibility: visible !important;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .screen.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
         }
 
         .logo-container {
@@ -223,6 +225,7 @@
             border: 1px solid #4CAF50;
             font-size: 14px;
             position: relative;
+            min-height: 60px;
         }
 
         .edit-btn-left {
@@ -270,6 +273,10 @@
         .rider-info {
             flex: 1;
             text-align: left;
+            word-wrap: break-word;
+            word-break: break-word;
+            hyphens: auto;
+            line-height: 1.3;
         }
 
         .rider-actions {
@@ -437,16 +444,16 @@
 
         /* Adjust containers to make room for bottom navigation */
         #nameEntryScreen .added-names {
-            max-height: calc(100vh - 280px);
+            max-height: calc(100vh - 350px);
             overflow-y: auto;
-            margin: 20px 0 80px 0; /* Extra bottom margin for navigation */
+            margin: 20px 0 20px 0;
             padding-bottom: 20px;
         }
 
         #timeEntryScreen .added-names {
-            max-height: calc(100vh - 200px);
+            max-height: calc(100vh - 300px);
             overflow-y: auto;
-            margin: 20px 0 80px 0; /* Extra bottom margin for navigation */
+            margin: 20px 0 20px 0;
             padding-bottom: 20px;
         }
 
@@ -491,11 +498,21 @@
             border-radius: 15px;
         }
 
+        /* TOP 10 indicator */
+        .top10-indicator {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
         /* FIXED: Scrollist optimization with proper positioning */
         .remaining-riders {
-            margin-top: 0px; /* Start directly after logo */
-            margin-bottom: 20px; /* Space before buttons */
-            height: calc(100vh - 420px); /* Adjusted for larger logo and button space */
+            margin-top: 0px;
+            margin-bottom: 0px;
+            height: calc(100vh - 340px); /* Adjusted for layout without top 10 indicator */
             overflow-y: auto;
         }
 
@@ -525,6 +542,7 @@
             gap: 10px;
             align-items: center;
             backdrop-filter: blur(10px);
+            min-height: 60px;
         }
 
         .remaining-position {
@@ -560,6 +578,10 @@
         .remaining-name {
             font-weight: bold;
             font-size: 14px;
+            word-wrap: break-word;
+            word-break: break-word;
+            hyphens: auto;
+            line-height: 1.3;
         }
 
         .remaining-time {
@@ -743,10 +765,99 @@
             transform: scale(1.1);
         }
 
+        /* Sticky footer - for Name and Time entry screens */
+        .screen-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+        }
+
+        .screen {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 80px; /* Space for fixed footer */
+        }
+
+        .screen-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hide all footers by default */
+        .screen-footer, .leaderboard-footer {
+            display: none !important;
+        }
+        
+        /* Only show footer when parent screen is active */
+        .screen.active .screen-footer,
+        .screen.active .leaderboard-footer {
+            display: flex !important;
+        }
+        .leaderboard-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .leaderboard-footer button {
+            padding: 10px 20px !important;
+            font-size: 14px !important;
+            height: 40px !important;
+            width: auto !important;
+            flex: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .screen-footer {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .screen-footer button {
+                width: 100%;
+                font-size: 18px;
+                padding: 14px;
+                border-radius: 10px;
+            }
+        }
+
         @media (max-width: 480px) {
+            .screen-footer button {
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            .leaderboard-footer button {
+                font-size: 12px !important;
+                padding: 8px 12px !important;
+                height: 32px !important;
+            }
+
             .leaderboard-logo {
                 max-width: 100%;
-                max-height: 140px; /* Smaller on mobile */
+                max-height: 140px;
             }
             
             .time-input {
@@ -764,29 +875,13 @@
                 padding: 10px;
             }
             
-            .top-button, .btn-red {
-                padding: 10px 20px;
-                font-size: 14px;
-                margin-bottom: 15px;
-                height: 36px;
-                box-sizing: border-box;
-            }
-            
-            .btn-blue, .btn-green {
+            .btn-blue, .btn-green, .btn-red {
                 padding: 10px 15px;
                 font-size: 14px;
                 height: 36px;
                 box-sizing: border-box;
             }
-            
-            .side-buttons-name, .side-buttons-time {
-                margin: 15px 0;
-            }
 
-            .leaderboard-nav-buttons {
-                margin-bottom: 10px;
-            }
-            
             .remaining-entry {
                 grid-template-columns: 50px 40px 1fr 70px;
                 gap: 8px;
@@ -820,11 +915,6 @@
                 height: 80px;
             }
 
-            .photo-input-section {
-                padding: 10px;
-            }
-            
-            /* Mobile button heights much smaller */
             .btn-photo-left {
                 padding: 8px 12px;
                 font-size: 16px;
@@ -839,9 +929,6 @@
                 font-size: 14px;
             }
             
-            /* Bottom navigation much smaller on mobile */
-            
-            
             .btn-bottom-left, .btn-bottom-right, .btn-time-right {
                 padding: 8px 12px;
                 font-size: 12px;
@@ -849,161 +936,81 @@
                 box-sizing: border-box;
             }
             
-            /* Mobile scrollist heights - much more conservative */
-            #nameEntryScreen 
-            
-            #timeEntryScreen 
-            
-            /* Leaderboard mobile optimization */
-            .remaining-riders {
-                height: calc(100vh - 240px); /* Much shorter for mobile */
-                margin-bottom: 10px;
+            #nameEntryScreen .added-names {
+                max-height: calc(100vh - 280px);
             }
             
-            /* H2 titles smaller on mobile */
+            #timeEntryScreen .added-names {
+                max-height: calc(100vh - 250px);
+            }
+            
+            .remaining-riders {
+                height: calc(100vh - 280px);
+            }
+            
             h2 {
                 font-size: 20px;
                 margin-bottom: 15px;
             }
             
-            /* Input field smaller on mobile */
             .input-field {
                 padding: 12px !important;
                 font-size: 14px !important;
             }
-            
-            /* Mobile specific overrides for leaderboard buttons */
-            .leaderboard-btn {
-                padding: 8px 12px !important;
-                font-size: 12px !important;
-                height: 32px !important;
-                margin: 0 5px !important;
+        }
+
+        @media (min-width: 769px) {
+            .screen-footer {
+                gap: 20px;
+                padding: 15px 30px;
+            }
+
+            .screen-footer button {
+                width: auto;
+                min-width: 120px;
+                max-width: 200px;
+                font-size: 16px;
+                padding: 14px 25px;
+                height: 48px;
             }
             
-            /* Bottom navigation container for leaderboard */
-            #leaderboardScreen .screen-content > div[style*="position: absolute"] {
-                bottom: 10px !important;
-                padding: 0 10px !important;
+            .btn-bottom-left {
+                background: linear-gradient(45deg, #FFD700, #FFA000) !important;
+            }
+            
+            .leaderboard-footer {
+                padding: 12px 30px;
+                gap: 15px;
+                justify-content: center;
+            }
+            
+            .leaderboard-footer button {
+                padding: 14px 25px !important;
+                font-size: 16px !important;
+                height: 48px !important;
+                min-width: 120px !important;
+                max-width: 200px !important;
+                flex: none !important;
             }
         }
-		.screen {
-			display: flex;
-			flex-direction: column;
-			min-height: 100vh;
-		}
 
-		.screen-content {
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-		}
-
-		
-/* Sticky footer variant */
-.screen-footer {
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin-top: auto;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(0,0,0,0.8); /* iets donkerder zodat hij zichtbaar blijft bij scrollen */
-  backdrop-filter: blur(6px);
-  z-index: 1000;
-
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-
-		.screen {
-			display: flex;
-			flex-direction: column;
-			min-height: 100vh;
-		}
-
-		.screen-content {
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-		}
-
-		
-/* Sticky footer variant */
-.screen-footer {
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin-top: auto;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(0,0,0,0.8); /* iets donkerder zodat hij zichtbaar blijft bij scrollen */
-  backdrop-filter: blur(6px);
-  z-index: 1000;
-
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-
-
-
-/* Mobielvriendelijke optimalisaties */
-@media (max-width: 768px) {
-  .screen-footer {
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px;
-  
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-
-  .screen-footer button {
-    width: 100%;
-    font-size: 18px;
-    padding: 14px;
-    border-radius: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .screen-footer button {
-    font-size: 16px;
-    padding: 12px;
-  }
-}
-
-
-/* Tablet & Desktop optimalisaties */
-@media (min-width: 769px) {
-  .screen-footer {
-    flex-direction: row;
-    gap: 20px;
-    padding: 15px 30px;
-  
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-
-  .screen-footer button {
-    width: auto;
-    min-width: 140px;
-    font-size: 16px;
-    padding: 12px 20px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .screen-footer {
-    max-width: 1200px;
-    margin: 0 auto;
-  
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-}
-
-</style>
+        /* Hide footers when screen is not active */
+        .screen:not(.active) .screen-footer,
+        .screen:not(.active) .leaderboard-footer {
+            display: none !important;
+        }
+            .screen-footer {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            
+            .leaderboard-footer {
+                max-width: 600px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
 </head>
     
 <body>
@@ -1019,8 +1026,7 @@
                          onerror="this.outerHTML='<div style=color:white;font-size:18px;>🛠️ GRNDbrekers 🐂<br><small>Bull Riding Leaderboard</small></div>';">
                 </div>
             </div>
-            <!-- FIXED: Only clears LOCAL data, NOT server data -->
-            <button class="btn" onclick="startLeaderboardWithClear()">Start Leaderboard!</button>
+            <button class="btn" id="startLeaderboardBtn">Start Leaderboard!</button>
         </div>
     </div>
 
@@ -1043,7 +1049,8 @@
             <!-- Bottom Navigation -->
             <div class="screen-footer">
 				<button class="btn-bottom-left" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
-				<button class="btn-bottom-right" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Tijden</button>
+				<div style="flex: 1;"></div> <!-- Empty space in middle -->
+				<button class="btn-blue" onclick="showScreen('timeEntryScreen')" id="nextToTimeBtn" style="display: none;">Tijden</button>
 			</div>
         </div>
     </div>
@@ -1061,7 +1068,8 @@
             <!-- Bottom Navigation -->
             <div class="screen-footer">
 				<button class="btn-bottom-left" onclick="showScreen('leaderboardScreen')">🏆 Ranking</button>
-				<button class="btn-time-right" onclick="showScreen('nameEntryScreen')">Rijders</button>
+				<div style="flex: 1;"></div> <!-- Empty space in middle -->
+				<button class="btn-green" onclick="showScreen('nameEntryScreen')">Rijders</button>
 			</div>
         </div>
     </div>
@@ -1081,11 +1089,11 @@
                 <div id="leaderboardList"></div>
             </div>
             
-            <!-- Bottom Navigation with INLINE STYLES to force correct colors -->
-            <div class="screen-footer">
-				<button class="btn-bottom-right" onclick="showScreen('timeEntryScreen')">Tijden</button>
-				<button class="btn-red" onclick="resetAllServerData()">🗑️ Reset</button>
-				<button class="btn-green" onclick="showScreen('nameEntryScreen')">Rijders</button>
+            <!-- Bottom Navigation with specific leaderboard styling -->
+            <div class="leaderboard-footer">
+				<button class="btn-bottom-right leaderboard-btn" onclick="showScreen('timeEntryScreen')">Tijden</button>
+				<button class="btn-red leaderboard-btn" onclick="resetAllServerData()">🗑️ Reset</button>
+				<button class="btn-green leaderboard-btn" onclick="showScreen('nameEntryScreen')">Rijders</button>
 			</div>
         </div>
     </div>
@@ -1169,39 +1177,1224 @@
 	<!-- LAAD DAN de client-code die 'io' gebruikt -->
 	<script	src="sync-client.js"></script>
 
-	<!-- DEFINIEER wrapper functie voor de knop -->
-	
+	<script>
+        // Debug function
+        function updateDebug(message) {
+            // Debug disabled in production
+            console.log('DEBUG:', message);
+        }
 
+        updateDebug('Script starting...');
 
-<script>
-  function switchToScreen(screenId) {
-    console.log(`DEBUG: Switching to screen: ${screenId}`);
-    const allScreens = document.querySelectorAll('.screen');
-    const target = document.getElementById(screenId);
+        // Global variables
+        window.riders = [];
+        window.leaderboardData = [];
+        window.currentPhoto = null;
+        window.editingRiderIndex = null;
+        window.timeEditingRiderIndex = null;
+        window.duplicateName = '';
+        window.selectedPhotoForDuplicate = null;
+        
+        // Keyboard navigation variables
+        window.selectedRiderIndex = 0;
+        window.keyboardNavigationActive = false;
 
-    allScreens.forEach(screen => {
-      screen.classList.remove('active');
-      screen.style.display = 'none';
-    });
+        // FIXED: Single correct implementation of startLeaderboardWithClear
+        function startLeaderboardWithClear() {
+            console.log('🧹 Starting fresh - clearing LOCAL data only...');
+            
+            // Debug: Check current screen before
+            const activeScreenBefore = document.querySelector('.screen.active');
+            console.log('Current active screen:', activeScreenBefore ? activeScreenBefore.id : 'none');
+            
+            // 1. Clear local data
+            localStorage.clear();
+            window.riders = [];
+            window.leaderboardData = [];
+            window.currentPhoto = null;
+            window.editingRiderIndex = null;
+            window.timeEditingRiderIndex = null;
+            window.duplicateName = '';
+            window.selectedPhotoForDuplicate = null;
+            
+            // 2. Update UI elements immediately
+            updateRidersList();
+            updateRidersForTimeEntry();
+            updateLeaderboard();
+            
+            // 3. Hide next button initially
+            const nextBtn = document.getElementById('nextToTimeBtn');
+            if (nextBtn) nextBtn.style.display = 'none';
+            
+            // 4. Navigate to name entry screen
+            showScreen('nameEntryScreen');
+            
+            // Debug: Check current screen after
+            setTimeout(() => {
+                const activeScreenAfter = document.querySelector('.screen.active');
+                const nameScreen = document.getElementById('nameEntryScreen');
+                console.log('After navigation:');
+                console.log('- Active screen:', activeScreenAfter ? activeScreenAfter.id : 'none');
+                console.log('- nameEntryScreen display:', nameScreen ? getComputedStyle(nameScreen).display : 'not found');
+                console.log('- nameEntryScreen visibility:', nameScreen ? getComputedStyle(nameScreen).visibility : 'not found');
+                console.log('- nameEntryScreen has active class:', nameScreen ? nameScreen.classList.contains('active') : false);
+            }, 100);
+            
+            // 5. Call sync client to get server data
+            if (window.syncClient && typeof window.syncClient.startLeaderboard === 'function') {
+                try {
+                    window.syncClient.startLeaderboard();
+                } catch (error) {
+                    console.error('⌛ Sync client error:', error);
+                }
+            } else {
+                console.log('⚠️ SyncClient not ready yet, but continuing...');
+            }
+            
+            console.log('✅ Started with fresh LOCAL data - navigated to name entry screen');
+        }
 
-    if (target) {
-      target.classList.add('active');
-      target.style.display = 'flex';
-      console.log(`DEBUG: Screen active: ${screenId}`);
-    } else {
-      console.warn("⚠️ Screen not found:", screenId);
-    }
-  }
+        // Add event listener for start button
+        document.addEventListener('DOMContentLoaded', function() {
+            const startBtn = document.getElementById('startLeaderboardBtn');
+            if (startBtn) {
+                startBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    startLeaderboardWithClear();
+                });
+            }
+        });
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const startButton = document.getElementById("startLeaderboardButton");
-    if (startButton) {
-      startButton.addEventListener("click", function () {
-        switchToScreen("nameEntryScreen");
-      });
-    }
-  });
-</script>
+        // Keyboard Navigation Functions
+        function initKeyboardNavigation() {
+            document.addEventListener('keydown', function(e) {
+                const activeScreen = document.querySelector('.screen.active');
+                if (!activeScreen) return;
+                
+                const screenId = activeScreen.id;
+                
+                // Only handle navigation in rider list screens
+                if (screenId !== 'nameEntryScreen' && screenId !== 'timeEntryScreen') {
+                    return;
+                }
+                
+                let riderElements;
+                if (screenId === 'nameEntryScreen') {
+                    riderElements = document.querySelectorAll('#addedNames .rider-tag');
+                } else if (screenId === 'timeEntryScreen') {
+                    riderElements = document.querySelectorAll('#ridersForTimeEntry .rider-tag');
+                }
+                
+                if (!riderElements || riderElements.length === 0) return;
+                
+                // Enable navigation on first arrow key press
+                if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && !window.keyboardNavigationActive) {
+                    window.keyboardNavigationActive = true;
+                    window.selectedRiderIndex = 0;
+                    updateRiderSelection(riderElements);
+                    e.preventDefault();
+                    return;
+                }
+                
+                if (!window.keyboardNavigationActive) return;
+                
+                switch(e.key) {
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if (window.selectedRiderIndex > 0) {
+                            window.selectedRiderIndex--;
+                            updateRiderSelection(riderElements);
+                            scrollToSelectedRider(riderElements);
+                        }
+                        break;
+                        
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (window.selectedRiderIndex < riderElements.length - 1) {
+                            window.selectedRiderIndex++;
+                            updateRiderSelection(riderElements);
+                            scrollToSelectedRider(riderElements);
+                        }
+                        break;
+                        
+                    case 'Enter':
+                        e.preventDefault();
+                        if (riderElements[window.selectedRiderIndex]) {
+                            const riderTag = riderElements[window.selectedRiderIndex];
+                            const editButton = riderTag.querySelector('.edit-btn-left');
+                            if (editButton) {
+                                editButton.click();
+                            }
+                        }
+                        break;
+                        
+                    case 'Escape':
+                        window.keyboardNavigationActive = false;
+                        clearRiderSelection();
+                        break;
+                }
+            });
+        }
+        
+        function updateRiderSelection(riderElements) {
+            // Clear all selections
+            riderElements.forEach(element => element.classList.remove('selected'));
+            
+            // Highlight current selection
+            if (riderElements[window.selectedRiderIndex]) {
+                riderElements[window.selectedRiderIndex].classList.add('selected');
+            }
+        }
+        
+        function scrollToSelectedRider(riderElements) {
+            if (riderElements[window.selectedRiderIndex]) {
+                const element = riderElements[window.selectedRiderIndex];
+                const container = element.closest('.added-names');
+                if (container) {
+                    const containerRect = container.getBoundingClientRect();
+                    const elementRect = element.getBoundingClientRect();
+                    
+                    if (elementRect.top < containerRect.top || elementRect.bottom > containerRect.bottom) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+        }
+        
+        function clearRiderSelection() {
+            document.querySelectorAll('.rider-tag.selected').forEach(element => {
+                element.classList.remove('selected');
+            });
+        }
+        
+        function resetKeyboardNavigation() {
+            window.keyboardNavigationActive = false;
+            window.selectedRiderIndex = 0;
+            clearRiderSelection();
+        }
 
+        // FIXED: Reset server data function
+        function resetAllServerData() {
+            if (confirm('⚠️ WAARSCHUWING!\n\nDit wist ALLE data van de server (riders en leaderboard).\nDeze actie is NIET omkeerbaar!\n\nWeet je zeker dat je wilt doorgaan?')) {
+                console.log('🗑️ Resetting ALL server data...');
+                
+                // Use the sync client's resetServerData function
+                if (typeof resetServerData === 'function') {
+                    resetServerData();
+                } else {
+                    console.error('❌ resetServerData function not available');
+                    alert('Error: Cannot reset server data - sync not available');
+                    return;
+                }
+                
+                // Clear local data as well
+                window.riders = [];
+                window.leaderboardData = [];
+                localStorage.removeItem('rodeoRiders');
+                localStorage.removeItem('rodeoLeaderboard');
+                
+                // Update displays
+                updateRidersList();
+                updateRidersForTimeEntry();
+                updateLeaderboard();
+                
+                const nextBtn = document.getElementById('nextToTimeBtn');
+                if (nextBtn) nextBtn.style.display = 'none';
+                
+                showScreen('homeScreen');
+                console.log('✅ All server data reset complete');
+            }
+        }
+
+        // Edit rider time function
+        window.editRiderTime = function(index) {
+            const rider = window.riders[index];
+            if (!rider) {
+                alert('Rider niet gevonden!');
+                return;
+            }
+            
+            if (rider.time) {
+                alert('Deze rider heeft al een tijd!');
+                return;
+            }
+
+            window.timeEditingRiderIndex = index;
+            console.log('🔧 Opening time edit modal for rider:', rider.name, 'at index:', index);
+            
+            // Fill modal
+            const timeEditPreview = document.getElementById('timeEditPhotoPreview');
+            
+            if (rider.photo) {
+                const thumbnailSrc = rider.photo && typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo;
+                timeEditPreview.innerHTML = `<img src="${thumbnailSrc}" alt="Current photo">`;
+            } else {
+                timeEditPreview.innerHTML = '📷';
+            }
+            
+            // Clear form
+            document.getElementById('editMinutes').value = '';
+            document.getElementById('editSeconds').value = '';
+            document.getElementById('editHundredths').value = '';
+            
+            // Clear new photo data
+            timeEditPreview.dataset.newPhoto = '';
+            document.getElementById('timeEditPhotoInput').value = '';
+            
+            // Show modal
+            document.getElementById('timeEditModal').classList.add('active');
+        }
+
+        // Close time edit modal
+        window.closeTimeEditModal = function() {
+            document.getElementById('timeEditModal').classList.remove('active');
+            window.timeEditingRiderIndex = null;
+        }
+
+        // FIXED: Verbeterde saveRiderTime functie met top 10 cleanup
+        window.saveRiderTime = function() {
+            console.log('🔧 saveRiderTime called, timeEditingRiderIndex:', window.timeEditingRiderIndex);
+            
+            if (window.timeEditingRiderIndex === null || window.timeEditingRiderIndex === undefined) {
+                alert('Fout: Geen rijder geselecteerd voor tijdinvoer!');
+                return;
+            }
+            
+            const rider = window.riders[window.timeEditingRiderIndex];
+            if (!rider) {
+                alert('Fout: Rijder niet gevonden!');
+                return;
+            }
+            
+            // Get values (default to 0 if empty)
+            const minutes = document.getElementById('editMinutes').value || '0';
+            const seconds = document.getElementById('editSeconds').value || '0';
+            const hundredths = document.getElementById('editHundredths').value || '0';
+            
+            // Check if all time fields are empty/zero
+            const isEmpty = (minutes === '0' || minutes === '') && 
+                           (seconds === '0' || seconds === '') && 
+                           (hundredths === '0' || hundredths === '');
+            
+            if (isEmpty) {
+                // Show confirmation dialog for empty time
+                const confirmed = confirm(
+                    `Er is geen tijd ingevuld voor ${rider.name}.\n\n` +
+                    `Wilt u de wijzigingen opslaan zonder tijd?\n\n` +
+                    `- JA: Opslaan zonder tijd (rijder blijft in lijst)\n` +
+                    `- ANNULEREN: Terug naar invoer om tijd in te vullen`
+                );
+                
+                if (!confirmed) {
+                    // User cancelled, stay in modal to add time
+                    return;
+                }
+                
+                // User confirmed saving without time
+                // Update photo if changed
+                const timeEditPreview = document.getElementById('timeEditPhotoPreview');
+                if (timeEditPreview && timeEditPreview.dataset.newPhoto) {
+                    rider.photo = JSON.parse(timeEditPreview.dataset.newPhoto);
+                }
+                
+                // Save and update without adding to leaderboard
+                saveData();
+                updateRidersList();
+                updateRidersForTimeEntry();
+                updateLeaderboard();
+                
+                // Close modal
+                closeTimeEditModal();
+                
+                alert(`Wijzigingen opgeslagen voor ${rider.name} zonder tijd.`);
+                console.log('✅ Rider updated without time: ' + rider.name);
+                return;
+            }
+            
+            // Validate inputs if not empty
+            const minInt = parseInt(minutes);
+            const secInt = parseInt(seconds);
+            const hunInt = parseInt(hundredths);
+            
+            if (isNaN(minInt) || isNaN(secInt) || isNaN(hunInt)) {
+                alert('Alle tijdvelden moeten geldige getallen zijn!');
+                return;
+            }
+            
+            if (minInt < 0 || secInt < 0 || secInt > 59 || hunInt < 0 || hunInt > 99) {
+                alert('Ongeldige tijd ingevoerd! Controleer de waarden.');
+                return;
+            }
+
+            const timeString = `${minInt.toString().padStart(2, '0')}:${secInt.toString().padStart(2, '0')}:${hunInt.toString().padStart(2, '0')}`;
+            const timeValue = minInt * 6000 + secInt * 100 + hunInt;
+
+            // Update photo if changed
+            const timeEditPreview = document.getElementById('timeEditPhotoPreview');
+            if (timeEditPreview && timeEditPreview.dataset.newPhoto) {
+                rider.photo = JSON.parse(timeEditPreview.dataset.newPhoto);
+            }
+
+            // Update rider
+            rider.time = timeString;
+            rider.timeValue = timeValue;
+
+            // Add to leaderboard
+            const entry = {
+                id: rider.id,
+                name: rider.name,
+                photo: rider.photo,
+                time: timeString,
+                timeValue: timeValue,
+                timestamp: new Date().toISOString()
+            };
+
+            // Remove existing entry if any
+            window.leaderboardData = window.leaderboardData.filter(e => e.id !== entry.id);
+            window.leaderboardData.push(entry);
+            
+            // Sort by time (LONGEST first) and by timestamp for ties
+            window.leaderboardData.sort((a, b) => {
+                if (b.timeValue !== a.timeValue) {
+                    return b.timeValue - a.timeValue; // Longest time first
+                }
+                return new Date(a.timestamp) - new Date(b.timestamp); // Earliest timestamp first for ties
+            });
+
+            // CLEANUP: Keep only top 10 
+            cleanupLeaderboard();
+
+            // Save and update
+            saveData();
+            updateRidersList();
+            updateRidersForTimeEntry();
+            updateLeaderboard();
+            
+            // Close modal
+            closeTimeEditModal();
+            
+            alert(`Tijd toegevoegd voor ${entry.name}: ${timeString}`);
+            console.log('✅ Time successfully added for: ' + entry.name);
+        }
+
+        // NEW: Function to cleanup leaderboard and riders - keeps only top 10
+        function cleanupLeaderboard() {
+            if (window.leaderboardData.length > 10) {
+                // Get IDs of riders to remove (those outside top 10)
+                const idsToRemove = window.leaderboardData.slice(10).map(entry => entry.id);
+                
+                // Keep only top 10 in leaderboard
+                window.leaderboardData = window.leaderboardData.slice(0, 10);
+                
+                // Remove riders outside top 10 who have a time from the riders array
+                window.riders = window.riders.filter(rider => {
+                    // Keep riders without time (they can still ride)
+                    if (!rider.time) return true;
+                    // Keep riders in top 10
+                    return !idsToRemove.includes(rider.id);
+                });
+                
+                console.log(`🧹 Cleaned up: removed ${idsToRemove.length} riders outside top 10`);
+            }
+        }
+
+        // Generate unique ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Get all photos for a name - handles both old and new photo format
+        function getPhotosForName(name) {
+            const photos = [];
+            window.riders.forEach(rider => {
+                if (rider.name.toLowerCase() === name.toLowerCase() && rider.photo) {
+                    photos.push({
+                        photo: rider.photo,
+                        id: rider.id,
+                        hasTime: !!rider.time
+                    });
+                }
+            });
+            
+            // Also check leaderboard for completed riders
+            window.leaderboardData.forEach(entry => {
+                if (entry.name.toLowerCase() === name.toLowerCase() && entry.photo) {
+                    const existing = photos.find(p => {
+                        // Handle both old string format and new object format
+                        const pPhoto = typeof p.photo === 'object' ? p.photo.thumbnail : p.photo;
+                        const ePhoto = typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo;
+                        return pPhoto === ePhoto;
+                    });
+                    if (!existing) {
+                        photos.push({
+                            photo: entry.photo,
+                            id: entry.id,
+                            hasTime: true
+                        });
+                    }
+                }
+            });
+            
+            return photos;
+        }
+
+        // Photo compression function - creates both thumbnail and fullsize
+        function compressImage(file, thumbWidth = 100, thumbHeight = 100, fullWidth = 800, fullHeight = 600) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                
+                img.onload = function() {
+                    // Create thumbnail (for lists)
+                    const thumbCanvas = document.createElement('canvas');
+                    const thumbCtx = thumbCanvas.getContext('2d');
+                    
+                    let thumbW = img.width;
+                    let thumbH = img.height;
+                    
+                    if (thumbW > thumbH) {
+                        if (thumbW > thumbWidth) {
+                            thumbH = (thumbH * thumbWidth) / thumbW;
+                            thumbW = thumbWidth;
+                        }
+                    } else {
+                        if (thumbH > thumbHeight) {
+                            thumbW = (thumbW * thumbHeight) / thumbH;
+                            thumbH = thumbHeight;
+                        }
+                    }
+                    
+                    thumbCanvas.width = thumbW;
+                    thumbCanvas.height = thumbH;
+                    thumbCtx.drawImage(img, 0, 0, thumbW, thumbH);
+                    
+                    // Create fullsize (for zoom)
+                    const fullCanvas = document.createElement('canvas');
+                    const fullCtx = fullCanvas.getContext('2d');
+                    
+                    let fullW = img.width;
+                    let fullH = img.height;
+                    
+                    if (fullW > fullH) {
+                        if (fullW > fullWidth) {
+                            fullH = (fullH * fullWidth) / fullW;
+                            fullW = fullWidth;
+                        }
+                    } else {
+                        if (fullH > fullHeight) {
+                            fullW = (fullW * fullHeight) / fullH;
+                            fullH = fullHeight;
+                        }
+                    }
+                    
+                    fullCanvas.width = fullW;
+                    fullCanvas.height = fullH;
+                    fullCtx.drawImage(img, 0, 0, fullW, fullH);
+                    
+                    // Return both versions
+                    resolve({
+                        thumbnail: thumbCanvas.toDataURL('image/jpeg', 0.7),
+                        fullsize: fullCanvas.toDataURL('image/jpeg', 0.85)
+                    });
+                };
+                
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Photo modal functions - now uses fullsize version
+        function openPhotoModal(photoData, riderName) {
+            const modal = document.getElementById('photoModal');
+            const img = document.getElementById('photoModalContent');
+            
+            // Use fullsize if available, fallback to thumbnail for old data
+            const photoSrc = photoData && typeof photoData === 'object' ? photoData.fullsize : photoData;
+            
+            if (photoSrc) {
+                img.src = photoSrc;
+                img.alt = `Foto van ${riderName}`;
+                modal.classList.add('active');
+            }
+            
+            // Prevent event bubbling
+            if (event) event.stopPropagation();
+        }
+
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.classList.remove('active');
+        }
+
+        // Close modal with escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closePhotoModal();
+            }
+        });
+
+        // Handle photo selection
+        document.addEventListener('DOMContentLoaded', function() {
+            // Main photo input - simplified without preview
+            document.getElementById('photoInput').addEventListener('change', async function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const compressed = await compressImage(e.target.files[0]);
+                    window.currentPhoto = compressed; // Now contains {thumbnail, fullsize}
+                    
+                    // Visual feedback via button color change - darker green with checkmark
+                    const photoBtn = document.querySelector('.btn-photo-left');
+                    if (photoBtn) {
+                        photoBtn.style.background = 'linear-gradient(45deg, #2E7D32, #1B5E20)';
+                        photoBtn.textContent = '✔';
+                        setTimeout(() => {
+                            photoBtn.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+                            photoBtn.textContent = '📷';
+                        }, 1500);
+                    }
+                }
+            });
+
+            // Edit photo input
+            document.getElementById('editPhotoInput').addEventListener('change', async function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const compressed = await compressImage(e.target.files[0]);
+                    
+                    const preview = document.getElementById('editPhotoPreview');
+                    preview.innerHTML = `<img src="${compressed.thumbnail}" alt="Preview">`;
+                    preview.dataset.newPhoto = JSON.stringify(compressed); // Store both versions
+                }
+            });
+
+            // Time edit photo input
+            document.getElementById('timeEditPhotoInput').addEventListener('change', async function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const compressed = await compressImage(e.target.files[0]);
+                    
+                    const preview = document.getElementById('timeEditPhotoPreview');
+                    preview.innerHTML = `<img src="${compressed.thumbnail}" alt="Preview">`;
+                    preview.dataset.newPhoto = JSON.stringify(compressed); // Store both versions
+                }
+            });
+        });
+
+        // Simple screen navigation with keyboard reset
+        window.showScreen = function(screenId) {
+            updateDebug('Switching to: ' + screenId);
+            
+            // Reset keyboard navigation when switching screens
+            resetKeyboardNavigation();
+            
+            // Hide all screens with explicit display:none
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => {
+                screen.classList.remove('active');
+                screen.style.display = 'none'; // Force hide
+            });
+            
+            // Show target screen with explicit display:flex
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+                targetScreen.style.display = 'flex'; // Force show
+                updateDebug('Screen active: ' + screenId);
+                
+                // Force browser reflow/repaint
+                targetScreen.offsetHeight;
+                
+                // Update displays when going to different screens
+                if (screenId === 'timeEntryScreen') {
+                    updateRidersForTimeEntry();
+                } else if (screenId === 'leaderboardScreen') {
+                    updateLeaderboard();
+                } else if (screenId === 'nameEntryScreen') {
+                    updateRidersList();
+                    updateNextButtonVisibility();
+                }
+            } else {
+                updateDebug('ERROR: Screen not found: ' + screenId);
+            }
+        }
+
+        // Add rider function with duplicate handling
+        window.addRider = function() {
+            updateDebug('Adding rider...');
+            
+            const nameInput = document.getElementById('riderName');
+            const name = nameInput ? nameInput.value.trim() : '';
+            
+            if (!name) {
+                alert('Voer een naam in!');
+                return;
+            }
+            
+            // Check for existing photos for this name
+            const existingPhotos = getPhotosForName(name);
+            
+            if (existingPhotos.length > 0) {
+                // Show duplicate modal
+                window.duplicateName = name;
+                showDuplicateModal(existingPhotos);
+                return;
+            }
+            
+            // No duplicates, proceed normally
+            createNewRider(name, window.currentPhoto);
+        }
+
+        // FIXED: Nieuwe functie voor "Tijden" button zichtbaarheid
+        function updateNextButtonVisibility() {
+            const nextBtn = document.getElementById('nextToTimeBtn');
+            if (nextBtn) {
+                // Toon knop als er riders zijn (ongeacht of ze een tijd hebben)
+                if (window.riders.length > 0) {
+                    nextBtn.style.display = 'inline-block';
+                } else {
+                    nextBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // FIXED: Create new rider met button zichtbaarheid
+        function createNewRider(name, photo) {
+            const rider = {
+                id: generateId(),
+                name: name,
+                photo: photo,
+                time: null,
+                timeValue: null,
+                timestamp: new Date().toISOString()
+            };
+            
+            window.riders.push(rider);
+            
+            // Clear inputs
+            document.getElementById('riderName').value = '';
+            window.currentPhoto = null;
+            
+            // Reset photo button visual state to default green
+            const photoBtn = document.querySelector('.btn-photo-left');
+            if (photoBtn) {
+                photoBtn.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+                photoBtn.textContent = '📷';
+            }
+            
+            document.getElementById('photoInput').value = '';
+            
+            // Save and update
+            saveData();
+            updateRidersList();
+            updateRidersForTimeEntry();
+            
+            // FIXED: Update button zichtbaarheid
+            updateNextButtonVisibility();
+            
+            updateDebug('Rider added: ' + name + ' (total: ' + window.riders.length + ')');
+        }
+
+        // Show duplicate modal - handles both old and new photo format
+        function showDuplicateModal(existingPhotos) {
+            const modal = document.getElementById('duplicateModal');
+            const gallery = document.getElementById('photoGallery');
+            const message = document.getElementById('duplicateMessage');
+            
+            message.textContent = `De naam "${window.duplicateName}" is al gebruikt. Kies een bestaande foto of voeg toe zonder foto:`;
+            
+            gallery.innerHTML = '';
+            
+            existingPhotos.forEach((photoData, index) => {
+                const photoDiv = document.createElement('div');
+                photoDiv.className = 'photo-option';
+                photoDiv.onclick = () => selectPhoto(photoData.photo, photoDiv);
+                
+                // Handle both old string format and new object format
+                const thumbnailSrc = typeof photoData.photo === 'object' ? photoData.photo.thumbnail : photoData.photo;
+                
+                photoDiv.innerHTML = `
+                    <img src="${thumbnailSrc}" alt="Bestaande foto">
+                    <div class="photo-option-text">${photoData.hasTime ? 'Voltooid' : 'Wachtend'}</div>
+                `;
+                
+                gallery.appendChild(photoDiv);
+            });
+            
+            modal.classList.add('active');
+        }
+
+        // Select photo in gallery
+        function selectPhoto(photo, element) {
+            // Remove previous selection
+            document.querySelectorAll('.photo-option').forEach(el => el.classList.remove('selected'));
+            
+            // Select current
+            element.classList.add('selected');
+            window.selectedPhotoForDuplicate = photo;
+        }
+
+        // Use selected photo
+        window.useSelectedPhoto = function() {
+            if (!window.selectedPhotoForDuplicate) {
+                alert('Selecteer eerst een foto!');
+                return;
+            }
+            
+            createNewRider(window.duplicateName, window.selectedPhotoForDuplicate);
+            closeDuplicateModal();
+        }
+
+        // Take new photo for duplicate
+        window.takeNewPhoto = function() {
+            closeDuplicateModal();
+            // The user can now take a new photo and add the rider normally
+        }
+
+        // Add without photo for duplicate
+        window.addWithoutPhoto = function() {
+            createNewRider(window.duplicateName, null);
+            closeDuplicateModal();
+        }
+
+        // Close duplicate modal
+        window.closeDuplicateModal = function() {
+            document.getElementById('duplicateModal').classList.remove('active');
+            window.duplicateName = '';
+            window.selectedPhotoForDuplicate = null;
+        }
+
+        // Edit rider function
+        window.editRider = function(index) {
+            const rider = window.riders[index];
+            if (!rider || rider.time) {
+                alert('Kan alleen rijders bewerken die nog niet gereden hebben!');
+                return;
+            }
+
+            window.editingRiderIndex = index;
+            
+            // Fill modal
+            document.getElementById('editRiderName').value = rider.name;
+            const editPreview = document.getElementById('editPhotoPreview');
+            
+            if (rider.photo) {
+                editPreview.innerHTML = `<img src="${rider.photo}" alt="Current photo">`;
+            } else {
+                editPreview.innerHTML = '📷';
+            }
+            
+            // Clear new photo data
+            editPreview.dataset.newPhoto = '';
+            document.getElementById('editPhotoInput').value = '';
+            
+            // Show modal
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // Save edited rider - handles new photo format
+        window.saveEditedRider = function() {
+            if (window.editingRiderIndex === null) return;
+            
+            const newName = document.getElementById('editRiderName').value.trim();
+            if (!newName) {
+                alert('Voer een naam in!');
+                return;
+            }
+            
+            // Update rider
+            const rider = window.riders[window.editingRiderIndex];
+            rider.name = newName;
+            
+            const editPreview = document.getElementById('editPhotoPreview');
+            if (editPreview.dataset.newPhoto) {
+                rider.photo = JSON.parse(editPreview.dataset.newPhoto);
+            }
+            
+            // Save and update
+            saveData();
+            updateRidersList();
+            updateRidersForTimeEntry();
+            closeEditModal();
+            
+            updateDebug('Rider edited: ' + newName);
+        }
+
+        // Close edit modal
+        window.closeEditModal = function() {
+            document.getElementById('editModal').classList.remove('active');
+            window.editingRiderIndex = null;
+        }
+
+        // Remove rider function  
+        window.removeRider = function(index) {
+            updateDebug('Removing rider at index: ' + index);
+            
+            if (window.riders[index]) {
+                const rider = window.riders[index];
+                
+                // Remove from leaderboard if has time
+                if (rider.time) {
+                    window.leaderboardData = window.leaderboardData.filter(entry => entry.id !== rider.id);
+                }
+                
+                // Remove from riders
+                window.riders.splice(index, 1);
+                
+                // Update UI
+                saveData();
+                updateRidersList();
+                updateRidersForTimeEntry();
+                updateLeaderboard();
+                
+                // Update button visibility
+                updateNextButtonVisibility();
+                
+                updateDebug('Rider removed. Remaining: ' + window.riders.length);
+            }
+        }
+
+        // FIXED: Update riders list met correcte button zichtbaarheid
+        function updateRidersList() {
+            const container = document.getElementById('addedNames');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            // Only show riders without time
+            const ridersWithoutTime = window.riders.filter(r => !r.time);
+            
+            ridersWithoutTime.forEach((rider) => {
+                const fullIndex = window.riders.findIndex(r => r.id === rider.id);
+                
+                const tag = document.createElement('div');
+                tag.className = 'rider-tag';
+                
+                // Handle both old string format and new object format
+                const thumbnailSrc = rider.photo && typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo;
+                const hasPhoto = rider.photo && (typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo);
+                
+                tag.innerHTML = `
+                    <button class="edit-btn-left" onclick="editRider(${fullIndex})">✏️</button>
+                    <div class="rider-photo-small" onclick="openPhotoModal(${JSON.stringify(rider.photo).replace(/"/g, '&quot;')}, '${rider.name}')">
+                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${rider.name}" class="clickable-photo">` : '👤'}
+                    </div>
+                    <div class="rider-info">
+                        <strong>${rider.name}</strong>
+                    </div>
+                    <div class="rider-actions">
+                        <button class="action-btn remove-btn" onclick="removeRider(${fullIndex})">×</button>
+                    </div>
+                `;
+                container.appendChild(tag);
+            });
+            
+            if (ridersWithoutTime.length === 0 && window.riders.length > 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Alle rijders hebben al een tijd!</p>';
+            }
+            
+            // FIXED: Update "Tijden" button zichtbaarheid
+            updateNextButtonVisibility();
+        }
+
+        // Update riders for time entry screen - uses same layout as riders list
+        function updateRidersForTimeEntry() {
+            const container = document.getElementById('ridersForTimeEntry');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            // Only show riders without time
+            const ridersWithoutTime = window.riders.filter(r => !r.time);
+            
+            if (ridersWithoutTime.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Alle rijders hebben al een tijd toegevoegd!</p>';
+                return;
+            }
+            
+            ridersWithoutTime.forEach((rider) => {
+                const fullIndex = window.riders.findIndex(r => r.id === rider.id);
+                
+                const tag = document.createElement('div');
+                tag.className = 'rider-tag';
+                
+                // Handle both old string format and new object format
+                const thumbnailSrc = rider.photo && typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo;
+                const hasPhoto = rider.photo && (typeof rider.photo === 'object' ? rider.photo.thumbnail : rider.photo);
+                
+                tag.innerHTML = `
+                    <button class="edit-btn-left" onclick="editRiderTime(${fullIndex})">✏️</button>
+                    <div class="rider-photo-small" onclick="openPhotoModal(${JSON.stringify(rider.photo).replace(/"/g, '&quot;')}, '${rider.name}')">
+                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${rider.name}" class="clickable-photo">` : '👤'}
+                    </div>
+                    <div class="rider-info">
+                        <strong>${rider.name}</strong>
+                    </div>
+                    <div class="rider-actions">
+                        <button class="action-btn remove-btn" onclick="removeRider(${fullIndex})">×</button>
+                    </div>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        // Validate time input fields
+        function validateTimeInput(inputId, maxValue, fieldName) {
+            const input = document.getElementById(inputId);
+            if (!input) return false;
+            
+            const value = input.value;
+            
+            // Check if empty (allow empty for optional fields)
+            if (value === '' || value === null) {
+                return true; // Empty is okay, will default to 0
+            }
+            
+            // Check if it's a valid number
+            const numValue = parseFloat(value);
+            
+            // Must be a natural number (positive integer, no decimals)
+            if (!Number.isInteger(numValue) || numValue < 0) {
+                alert(`${fieldName} moet een natuurlijk getal zijn (0, 1, 2, 3, ...)!`);
+                input.focus();
+                return false;
+            }
+            
+            // Check maximum value
+            if (numValue > maxValue) {
+                alert(`${fieldName} mag maximaal ${maxValue} zijn!`);
+                input.focus();
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Update leaderboard display as single scrollable list
+        function updateLeaderboard() {
+            updateLeaderboardList();
+        }
+
+        // Update leaderboard list with improved ranking logic for ties - TOP 10 ONLY
+        function updateLeaderboardList() {
+            const container = document.getElementById('leaderboardList');
+            const section = document.getElementById('leaderboardSection');
+            if (!container || !section) return;
+            
+            if (window.leaderboardData.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nog geen tijden toegevoegd...</p>';
+                return;
+            }
+            
+            const leaderboardContainer = document.createElement('div');
+            leaderboardContainer.className = 'remaining-leaderboard';
+            
+            // Calculate rankings with ties - ONLY TOP 10
+            let currentPosition = 1;
+            let previousTimeValue = null;
+            let ridersAtSamePosition = 0;
+            
+            // Only show top 10
+            const top10 = window.leaderboardData.slice(0, 10);
+            
+            top10.forEach((entry, index) => {
+                // Check if this is a different time than the previous entry
+                if (previousTimeValue !== null && entry.timeValue !== previousTimeValue) {
+                    currentPosition += ridersAtSamePosition;
+                    ridersAtSamePosition = 0;
+                }
+                
+                ridersAtSamePosition++;
+                const position = currentPosition;
+                previousTimeValue = entry.timeValue;
+                
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'remaining-entry';
+                
+                // Medal logic for top 3 positions (including ties)
+                let medalEmoji = '';
+                if (position === 1) medalEmoji = '🥇 ';
+                else if (position === 2) medalEmoji = '🥈 ';
+                else if (position === 3) medalEmoji = '🥉 ';
+                
+                // Handle both old string format and new object format
+                const thumbnailSrc = entry.photo && typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo;
+                const hasPhoto = entry.photo && (typeof entry.photo === 'object' ? entry.photo.thumbnail : entry.photo);
+                
+                entryDiv.innerHTML = `
+                    <div class="remaining-position">${medalEmoji}#${position}</div>
+                    <div class="remaining-photo" onclick="openPhotoModal(${JSON.stringify(entry.photo).replace(/"/g, '&quot;')}, '${entry.name}')">
+                        ${hasPhoto ? `<img src="${thumbnailSrc}" alt="${entry.name}" class="clickable-photo">` : '👤'}
+                    </div>
+                    <div class="remaining-name">${entry.name}</div>
+                    <div class="remaining-time">${entry.time}</div>
+                `;
+                
+                leaderboardContainer.appendChild(entryDiv);
+            });
+            
+            container.innerHTML = '';
+            container.appendChild(leaderboardContainer);
+        }
+
+        // Real-time input validation as user types
+        function addRealTimeValidation() {
+            // Edit time inputs (new modal fields)
+            const editMinutes = document.getElementById('editMinutes');
+            const editSeconds = document.getElementById('editSeconds');
+            const editHundredths = document.getElementById('editHundredths');
+            
+            if (editMinutes) {
+                editMinutes.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    e.target.value = value;
+                });
+            }
+            
+            if (editSeconds) {
+                editSeconds.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    if (parseInt(value) > 59) {
+                        value = '59';
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            if (editHundredths) {
+                editHundredths.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/[^0-9]/g, '');
+                    if (parseInt(value) > 99) {
+                        value = '99';
+                    }
+                    e.target.value = value;
+                });
+            }
+        }
+
+        // Add Enter key support for better UX
+        function addEnterKeySupport() {
+            // Enter key on rider name adds rider
+            const riderNameField = document.getElementById('riderName');
+            if (riderNameField) {
+                riderNameField.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        addRider();
+                    }
+                });
+            }
+            
+            // Enter key on time fields in edit modal
+            ['editMinutes', 'editSeconds', 'editHundredths'].forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            saveRiderTime();
+                        }
+                    });
+                }
+            });
+        }
+
+        // Save data to localStorage - with cleanup before saving
+        function saveData() {
+            try {
+                // Cleanup before saving
+                cleanupLeaderboard();
+                
+                localStorage.setItem('rodeoRiders', JSON.stringify(window.riders));
+                localStorage.setItem('rodeoLeaderboard', JSON.stringify(window.leaderboardData));
+                updateDebug('Data saved');
+            } catch (e) {
+                updateDebug('Save failed: ' + e.message);
+            }
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            try {
+                const savedRiders = localStorage.getItem('rodeoRiders');
+                const savedLeaderboard = localStorage.getItem('rodeoLeaderboard');
+                
+                if (savedRiders) {
+                    window.riders = JSON.parse(savedRiders);
+                    updateDebug('Loaded ' + window.riders.length + ' riders');
+                }
+                
+                if (savedLeaderboard) {
+                    window.leaderboardData = JSON.parse(savedLeaderboard);
+                    // Ensure only top 10 are loaded
+                    if (window.leaderboardData.length > 10) {
+                        window.leaderboardData = window.leaderboardData.slice(0, 10);
+                    }
+                    updateDebug('Loaded ' + window.leaderboardData.length + ' leaderboard entries');
+                }
+                
+                // Cleanup after loading
+                cleanupLeaderboard();
+            } catch (e) {
+                updateDebug('Load failed: ' + e.message);
+                window.riders = [];
+                window.leaderboardData = [];
+            }
+        }
+
+        // Legacy resetAll function for compatibility - now redirects to resetAllServerData
+        window.resetAll = function() {
+            resetAllServerData();
+        }
+
+        // Force home screen on page load/refresh
+        window.addEventListener('load', function() {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+                screen.style.display = 'none';
+            });
+            
+            // Show only home screen
+            const homeScreen = document.getElementById('homeScreen');
+            if (homeScreen) {
+                homeScreen.classList.add('active');
+                homeScreen.style.display = 'flex';
+            }
+            
+            // Hide navigation buttons
+            const nextBtn = document.getElementById('nextToTimeBtn');
+            if (nextBtn) nextBtn.style.display = 'none';
+        });
+
+        // Initialize app with all enhancements
+        function initApp() {
+            updateDebug('Initializing app...');
+            
+            // ALWAYS start at home screen on page load/refresh
+            showScreen('homeScreen');
+            
+            loadData();
+            updateRidersList();
+            updateRidersForTimeEntry();
+            updateLeaderboard();
+            
+            // Add the new validation features
+            addRealTimeValidation();
+            addEnterKeySupport();
+            
+            // Initialize keyboard navigation
+            initKeyboardNavigation();
+            
+            // Update button visibility
+            updateNextButtonVisibility();
+            
+            updateDebug('App ready! Functions loaded with keyboard navigation.');
+        }
+
+        // Start app when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+
+        updateDebug('Script loaded');
+    </script>
 </body>
 </html>
