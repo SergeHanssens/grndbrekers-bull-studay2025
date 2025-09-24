@@ -1,448 +1,221 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#222222">
-    <title>GRNDbrekers Leaderboard - Live Resultaten</title>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GRNDbrekers Leaderboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
+    header {
+      margin-top: 20px;
+      text-align: center;
+    }
 
-        .leaderboard-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    header img {
+      max-height: 180px;
+    }
 
-        .leaderboard-logo {
-            width: 100%;
-            max-width: none;
-            max-height: none;
-            object-fit: contain;
-            margin: 0 auto 25px;
-            display: block;
-            border-radius: 15px;
-        }
+    h1 {
+      font-size: 3rem;
+      margin: 20px 0;
+    }
 
-        .main-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
+    .leaderboard {
+      flex: 1;
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
 
-        /* Leaderboard List */
-        .leaderboard-section {
-            margin-top: 20px;
-        }
+    .leaderboard-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 15px 25px;
+      margin: 5px 0;
+      border-radius: 12px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: rgba(0,0,0,0.3);
+      transition: transform 0.5s, background 0.5s;
+    }
 
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            width: 100%;
-        }
+    .leaderboard-entry span {
+      flex: 1;
+      text-align: center;
+    }
 
-        .leaderboard-section h3 {
-            text-align: left;
-            margin: 0;
-            opacity: 0.9;
-            font-size: 20px;
-        }
+    .gold {
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      color: #222;
+      font-size: 2rem;
+    }
 
-        .leaderboard-list {
-            max-height: 400px;
-            overflow-y: auto;
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            padding: 15px;
-        }
+    .silver {
+      background: linear-gradient(45deg, #C0C0C0, #A9A9A9);
+      color: #222;
+      font-size: 1.8rem;
+    }
 
-        .leaderboard-entry {
-            background: rgba(255,255,255,0.1);
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 12px;
-            display: grid;
-            grid-template-columns: 60px 50px 1fr 100px;
-            gap: 15px;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
+    .bronze {
+      background: linear-gradient(45deg, #CD7F32, #8B4513);
+      color: #fff;
+      font-size: 1.7rem;
+    }
 
-        .entry-position {
-            font-weight: bold;
-            text-align: center;
-            font-size: 18px;
-        }
+    /* Animaties */
+    .fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
 
-        .entry-photo {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-        .entry-photo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    .highlight {
+      animation: highlightFlash 1s ease;
+    }
 
-        .entry-name {
-            font-weight: bold;
-            font-size: 16px;
-        }
+    @keyframes highlightFlash {
+      0% { background: yellow; }
+      100% { background: inherit; }
+    }
 
-        .entry-time {
-            text-align: center;
-            font-weight: bold;
-            font-size: 16px;
-        }
+    canvas#confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
 
-        .entry-waiting {
-            text-align: center;
-            font-style: italic;
-            opacity: 0.7;
-            font-size: 14px;
-        }
-
-        .toggle-btn {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin: 0;
-        }
-
-        .toggle-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-
-        .toggle-btn:active {
-            transform: translateY(0);
-        }
-
-        .sync-info {
-            text-align: center;
-            margin-top: 30px;
-            opacity: 0.6;
-            font-size: 14px;
-        }
-
-        .photo-modal {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.95);
-            backdrop-filter: blur(5px);
-        }
-
-        .photo-modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .photo-modal-content {
-            max-width: calc(100vw - 40px);
-            max-height: calc(100vh - 40px);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-
-        .clickable-photo {
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .clickable-photo:hover {
-            transform: scale(1.1);
-        }
-
-        /* Mobile responsive */
-        @media (max-width: 480px) {
-            .leaderboard-logo {
-                max-width: 100%;
-                max-height: none;
-            }
-
-            .leaderboard-entry {
-                grid-template-columns: 50px 40px 1fr 80px;
-                gap: 10px;
-                padding: 12px;
-            }
-
-            .entry-position {
-                font-size: 16px;
-            }
-
-            .entry-photo {
-                width: 40px;
-                height: 40px;
-            }
-
-            .entry-name {
-                font-size: 14px;
-            }
-
-            .entry-time, .entry-waiting {
-                font-size: 14px;
-            }
-
-            .toggle-btn {
-                padding: 10px 18px;
-                font-size: 14px;
-            }
-
-            .leaderboard-section h3 {
-                font-size: 18px;
-            }
-        }
-    </style>
+  </style>
 </head>
 <body>
-    <div class="main-container">
-        <div class="leaderboard-header">
-            <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/grndbrekers-bull-logo-transparant-V5.png" 
-                 alt="GRNDbrekers Logo" class="leaderboard-logo"
-                 onerror="this.style.display='none'; document.getElementById('title-fallback').style.display='block';">
-            <h1 id="title-fallback" style="display: none;">🏆 Live Leaderboard</h1>
-        </div>
-        
-        <!-- Leaderboard/Waitlist -->
-        <div class="leaderboard-section">
-            <div class="section-header">
-                <h3 id="sectionTitle">Rankings:</h3>
-                <button class="toggle-btn" id="toggleBtn" onclick="toggleView()">Waitlist</button>
-            </div>
-            <div id="leaderboardList" class="leaderboard-list"></div>
-        </div>
-        
-        <!-- Photo Modal -->
-        <div class="photo-modal" id="photoModal" onclick="closePhotoModal()">
-            <img class="photo-modal-content" id="photoModalContent" alt="Full size photo">
-        </div>
-        
-        <div class="sync-info">
-            <p>🔄 Auto-refresh elke 5 seconden</p>
-            <p><small>StuDAY 2025 - GRNDbrekers Bull Riding</small></p>
-        </div>
-    </div>
+  <canvas id="confetti"></canvas>
+  <header>
+    <img src="https://raw.githubusercontent.com/SergeHanssens/grndbrekers-bull-studay2025/images/android-chrome-512x512.png" alt="GRNDbrekers Logo">
+    <h1>🏆 Top 10 Riders</h1>
+  </header>
+  <div class="leaderboard" id="leaderboard"></div>
 
-    <script>
-        let leaderboardData = [];
-        let ridersData = [];
-        let showingWaitlist = false;
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="sync-client.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script>
+    let previousTop10 = [];
 
-        // Helper function to get photo sources - handles both old and new format
-        function getPhotoSources(photoData) {
-            if (!photoData) {
-                return { thumbnail: null, fullsize: null };
-            }
-            
-            // New format: {thumbnail: "...", fullsize: "..."}
-            if (typeof photoData === 'object' && photoData.thumbnail) {
-                return {
-                    thumbnail: photoData.thumbnail,
-                    fullsize: photoData.fullsize || photoData.thumbnail
-                };
-            }
-            
-            // Old format: "data:image/jpeg;base64..."
-            return {
-                thumbnail: photoData,
-                fullsize: photoData
-            };
+    function renderLeaderboard(riders) {
+      const container = document.getElementById("leaderboard");
+      container.innerHTML = "";
+
+      const top10 = riders.slice(0, 10);
+
+      top10.forEach((rider, index) => {
+        const div = document.createElement("div");
+        div.classList.add("leaderboard-entry", "fade-in");
+
+        if (index === 0) div.classList.add("gold");
+        if (index === 1) div.classList.add("silver");
+        if (index === 2) div.classList.add("bronze");
+
+        div.innerHTML = `
+          <span>#${index+1}</span>
+          <span>${rider.name}</span>
+          <span>${rider.time || "--:--:--"}</span>
+        `;
+
+        // Check veranderingen
+        const oldRider = previousTop10[index];
+        if (!oldRider || oldRider.name !== rider.name) {
+          div.classList.add("highlight");
+          if (index === 0) {
+            triggerConfetti();
+          }
         }
 
-        // Load data from localStorage on startup
-        function loadData() {
-            const savedLeaderboard = localStorage.getItem('rodeoLeaderboard');
-            const savedRiders = localStorage.getItem('rodeoRiders');
-            
-            if (savedLeaderboard) {
-                leaderboardData = JSON.parse(savedLeaderboard);
-            }
-            
-            if (savedRiders) {
-                ridersData = JSON.parse(savedRiders);
-            }
-            
-            updateDisplay();
-        }
+        container.appendChild(div);
+      });
 
-        function updateDisplay() {
-            if (showingWaitlist) {
-                updateWaitlist();
-            } else {
-                updateLeaderboard();
-            }
-        }
+      previousTop10 = top10;
+    }
 
-        function updateLeaderboard() {
-            const container = document.getElementById('leaderboardList');
-            const titleElement = document.getElementById('sectionTitle');
-            const toggleBtn = document.getElementById('toggleBtn');
-            
-            titleElement.textContent = 'Rankings:';
-            toggleBtn.textContent = 'Waitlist';
-            
-            if (leaderboardData.length === 0) {
-                container.innerHTML = '<div class="no-data"><h2>🐂 Wachten op eerste rijders...</h2><p>Het leaderboard wordt automatisch bijgewerkt zodra er tijden worden toegevoegd!</p></div>';
-                return;
-            }
-            
-            container.innerHTML = '';
-            
-            leaderboardData.forEach((entry, index) => {
-                const position = index + 1;
-                
-                const entryDiv = document.createElement('div');
-                entryDiv.className = 'leaderboard-entry';
-                
-                // Add medal emoji for top 3
-                let medalEmoji = '';
-                if (position === 1) medalEmoji = '🥇 ';
-                else if (position === 2) medalEmoji = '🥈 ';
-                else if (position === 3) medalEmoji = '🥉 ';
-                
-                // Get photo sources for both thumbnail and fullsize
-                const photoSources = getPhotoSources(entry.photo);
-                
-                entryDiv.innerHTML = `
-                    <div class="entry-position">${medalEmoji}#${position}</div>
-                    <div class="entry-photo">
-                        ${photoSources.thumbnail ? `<img src="${photoSources.thumbnail}" alt="${entry.name}" class="clickable-photo" onclick="openPhotoModal('${photoSources.fullsize}', '${entry.name}')">` : '👤'}
-                    </div>
-                    <div class="entry-name">${entry.name}</div>
-                    <div class="entry-time">${entry.time}</div>
-                `;
-                
-                container.appendChild(entryDiv);
-            });
-        }
+    // Confetti effect voor nieuwe #1
+    function triggerConfetti() {
+      const duration = 2 * 1000;
+      const end = Date.now() + duration;
 
-        function updateWaitlist() {
-            const container = document.getElementById('leaderboardList');
-            const titleElement = document.getElementById('sectionTitle');
-            const toggleBtn = document.getElementById('toggleBtn');
-            
-            titleElement.textContent = 'Waitlist:';
-            toggleBtn.textContent = 'Rankings';
-            
-            // Get riders without time (same logic as dropdown in index.html)
-            const waitingRiders = ridersData.filter(rider => !rider.time);
-            
-            if (waitingRiders.length === 0) {
-                container.innerHTML = '<div class="no-data"><h2>📝 Geen wachtende rijders</h2><p>Alle rijders hebben al een tijd!</p></div>';
-                return;
-            }
-            
-            container.innerHTML = '';
-            
-            waitingRiders.forEach((rider, index) => {
-                const position = index + 1;
-                
-                const entryDiv = document.createElement('div');
-                entryDiv.className = 'leaderboard-entry';
-                
-                // Get photo sources for both thumbnail and fullsize
-                const photoSources = getPhotoSources(rider.photo);
-                
-                entryDiv.innerHTML = `
-                    <div class="entry-position">#${position}</div>
-                    <div class="entry-photo">
-                        ${photoSources.thumbnail ? `<img src="${photoSources.thumbnail}" alt="${rider.name}" class="clickable-photo" onclick="openPhotoModal('${photoSources.fullsize}', '${rider.name}')">` : '👤'}
-                    </div>
-                    <div class="entry-name">${rider.name}</div>
-                    <div class="entry-waiting">Wachtend...</div>
-                `;
-                
-                container.appendChild(entryDiv);
-            });
-        }
-
-        function toggleView() {
-            showingWaitlist = !showingWaitlist;
-            updateDisplay();
-        }
-
-        // Photo modal functions - now supports both old and new photo formats
-        function openPhotoModal(photoSrc, riderName) {
-            const modal = document.getElementById('photoModal');
-            const img = document.getElementById('photoModalContent');
-            
-            if (photoSrc && photoSrc !== 'null' && photoSrc !== 'undefined') {
-                img.src = photoSrc;
-                img.alt = `Foto van ${riderName}`;
-                modal.classList.add('active');
-            }
-            
-            // Prevent event bubbling
-            if (event) event.stopPropagation();
-        }
-
-        function closePhotoModal() {
-            const modal = document.getElementById('photoModal');
-            modal.classList.remove('active');
-        }
-
-        // Close modal with escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closePhotoModal();
-            }
+      (function frame() {
+        confetti({
+          particleCount: 4,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+        confetti({
+          particleCount: 4,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
         });
 
-        // Auto-refresh every 5 seconds
-        setInterval(() => {
-            loadData();
-        }, 5000);
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+    }
 
-        // Initial load
-        window.addEventListener('load', function() {
-            loadData();
-        });
+    // Hook met sync-client.js
+    window.updateLeaderboard = function(data) {
+      renderLeaderboard(data);
+    }
+  </script>
 
-        // Refresh when page becomes visible (tab switching)
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                loadData();
-            }
-        });
-    </script>
-<script src="socket.io.min.js"></script>
-<script src="sync-client.js"></script>
+<script>
+  // Probeer automatisch fullscreen te activeren bij laden
+  document.addEventListener("DOMContentLoaded", () => {
+    const requestFS = () => {
+      const el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+      else if (el.msRequestFullscreen) el.msRequestFullscreen();
+    };
+
+    // Start fullscreen na korte delay zodat browser het toelaat
+    setTimeout(() => {
+      requestFS();
+    }, 500);
+
+    // Voeg keyboard escape optie toe
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+        else if (document.msExitFullscreen) document.msExitFullscreen();
+      }
+    });
+  });
+</script>
 </body>
 </html>
