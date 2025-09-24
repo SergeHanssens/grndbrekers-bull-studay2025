@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#222222">
     <link rel="manifest" href="manifest.json">
@@ -1187,10 +1187,22 @@
         <img class="photo-modal-content" id="photoModalContent" alt="Full size photo">
     </div>
 
-    <!-- Socket.IO and Sync Client -->
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="sync-client.js"></script>
-	<script src="sync-server.js"></script>
+	<!-- LAAD EERST socket.io-client LIB -->
+	<script src="socket.io.min.js"></script>
+	<!-- LAAD DAN de client-code die 'io' gebruikt -->
+	<script	src="sync-client.js"></script>
+
+	<!-- DEFINIEER wrapper functie voor de knop -->
+	<script>
+	  function startLeaderboardWithClear() {
+	    if (window.syncClient && typeof window.syncClient.startLeaderboard === 'function') {
+	      window.syncClient.startLeaderboard();
+	    } else {
+	      console.warn('SyncClient is not ready yet.');
+	    }
+	  }
+	</script>
+		
     <script>
         // Debug function
         function updateDebug(message) {
