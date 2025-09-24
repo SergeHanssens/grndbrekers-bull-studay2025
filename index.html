@@ -1190,7 +1190,7 @@
     <!-- Socket.IO and Sync Client -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="sync-client.js"></script>
-
+	<script src="sync-server.js"></script>
     <script>
         // Debug function
         function updateDebug(message) {
@@ -1321,75 +1321,72 @@
             clearRiderSelection();
         }
         window.startLeaderboardWithClear = function() {
-    console.log('🧹 Starting fresh - clearing LOCAL data only...');
+			console.log('🧹 Starting fresh - clearing LOCAL data only...');
+    
+			// 1. Clear local data
+			localStorage.clear();
+			window.riders = [];
+			window.leaderboardData = [];
 
-    // 1. Clear local data
-    localStorage.clear();
-    window.riders = [];
-    window.leaderboardData = [];
+			// 2. Schakel over naar het scherm "Voeg Rijders Toe"
+			showScreen('nameEntryScreen');
 
-    // 2. Schakel over naar het scherm "Voeg Rijders Toe"
-    showScreen('nameEntryScreen');
-
-    // 3. Vraag server status opnieuw op via sync-client.js
-    if (typeof window.startLeaderboard === 'function') {
-        try {
-            window.startLeaderboard();
-        } catch (error) {
-            console.error('❌ Fout bij starten leaderboard via sync-client:', error);
-        }
-    } else {
-        console.warn('⚠️ startLeaderboard() niet gevonden in sync-client.js');
-    }
-} catch (error) {
-                console.warn('⚠️ Could not clear localStorage:', error);
-            }
-            
-            // 2. Clear global variables
-            window.riders = [];
-            window.leaderboardData = [];
-            window.currentPhoto = null;
-            window.editingRiderIndex = null;
-            window.timeEditingRiderIndex = null;
-            window.duplicateName = '';
-            window.selectedPhotoForDuplicate = null;
-            
-            // 3. Update UI elements immediately
-            updateRidersList();
-            updateRidersForTimeEntry();
-            updateLeaderboard();
-            
-            // 4. Hide next button initially
-            const nextBtn = document.getElementById('nextToTimeBtn');
-            if (nextBtn) nextBtn.style.display = 'none';
-            
-            // 5. IMPORTANT: Navigate to the correct screen immediately
-            showScreen('nameEntryScreen');
-            
-            // 6. Debug check na navigatie
-            setTimeout(() => {
-                const photoSection = document.getElementById('photoPreview');
-                const nameField = document.getElementById('riderName');
-                const timesBtn = document.getElementById('nextToTimeBtn');
-                
-                console.log('🔍 Debug check na navigatie:');
-                console.log('- Photo section exists:', !!photoSection);
-                console.log('- Name field exists:', !!nameField);
-                console.log('- Times button exists:', !!timesBtn);
-                console.log('- Times button visible:', timesBtn ? timesBtn.style.display : 'not found');
-            }, 500);
-            
-            // 7. Notify sync client (if available) - this is optional
-            if (typeof startLeaderboard === 'function') {
-                try {
-                    startLeaderboard();
-                } catch (error) {
-                    console.log('ℹ️ Sync client not ready yet:', error);
-                }
-            }
-            
-            console.log('🚀 Started with fresh LOCAL data - navigated to name entry screen');
-        }
+			// 3. Vraag server status opnieuw op via sync-client.js
+			if (typeof window.startLeaderboard === 'function') {
+				try {
+					window.startLeaderboard();
+				} catch (error) {
+					console.error('❌ Fout bij starten leaderboard via sync-client:', error);
+				}
+			} else {
+				console.warn('⚠️ startLeaderboard() niet gevonden in sync-client.js');
+			}
+				
+			// 2. Clear global variables
+			window.riders = [];
+			window.leaderboardData = [];
+			window.currentPhoto = null;
+			window.editingRiderIndex = null;
+			window.timeEditingRiderIndex = null;
+			window.duplicateName = '';
+			window.selectedPhotoForDuplicate = null;
+			
+			// 3. Update UI elements immediately
+			updateRidersList();
+			updateRidersForTimeEntry();
+			updateLeaderboard();
+			
+			// 4. Hide next button initially
+			const nextBtn = document.getElementById('nextToTimeBtn');
+			if (nextBtn) nextBtn.style.display = 'none';
+			
+			// 5. IMPORTANT: Navigate to the correct screen immediately
+			showScreen('nameEntryScreen');
+			
+			// 6. Debug check na navigatie
+			setTimeout(() => {
+				const photoSection = document.getElementById('photoPreview');
+				const nameField = document.getElementById('riderName');
+				const timesBtn = document.getElementById('nextToTimeBtn');
+				
+				console.log('🔍 Debug check na navigatie:');
+				console.log('- Photo section exists:', !!photoSection);
+				console.log('- Name field exists:', !!nameField);
+				console.log('- Times button exists:', !!timesBtn);
+				console.log('- Times button visible:', timesBtn ? timesBtn.style.display : 'not found');
+			}, 500);
+			
+			// 7. Notify sync client (if available) - this is optional
+			if (typeof startLeaderboard === 'function') {
+				try {
+					startLeaderboard();
+				} catch (error) {
+					console.log('ℹ️ Sync client not ready yet:', error);
+				}
+			}
+			
+			console.log('🚀 Started with fresh LOCAL data - navigated to name entry screen');
+		}
 
         // FIXED: Reset server data function
         function resetAllServerData() {
